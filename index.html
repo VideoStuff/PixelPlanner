@@ -1,0 +1,2285 @@
+<title>Multiscreen Guide Builder</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: edit-suite workbench. Settings rail on the left, a dark "monitor" stage on the right, spec sheet and exports below it. */
+:root{
+  --bg:#ECEFF3; --panel:#FFFFFF; --ink:#141920; --muted:#5A6473; --line:#D3D9E1; --field:#F6F8FA;
+  --accent:#0A6C97; --accent-ink:#FFFFFF; --accent-soft:#DCEEF6; --danger:#B3261E;
+  --stage:#161A20; --stage-grid:#232932; --stage-ink:#EEF1F5; --stage-muted:#8E98A6; --stage-gap:#FFC34D; --stage-canvas:#9AA3AF;
+  --f-display:"Barlow Semi Condensed","Arial Narrow",Arial,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --r:6px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1115; --panel:#161A20; --ink:#E5E9EE; --muted:#8C96A4; --line:#29303A; --field:#1C2128;
+  --accent:#4DB8E4; --accent-ink:#06222F; --accent-soft:#163242; --danger:#F2867E;
+  --stage:#0A0C0F; --stage-grid:#181D24; --stage-ink:#EEF1F5; --stage-muted:#8E98A6; --stage-gap:#FFC34D; --stage-canvas:#9AA3AF; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1115; --panel:#161A20; --ink:#E5E9EE; --muted:#8C96A4; --line:#29303A; --field:#1C2128;
+  --accent:#4DB8E4; --accent-ink:#06222F; --accent-soft:#163242; --danger:#F2867E;
+  --stage:#0A0C0F; --stage-grid:#181D24; --stage-ink:#EEF1F5; --stage-muted:#8E98A6; --stage-gap:#FFC34D; --stage-canvas:#9AA3AF; color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 40px}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 20px;padding-block:20px 16px;max-width:1500px;margin:0 auto}
+.brand{display:flex;flex-direction:column;gap:2px;flex:1 1 320px;min-width:0}
+.eyebrow{font-family:var(--f-display);font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+#pname{font-family:var(--f-display);font-weight:700;font-size:30px;line-height:1.1;border:0;border-bottom:1px dashed transparent;background:transparent;padding:2px 0;width:100%;min-width:0}
+#pname:hover,#pname:focus{border-bottom-color:var(--line);outline:none}
+.hdr-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--panel)}
+.seg button{border:0;background:transparent;padding:6px 11px;cursor:pointer;font-size:13px;font-weight:600}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:var(--r);padding:7px 12px;cursor:pointer;font-weight:600;font-size:13px;white-space:nowrap}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{background:transparent;border-color:transparent;padding:5px 8px}
+.btn.ghost:hover{border-color:var(--line)}
+.btn.danger{color:var(--danger)}
+.btn.danger.arm{background:var(--danger);color:var(--panel);border-color:var(--danger)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+main.work{display:grid;grid-template-columns:minmax(0,410px) minmax(0,1fr);gap:20px;max-width:1500px;margin:0 auto;align-items:start}
+@media (max-width:900px){main.work{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:16px;min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;min-width:0}
+.panel h2{font-family:var(--f-display);font-weight:700;font-size:15px;letter-spacing:.08em;text-transform:uppercase;margin:0;text-wrap:balance}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.hint{color:var(--muted);font-size:13px;margin:0}
+
+label.f{display:flex;flex-direction:column;gap:3px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:0}
+.f input,.f select,select.sel{border:1px solid var(--line);background:var(--field);border-radius:5px;padding:6px 8px;font-size:14px;letter-spacing:0;text-transform:none;color:var(--ink);width:100%;min-width:0}
+.f input[inputmode=decimal]{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.f input:focus,.f select:focus{border-color:var(--accent);outline:none}
+.f input.bad{border-color:var(--danger)}
+/* Calculated values (LED wall pixel totals): read-only, not selectable */
+.f input.calc{background:transparent;border-style:dashed;color:var(--ink);-webkit-text-fill-color:var(--ink);opacity:1;cursor:default;user-select:none;-webkit-user-select:none;pointer-events:none}
+.row{display:grid;gap:8px}
+.r2{grid-template-columns:1fr 1fr}
+.r3{grid-template-columns:1fr 1fr 1fr}
+.x-sep{display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:6px}
+.x-sep>span{padding-bottom:7px;color:var(--muted)}
+
+.switch{display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:600}
+.switch input{width:38px;height:22px;appearance:none;background:var(--line);border-radius:11px;position:relative;cursor:pointer;flex:none;transition:background .15s}
+.switch input::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--panel);transition:left .15s}
+.switch input:checked{background:var(--accent)}
+.switch input:checked::after{left:19px}
+.match-body{display:grid;gap:10px;margin-top:12px}
+.match-body[aria-disabled="true"]{opacity:.45;pointer-events:none}
+.refline{font-size:13px;color:var(--muted);background:var(--field);border-radius:5px;padding:8px 10px}
+.refline b{color:var(--ink);font-weight:600}
+
+.count{display:flex;align-items:center;gap:6px}
+.count input{width:58px;text-align:center}
+.count .btn{padding:5px 10px}
+
+#list{display:flex;flex-direction:column;gap:10px}
+.card{border:1px solid var(--line);border-radius:8px;padding:12px;display:grid;gap:10px;background:var(--panel);transition:border-color .15s, box-shadow .15s}
+.card.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.card-head{display:flex;align-items:center;gap:8px}
+/* Color swatch: opens the color palette. */
+.swatch{width:20px;height:20px;border-radius:4px;flex:none;border:1px solid rgba(0,0,0,.3);cursor:pointer;padding:0}
+.swatch:hover{box-shadow:0 0 0 2px var(--line)}
+/* Color palette popover */
+.pal{position:fixed;z-index:80;width:244px;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:12px;box-shadow:0 12px 32px rgba(0,0,0,.4);display:grid;gap:8px}
+.pal .pal-h{font-family:var(--f-display);font-weight:700;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.pal .pal-row{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.pal .chip{aspect-ratio:1;width:100%;max-width:100%;border-radius:5px;border:1px solid rgba(0,0,0,.35);cursor:pointer;padding:0}
+.pal .chip:hover{transform:scale(1.08)}
+.pal .chip[aria-pressed="true"]{outline:2px solid var(--ink);outline-offset:2px}
+.pal .pal-none{font-size:12.5px;color:var(--muted)}
+.pal .pal-more{display:flex;gap:8px;align-items:center}
+.pal .pal-more input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.card-head input.lbl{flex:1;min-width:0;font-family:var(--f-display);font-weight:600;font-size:18px;border:0;border-bottom:1px dashed transparent;background:transparent;padding:1px 0}
+.card-head input.lbl:hover,.card-head input.lbl:focus{border-bottom-color:var(--line);outline:none}
+.refbadge{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--accent-soft);color:var(--accent);padding:2px 6px;border-radius:4px;white-space:nowrap}
+.derived{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;color:var(--muted)}
+.derived b{color:var(--ink);font-weight:500}
+.derived .match{color:var(--accent)}
+.card-tools{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+details.more summary{cursor:pointer;font-size:12px;color:var(--muted);font-weight:600;list-style:none}
+details.more summary::before{content:"▸ ";}
+details.more[open] summary::before{content:"▾ ";}
+details.more .row{margin-top:8px}
+.add-row{display:flex;gap:8px;margin-top:12px}
+.add-row select{flex:1}
+
+/* Stage */
+.stage-wrap{position:relative;background:var(--stage);border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+.stage-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--stage-grid)}
+.stage-bar .t{font-family:var(--f-display);font-weight:600;letter-spacing:.1em;text-transform:uppercase;font-size:12px;color:var(--stage-muted)}
+.stage-bar .tools{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.sbtn{border:1px solid var(--stage-grid);background:transparent;color:var(--stage-ink);border-radius:5px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer}
+.sbtn:hover{border-color:var(--stage-muted)}
+.sbtn[aria-pressed="true"]{background:var(--stage-ink);color:var(--stage)}
+.gapctl{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--stage-muted)}
+.gapctl input{width:64px;background:transparent;border:1px solid var(--stage-grid);border-radius:5px;color:var(--stage-ink);padding:4px 6px;font-family:var(--f-mono);font-size:12px}
+.gapctl input:focus{border-color:var(--stage-muted);outline:none}
+.gapctl input.bad{border-color:var(--danger)}
+#stage .gaplbl{cursor:pointer}
+#stage .gaplbl:hover rect{fill:var(--stage-grid)}
+.gappop{position:absolute;z-index:5;width:min(280px,calc(100% - 16px));background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:12px;display:grid;gap:10px;box-shadow:0 8px 28px rgba(0,0,0,.35)}
+.gp-title{font-family:var(--f-display);font-weight:700;font-size:15px;overflow-wrap:anywhere}
+.gp-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.gp-note{margin:0;font-size:12px;color:var(--muted)}
+.gp-actions{display:flex;gap:8px}
+#stage{display:block;width:100%;height:clamp(300px,52vh,560px);touch-action:none;cursor:default;user-select:none}
+/* Full screen layout: the stage fills the window (real fullscreen when the browser allows it). */
+.stage-wrap.max{position:fixed;inset:0;z-index:40;border-radius:0;border:0;display:flex;flex-direction:column;
+  padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
+.stage-wrap.max #stage{flex:1;height:auto;min-height:0}
+.stage-wrap:fullscreen{width:100%;height:100%}
+/* Right-click menu */
+.ctxmenu{position:absolute;z-index:8;min-width:220px;max-width:min(300px,calc(100% - 16px));max-height:calc(100% - 16px);overflow:auto;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px;box-shadow:0 10px 30px rgba(0,0,0,.4);display:grid;gap:1px}
+.ctxmenu .mh{font-family:var(--f-display);font-weight:700;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:6px 10px 4px}
+.ctxmenu button{all:unset;box-sizing:border-box;display:block;width:100%;padding:7px 10px;border-radius:5px;font-size:13.5px;cursor:pointer;color:var(--ink)}
+.ctxmenu button:hover,.ctxmenu button:focus-visible{background:var(--accent-soft);color:var(--ink)}
+.ctxmenu button.danger{color:var(--danger)}
+.ctxmenu hr{border:0;border-top:1px solid var(--line);margin:4px 2px}
+/* Edit panel inside the layout */
+.stage-ed{position:absolute;z-index:7;top:56px;right:max(10px,env(safe-area-inset-right,0px));width:min(360px,calc(100% - 20px));max-height:calc(100% - 66px);overflow:auto;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.stage-ed-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.stage-ed .card{border:0;box-shadow:none;padding:4px}
+#stage:focus{outline:none}
+#stage:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+#stage .scr{cursor:grab}
+#stage{cursor:move}
+#stage.panning{cursor:grabbing}
+.zoomctl{display:inline-flex;align-items:center;gap:4px}
+.alignctl{display:inline-flex;align-items:center;gap:4px}
+.alignlbl{font-size:12px;font-weight:600;color:var(--stage-muted);margin-right:2px}
+.zoomctl .sbtn{min-width:28px;padding:4px 8px;font-size:14px;line-height:1}
+.zpct{min-width:44px;text-align:center;font-family:var(--f-mono);font-size:12px;color:var(--stage-muted);font-variant-numeric:tabular-nums}
+#stage.dragging .scr{cursor:grabbing}
+.stage-foot{display:flex;flex-wrap:wrap;gap:6px 18px;padding:10px 12px;border-top:1px solid var(--stage-grid);color:var(--stage-muted);font-size:12.5px}
+.stage-foot b{color:var(--stage-ink);font-weight:500}
+
+/* Table */
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:760px}
+th{font-family:var(--f-display);font-weight:600;text-transform:uppercase;letter-spacing:.07em;font-size:11px;color:var(--muted);text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px;border-bottom:1px solid var(--line);white-space:nowrap;font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:12.5px}
+td.nm{font-family:var(--f-body);font-weight:600;font-size:13.5px}
+td.nm i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:7px;vertical-align:0}
+tr.sel td{background:var(--accent-soft)}
+tbody tr{cursor:pointer}
+tfoot td{font-weight:500;border-bottom:0}
+td.acc{color:var(--accent)}
+
+.exp{display:grid;gap:14px}
+.checks{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:14px}
+.checks label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.cdlg-back{position:fixed;inset:0;z-index:70;background:rgba(5,7,10,.6);display:flex;align-items:center;justify-content:center;
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.cdlg{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:18px;width:min(460px,100%);box-shadow:0 12px 40px rgba(0,0,0,.4);display:grid;gap:10px}
+.cdlg h3{margin:0;font-family:var(--f-display);font-size:20px;text-wrap:balance}
+.cdlg p{margin:0;color:var(--muted);font-size:14px}
+.cdlg-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px}
+/* Test pattern pop-up */
+.tp-back{position:fixed;inset:0;z-index:55;background:rgba(5,7,10,.72);display:flex;align-items:center;justify-content:center;
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.tp-box{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:10px;width:min(1180px,100%);max-height:100%;display:flex;flex-direction:column;overflow:hidden}
+.tp-body{display:grid;grid-template-columns:minmax(0,280px) minmax(0,1fr);gap:16px;padding:14px;overflow:auto;min-height:0}
+@media (max-width:760px){.tp-body{grid-template-columns:minmax(0,1fr)}}
+.tp-opts{display:grid;gap:10px;align-content:start}
+.tp-checks{display:grid;gap:8px;font-size:14px}
+.tp-checks label{display:flex;gap:8px;align-items:center;cursor:pointer}
+.tp-led{display:grid;gap:10px}
+.tp-border{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tp-px{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+.tp-px input{width:68px;border:1px solid var(--line);background:var(--field);border-radius:5px;padding:4px 6px;font-family:var(--f-mono);font-size:13px;color:var(--ink)}
+.tp-px input:disabled{opacity:.45}
+.tp-px input.bad{border-color:var(--danger)}
+.tp-prev{display:grid;gap:8px;min-width:0;align-content:start}
+.tp-stage{background:repeating-conic-gradient(var(--field) 0 25%, var(--panel) 0 50%) 0 0/16px 16px;border-radius:6px;padding:10px;display:flex;justify-content:center;align-items:center;min-height:200px}
+.tp-stage canvas{display:block;max-width:100%;max-height:62vh;width:auto;height:auto;box-shadow:0 2px 12px rgba(0,0,0,.3);image-rendering:auto}
+.explabels{display:grid;gap:8px}
+.lbl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
+.lbl-row{display:flex;align-items:center;gap:8px;min-width:0}
+.lbl-row i{width:12px;height:12px;border-radius:3px;flex:none}
+.lbl-row input{flex:1;min-width:0;border:1px solid var(--line);background:var(--field);border-radius:5px;padding:6px 8px;font-size:14px;color:var(--ink)}
+.lbl-row input:focus{border-color:var(--accent);outline:none}
+.exp-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+.exp-actions .f{flex:1 1 160px}
+
+/* Preview overlay */
+#ov{position:fixed;inset:0;background:rgba(5,7,10,.72);display:flex;align-items:center;justify-content:center;z-index:58;
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.ov-box{background:var(--panel);border-radius:10px;max-width:min(1100px,100%);max-height:100%;display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--line)}
+.ov-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.ov-head h3{margin:0;font-family:var(--f-display);font-size:18px;min-width:0;overflow-wrap:anywhere}
+.ov-body{overflow:auto;padding:14px;background:repeating-conic-gradient(var(--field) 0 25%, var(--panel) 0 50%) 0 0/16px 16px}
+.ov-body img{display:block;max-width:100%;height:auto;margin:0 auto;box-shadow:0 2px 12px rgba(0,0,0,.3)}
+.ov-foot{padding:10px 14px;font-size:13px;color:var(--muted);border-top:1px solid var(--line)}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:6px;font-size:13px;font-weight:600;z-index:60}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+@media (max-width:520px){.r3{grid-template-columns:1fr 1fr}#pname{font-size:24px}}
+</style>
+
+<header class="top">
+  <div class="brand">
+    <span class="eyebrow">Multiscreen content guide</span>
+    <input id="pname" aria-label="Guide name" value="Lobby media wall">
+  </div>
+  <div class="hdr-tools">
+    <div class="seg" role="group" aria-label="Physical units" id="units">
+      <button type="button" data-u="ft">ft</button><button type="button" data-u="in">in</button><button type="button" data-u="m">m</button>
+    </div>
+    <button class="btn" id="btnImport" type="button">Open .json</button>
+    <button class="btn" id="btnSaveJson" type="button">Save .json</button>
+    <button class="btn ghost" id="btnExample" type="button">Load example</button>
+    <input type="file" id="fileIn" accept=".json,application/json" hidden>
+  </div>
+</header>
+
+<main class="work">
+  <div class="col">
+    <section class="panel" aria-labelledby="h-match">
+      <label class="switch"><input type="checkbox" id="matchOn"><span id="h-match">Match pixel density</span></label>
+      <p class="hint" style="margin-top:6px">Resizes every screen's content resolution so one pixel covers the same physical area as on the reference screen. Content then lines up across screens without stretching.</p>
+      <div class="match-body" id="matchBody">
+        <div class="row r2">
+          <label class="f">Reference screen<select id="refSel"></select></label>
+          <label class="f">Round resolutions to<select id="roundSel">
+            <option value="1">Nearest pixel</option>
+            <option value="2">Even numbers</option>
+            <option value="4">Multiple of 4</option>
+            <option value="8">Multiple of 8</option>
+            <option value="16">Multiple of 16</option>
+          </select></label>
+        </div>
+        <div class="refline" id="refLine"></div>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-screens">
+      <div class="panel-head">
+        <h2 id="h-screens">Screens</h2>
+        <div class="count">
+          <button class="btn" type="button" id="cMinus" aria-label="Remove last screen">−</button>
+          <label class="f" style="flex-direction:row;align-items:center;gap:6px"><span class="sr" hidden>Number of screens</span><input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="count" min="1" max="24" aria-label="Number of screens"></label>
+          <button class="btn" type="button" id="cPlus" aria-label="Add a screen">+</button>
+        </div>
+      </div>
+      <div id="list"></div>
+      <div class="add-row">
+        <select class="sel" id="presetSel" aria-label="Screen preset"></select>
+        <button class="btn primary" type="button" id="btnAdd">Add screen</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="col">
+    <section class="stage-wrap" aria-label="Screen layout">
+      <div class="stage-bar">
+        <span class="t">Layout · drag screens to arrange · scroll to zoom · drag background to pan · click a gap to set it</span>
+        <div class="tools">
+          <button class="sbtn" type="button" id="snapBtn" aria-pressed="true">Snap edges</button>
+          <button class="sbtn" type="button" id="dimBtn" aria-pressed="false">Dimensions on all</button>
+          <label class="gapctl" title="Gap between screens. Used when arranging, snapping and adding screens.">Spacing <input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="gapIn" min="0" step="any" aria-label="Spacing between screens"> <span id="gapUnit"></span></label>
+          <span class="alignctl" role="group" aria-label="Line screens up in a row">
+            <span class="alignlbl">Row align</span>
+            <button class="sbtn" type="button" data-align="top" title="Line screens up in a row along their top edges">Top</button>
+            <button class="sbtn" type="button" data-align="middle" title="Line screens up in a row through their centres">Middle</button>
+            <button class="sbtn" type="button" data-align="bottom" title="Line screens up in a row along their bottom edges">Bottom</button>
+          </span>
+          <span class="zoomctl" role="group" aria-label="Zoom">
+            <button class="sbtn" type="button" id="zoomOut" aria-label="Zoom out" title="Zoom out (−)">−</button>
+            <span id="zoomPct" class="zpct" aria-live="polite">100%</span>
+            <button class="sbtn" type="button" id="zoomIn" aria-label="Zoom in" title="Zoom in (+)">+</button>
+          </span>
+          <button class="sbtn" type="button" id="fitBtn" title="Fit everything in view (0)">Fit view</button>
+          <button class="sbtn" type="button" id="fsBtn" aria-pressed="false" title="Full screen layout (F)">Full screen</button>
+        </div>
+      </div>
+      <svg id="stage" tabindex="0" aria-label="Screen layout canvas. Select a screen, then use arrow keys to move it or Delete to remove it. Right-click for more." xmlns="http://www.w3.org/2000/svg"></svg>
+      <div class="ctxmenu" id="ctxMenu" role="menu" hidden></div>
+      <aside class="stage-ed" id="stageEd" hidden aria-label="Edit screen">
+        <div class="stage-ed-head"><span class="eyebrow">Edit screen</span><button class="btn ghost" type="button" id="edClose" aria-label="Close editor">Close</button></div>
+        <div id="stageEdBody"></div>
+      </aside>
+      <div class="stage-foot" id="stageFoot"></div>
+      <form class="gappop" id="gapPop" hidden aria-labelledby="gpTitle">
+        <div class="gp-title" id="gpTitle">Gap</div>
+        <div class="gp-row">
+          <label class="f"><span>Gap (<span id="gpUnit">ft</span>)</span><input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="gpLen" step="any" min="0"></label>
+          <label class="f" id="gpPxWrap">Reference px<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="gpPx" step="1" min="0"></label>
+        </div>
+        <p class="gp-note" id="gpNote"></p>
+        <div class="gp-actions">
+          <button class="btn primary" type="submit">Set gap</button>
+          <button class="btn" type="button" id="gpCancel">Cancel</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Spec sheet</h2>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" type="button" id="btnCopy">Copy as CSV</button>
+          <button class="btn" type="button" id="btnCsv">Save .csv</button>
+        </div>
+      </div>
+      <div class="tbl-wrap"><table id="tbl"></table></div>
+    </section>
+
+    <section class="panel exp">
+      <div class="panel-head" style="margin-bottom:0"><h2>Export guide images</h2></div>
+      <p class="hint">PNG templates at exact pixel size. Drop them on a guide layer in your editor or motion graphics tool.</p>
+      <div class="explabels">
+        <span class="eyebrow">Screen labels</span>
+        <div id="expLabels" class="lbl-grid"></div>
+      </div>
+      <div class="checks">
+        <label><input type="checkbox" id="oLabels" checked> Labels &amp; specs</label>
+        <label><input type="checkbox" id="oCross" checked> Center circles</label>
+        <label><input type="checkbox" id="oSeams" checked> LED cabinet seams</label>
+        <label><input type="checkbox" id="oGaps" checked> Gap measurements</label>
+        <label><input type="checkbox" id="oGrid"> 100 px grid</label>
+      </div>
+      <div class="exp-actions">
+        <button class="btn primary" type="button" id="btnCanvas">Full canvas guide</button>
+        <button class="btn" type="button" id="btnLayout">Layout drawing</button>
+        <button class="btn" type="button" id="btnTP" aria-haspopup="dialog">Test pattern…</button>
+      </div>
+      <p class="hint" id="canvasNote"></p>
+    </section>
+  </div>
+</main>
+
+<div id="tp" class="tp-back" hidden>
+  <div class="tp-box" role="dialog" aria-modal="true" aria-labelledby="tpTitle">
+    <div class="ov-head">
+      <h3 id="tpTitle">Test pattern</h3>
+      <div style="display:flex;gap:8px">
+        <button class="btn primary" type="button" id="tpSave">Save PNG</button>
+        <button class="btn" type="button" id="tpClose">Close</button>
+      </div>
+    </div>
+    <div class="tp-body">
+      <div class="tp-opts">
+        <label class="f">Screen<select id="oneSel"></select></label>
+        <label class="f">Resolution<select id="oneRes"><option value="content">Content (matched)</option><option value="native">Native panel</option></select></label>
+        <label class="f">Pattern<select id="tpPat">
+          <option value="led">LED cabinet grid</option>
+          <option value="composite">Composite (grid, bars, gray steps)</option>
+          <option value="grid">Grid</option>
+          <option value="bars">Color bars</option>
+          <option value="gray">Grayscale ramp</option>
+          <option value="solid">Solid color</option>
+          <option value="checker">1-pixel checkerboard</option>
+        </select></label>
+        <div id="tpLedWrap" class="tp-led">
+          <label class="f">Cabinet colors<select id="tpLedPal">
+            <option value="twotone">Two colors (choose below)</option>
+            <option value="primaries">Primary colors</option>
+            <option value="grays">Grays</option>
+          </select></label>
+          <div class="row r2" id="tpLedABWrap">
+            <label class="f">Color A<input type="color" id="tpLedA"></label>
+            <label class="f">Color B<input type="color" id="tpLedB"></label>
+          </div>
+          <div class="tp-checks">
+            <label><input type="checkbox" id="tpLededge"> 1 px cabinet edge, a shade lighter or darker</label>
+            <label><input type="checkbox" id="tpLednums"> Cabinet numbers</label>
+          </div>
+        </div>
+        <label class="f" id="tpGridWrap">Grid spacing (px)<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="tpGrid" min="8" max="4000" step="1"></label>
+        <label class="f" id="tpSolidWrap">Color<input type="color" id="tpSolid"></label>
+        <label class="f" id="tpBgWrap">Background<select id="tpBg"><option value="#000000">Black</option><option value="#202020">Dark gray</option><option value="#808080">50% gray</option></select></label>
+        <div class="tp-checks">
+          <label><input type="checkbox" id="tpLabels"> Name and resolution</label>
+          <label id="tpCirclesWrap"><input type="checkbox" id="tpCircles"> Center circles and lines</label>
+          <div class="tp-border" id="tpBorderWrap"><label><input type="checkbox" id="tpBorder"> Edge border</label><label class="tp-px"><input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="tpBorderPx" min="1" max="500" step="1" aria-label="Edge border width in pixels"> px wide</label></div>
+          <label><input type="checkbox" id="tpDiag"> Diagonals</label>
+          <label id="tpSafeWrap"><input type="checkbox" id="tpSafe"> Action / title safe</label>
+        </div>
+      </div>
+      <div class="tp-prev">
+        <div class="tp-stage"><canvas id="tpCanvas"></canvas></div>
+        <p class="hint" id="tpInfo"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="ov" hidden>
+  <div class="ov-box" role="dialog" aria-modal="true" aria-labelledby="ovTitle">
+    <div class="ov-head">
+      <h3 id="ovTitle"></h3>
+      <div style="display:flex;gap:8px">
+        <button class="btn primary" type="button" id="ovSave">Save PNG</button>
+        <button class="btn" type="button" id="ovClose">Close</button>
+      </div>
+    </div>
+    <div class="ov-body"><img id="ovImg" alt="Guide preview"></div>
+    <div class="ov-foot" id="ovFoot"></div>
+  </div>
+</div>
+<div id="toast" hidden></div>
+<div id="confirmDlg" class="cdlg-back" hidden>
+  <div class="cdlg" role="alertdialog" aria-modal="true" aria-labelledby="cdlgTitle" aria-describedby="cdlgText">
+    <h3 id="cdlgTitle">Replace your layout with the example?</h3>
+    <p id="cdlgText">Loading the example replaces every screen, gap, label and setting in this guide. This can't be undone. Save a .json first if you want to keep your current layout.</p>
+    <div class="cdlg-actions">
+      <button class="btn" type="button" id="cdlgSaveFirst">Save .json first</button>
+      <span style="flex:1"></span>
+      <button class="btn" type="button" id="cdlgCancel">Cancel</button>
+      <button class="btn danger arm" type="button" id="cdlgOk">Load example</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+const $ = s => document.querySelector(s);
+// Number fields are text fields set up for numbers, so any keyboard (number pad included) can type into them.
+// Before anything else reads the value: a comma becomes a decimal point, and anything that isn't
+// part of a number is dropped. Registered first, in the capture phase, so every handler sees the clean value.
+document.addEventListener('input', e => {
+  const el = e.target;
+  if (!(el instanceof HTMLInputElement) || el.inputMode !== 'decimal') return;
+  const clean = el.value.replace(/,/g, '.').replace(/[^0-9.\-]/g, '').replace(/(?!^)-/g, '').replace(/(\..*)\./g, '$1');
+  if (clean !== el.value){
+    const pos = Math.max(0, (el.selectionStart || clean.length) - (el.value.length - clean.length));
+    el.value = clean;
+    try { el.setSelectionRange(pos, pos); } catch (err) {}
+  }
+}, true);
+const UNITS = { ft:{f:304.8,d:3}, in:{f:25.4,d:2}, m:{f:1000,d:3} };
+// Test pattern settings (kept with the guide).
+const TP_DEFAULT = {pat:'composite', grid:100, bg:'#000000', solid:'#FFFFFF', labels:true, circles:true, border:true, borderpx:1, diag:false, safe:false,
+  ledpal:'twotone', ledA:'#D02020', ledB:'#2050D0', lededge:true, lednums:true};
+const COLORS = ['#E6D200','#00C8D4','#2FCB4A','#D23FD6','#F0453A','#6E86FF','#F2F2F2','#FF9A1F'];
+// Projection screens, listed height × width in feet.
+const FT = 304.8;
+const PRESETS = [
+  {name:'Projection 9 × 16 ft · 1920×1080',      label:'Projection 9×16',     rw:1920, rh:1080, mode:'dims', pw:16 * FT,    ph:9 * FT},
+  {name:'Projection 12 × 21.33 ft · 1920×1080',  label:'Projection 12×21.33', rw:1920, rh:1080, mode:'dims', pw:21.33 * FT, ph:12 * FT},
+  {name:'Projection 10 × 30 ft · 3240×1080',     label:'Projection 10×30',    rw:3240, rh:1080, mode:'dims', pw:30 * FT,    ph:10 * FT},
+  {name:'Projection 15 × 45 ft · 3240×1080',     label:'Projection 15×45',    rw:3240, rh:1080, mode:'dims', pw:45 * FT,    ph:15 * FT},
+];
+// LED cabinets (P2.6). Half panels on 500×1000 walls are 500×500 mm.
+const CABS = {
+  '500x500':  {w:500, h:500,  px:192, py:192, name:'500 × 500 mm · P2.6'},
+  '500x1000': {w:500, h:1000, px:192, py:384, name:'500 × 1000 mm · P2.6'},
+};
+const HALF = {w:500, h:500, py:192};
+PRESETS.unshift(
+  {name:'LED cabinet · 500 × 500 mm · P2.6', label:'LED wall', mode:'led', led:{cab:'500x500', cols:6, rows:3, half:'none'}},
+  {name:'LED cabinet · 500 × 1000 mm · P2.6', label:'LED wall', mode:'led', led:{cab:'500x1000', cols:6, rows:2, half:'none'}},
+  // Custom panel: the panel's size (mm) and pixels start empty and are entered on the screen's card.
+  {name:'Custom LED panel (enter panel size)', label:'Custom LED wall', mode:'led', customLed:true,
+    led:{cab:'custom', cols:8, rows:4, half:'none', cw:500, ch:500, cpx:192, cpy:192}},
+);
+// The cabinet a screen is built from: one of the fixed ones, or its own custom panel.
+function cabOf(s){
+  if (s.led.cab === 'custom') return {w: s.led.cw, h: s.led.ch, px: s.led.cpx, py: s.led.cpy, name: 'Custom size'};
+  return CABS[s.led.cab] || CABS['500x500'];
+}
+function applyLed(s){
+  const c = cabOf(s), hr = (s.led.cab === '500x1000' && s.led.half !== 'none') ? 1 : 0;
+  s.pw = c.w * s.led.cols; s.ph = c.h * s.led.rows + HALF.h * hr;
+  s.rw = c.px * s.led.cols; s.rh = c.py * s.led.rows + HALF.py * hr;
+  s.diag = Math.hypot(s.pw, s.ph);
+}
+// Cabinet seam positions as fractions of the screen's width and height.
+function ledSeams(s){
+  const c = cabOf(s), xs = [], ys = [];
+  for (let i = 1; i < s.led.cols; i++) xs.push(i / s.led.cols);
+  const heights = Array(s.led.rows).fill(c.h);
+  if (s.led.cab === '500x1000' && s.led.half === 'top') heights.unshift(HALF.h);
+  if (s.led.cab === '500x1000' && s.led.half === 'bottom') heights.push(HALF.h);
+  let acc = 0; heights.slice(0, -1).forEach(h => { acc += h; ys.push(acc / s.ph); });
+  return {xs, ys};
+}
+function ledCount(s){
+  const n = s.led.cols * s.led.rows, h = (s.led.cab === '500x1000' && s.led.half !== 'none') ? s.led.cols : 0;
+  return `${n} cabinets (${s.led.cols} × ${s.led.rows})` + (h ? ` + ${h} half panels` : '');
+}
+let seq = 0;
+const nid = () => 's' + Date.now().toString(36) + (seq++);
+
+// Custom screens start with empty size boxes. Until all are filled in (listed in s.unset) the screen is a
+// placeholder: drawn dashed on the layout, left out of the canvas, gaps, spec sheet and exports.
+PRESETS.push({name:'Custom projection screen (enter size)', label:'Custom projection', custom:true});
+const ready = s => !(s.unset && s.unset.length);
+const live = () => S.screens.filter(ready);
+const un = (s, k) => !!(s.unset && s.unset.includes(k));
+function dims(s){
+  if (s.mode === 'diag'){ const r = Math.hypot(s.rw, s.rh); return {w:s.diag*s.rw/r, h:s.diag*s.rh/r}; }
+  return {w:s.pw, h:s.ph};
+}
+function mkScreen(p, extra){
+  const s = {id:nid(), label:p.label||'Screen', rw:p.rw||1, rh:p.rh||1, mode:p.mode, diag:(p.diagIn||0)*25.4, pw:p.pw||0, ph:p.ph||0, x:0, y:0, color:COLORS[0]};
+  if (p.custom){
+    // Placeholder size only sets how big the dashed outline is drawn; none of it is shown as a value.
+    Object.assign(s, {rw:1920, rh:1080, mode:'dims', pw:16 * FT, ph:9 * FT, diag:Math.hypot(16 * FT, 9 * FT), unset:['rw','rh','pw','ph']});
+    return Object.assign(s, extra || {});
+  }
+  if (p.mode === 'led'){
+    s.led = Object.assign({}, p.led);
+    if (p.customLed) s.unset = ['cw', 'ch', 'cpx', 'cpy']; // panel size and pixels start empty
+    applyLed(s); return Object.assign(s, extra||{});
+  }
+  if (s.mode === 'diag'){ const d = dims(s); s.pw = d.w; s.ph = d.h; } else s.diag = Math.hypot(s.pw, s.ph);
+  s.mode = 'dims'; // width × height is the default way to size a screen
+  return Object.assign(s, extra||{});
+}
+function example(){
+  // 14 × 8 wall of 500 × 500 mm P2.6 cabinets (7 × 4 m), flanked by 9 × 16 ft projection screens 10 ft away,
+  // centred vertically on the wall.
+  const GAP = 10 * FT;
+  const led = mkScreen({label:'Main LED wall', mode:'led', led:{cab:'500x500', cols:14, rows:8, half:'none'}}, {color:COLORS[0]});
+  const proj = {rw:1920, rh:1080, mode:'dims', pw:16 * FT, ph:9 * FT};
+  const l = mkScreen(Object.assign({label:'Left projection'}, proj), {color:COLORS[1]});
+  const r = mkScreen(Object.assign({label:'Right projection'}, proj), {color:COLORS[3]});
+  const ld = dims(led), pd = dims(l);
+  l.x = -GAP - pd.w; l.y = (ld.h - pd.h) / 2;
+  r.x = ld.w + GAP;  r.y = (ld.h - pd.h) / 2;
+  return {name:'Main stage', unit:'ft', match:{on:true, ref:led.id, round:2}, snap:true, allDims:false, gap:GAP,
+    exp:{labels:true, safe:true, cross:true, seams:true, gaps:true, thirds:false, grid:false}, tp: Object.assign({}, TP_DEFAULT), screens:[l, led, r], sel:led.id};
+}
+
+let S;
+try {
+  const raw = localStorage.getItem('mcg-state-v2');
+  if (raw) S = sanitize(JSON.parse(raw));
+  else {
+    // Carry work over from the first version, switched to feet and width × height.
+    const old = localStorage.getItem('mcg-state-v1');
+    if (old){ S = sanitize(JSON.parse(old)); if (S){ S.unit = 'ft'; S.screens.forEach(s => { const d = dims(s); s.pw = d.w; s.ph = d.h; s.mode = 'dims'; }); } }
+  }
+} catch(e) { S = null; }
+if (!S) S = example();
+
+function sanitize(o){
+  if (!o || !Array.isArray(o.screens) || !o.screens.length) return null;
+  const num = (v, d) => (typeof v === 'number' && isFinite(v)) ? v : d;
+  const screens = o.screens.slice(0, 24).map((s, i) => {
+    const t = {id: typeof s.id === 'string' ? s.id : nid(), label: String(s.label ?? 'Screen').slice(0, 80),
+      rw: Math.max(1, Math.round(num(s.rw, 1920))), rh: Math.max(1, Math.round(num(s.rh, 1080))),
+      mode: s.mode === 'dims' ? 'dims' : 'diag', diag: Math.max(1, num(s.diag, 1397)),
+      pw: Math.max(1, num(s.pw, 1000)), ph: Math.max(1, num(s.ph, 600)), x: num(s.x, 0), y: num(s.y, 0),
+      color: /^#[0-9a-f]{6}$/i.test(s.color) ? s.color : COLORS[i % COLORS.length],
+      ...(Array.isArray(s.unset) && s.unset.length ? {unset: s.unset.filter(k => ['rw','rh','pw','ph','diag','cw','ch','cpx','cpy'].includes(k))} : {})};
+    if (s.mode === 'led' && s.led && (CABS[s.led.cab] || s.led.cab === 'custom')){
+      const int = v => Math.max(1, Math.min(200, Math.round(num(v, 1))));
+      t.mode = 'led';
+      t.led = {cab: s.led.cab, cols: int(s.led.cols), rows: int(s.led.rows), half: ['top','bottom'].includes(s.led.half) ? s.led.half : 'none'};
+      if (s.led.cab === 'custom') Object.assign(t.led, {
+        cw: Math.max(1, num(s.led.cw, 500)), ch: Math.max(1, num(s.led.ch, 500)),
+        cpx: Math.max(1, Math.round(num(s.led.cpx, 192))), cpy: Math.max(1, Math.round(num(s.led.cpy, 192)))});
+      applyLed(t);
+    } else if (t.unset) t.unset = t.unset.filter(k => !['cw','ch','cpx','cpy'].includes(k));
+    return t;
+  });
+  const ids = screens.map(s => s.id);
+  const m = o.match || {};
+  return {name: String(o.name ?? 'Untitled guide').slice(0, 120), unit: UNITS[o.unit] ? o.unit : (o.unit === 'cm' || o.unit === 'mm' ? 'm' : 'ft'), // cm/mm guides from older versions open in meters
+    match: {on: m.on !== false, ref: ids.includes(m.ref) ? m.ref : ids[0], round: [1,2,4,8,16].includes(m.round) ? m.round : 2},
+    snap: o.snap !== false, allDims: !!o.allDims, gap: Math.max(0, num(o.gap, 0)),
+    exp: Object.assign({labels:true, safe:true, cross:true, seams:true, gaps:true, thirds:false, grid:false}, o.exp || {}),
+    tp: Object.assign({}, TP_DEFAULT, o.tp && typeof o.tp === 'object' ? o.tp : {}),
+    screens, sel: ids.includes(o.sel) ? o.sel : ids[0]};
+}
+
+let saveT;
+function save(){ clearTimeout(saveT); saveT = setTimeout(() => { try { localStorage.setItem('mcg-state-v2', JSON.stringify(S)); } catch(e) {} }, 250); }
+
+/* ---------- maths ---------- */
+const U = () => UNITS[S.unit];
+const trim = (v, d) => String(+(+v).toFixed(d));
+const fmtLen = mm => trim(mm / U().f, U().d) + ' ' + S.unit;
+const fmtLen2 = (a, b) => trim(a / U().f, U().d) + ' × ' + trim(b / U().f, U().d) + ' ' + S.unit;
+const gcd = (a, b) => b ? gcd(b, a % b) : a;
+function aspect(w, h){ const g = gcd(w, h), a = w/g, b = h/g; return (a <= 64 && b <= 64) ? a + ':' + b : (w/h).toFixed(2) + ':1'; }
+const getS = id => S.screens.find(s => s.id === id);
+function refScreen(){ const r = getS(S.match.ref); return (r && ready(r)) ? r : (live()[0] || S.screens[0]); }
+function density(s){ const d = dims(s); return {x: s.rw / d.w, y: s.rh / d.h}; } // px per mm
+function roundTo(v, step){ return Math.max(step, Math.round(v / step) * step); }
+function content(s){
+  if (!S.match.on) return {w:s.rw, h:s.rh};
+  const ref = refScreen();
+  if (s.id === ref.id) return {w:s.rw, h:s.rh};
+  const d = dims(s), rd = density(ref);
+  return {w: roundTo(d.w * rd.x, S.match.round), h: roundTo(d.h * rd.y, S.match.round)};
+}
+function ppiText(s){
+  const p = density(s); const x = p.x * 25.4, y = p.y * 25.4;
+  return Math.abs(x - y) / Math.max(x, y) > 0.01 ? 'H ' + x.toFixed(1) + ' / V ' + y.toFixed(1) + ' PPI' : ((x + y) / 2).toFixed(1) + ' PPI';
+}
+function bbox(list){
+  list = list || S.screens;
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const s of list){ const d = dims(s); x0 = Math.min(x0, s.x); y0 = Math.min(y0, s.y); x1 = Math.max(x1, s.x + d.w); y1 = Math.max(y1, s.y + d.h); }
+  return {x0, y0, x1, y1, w: x1 - x0, h: y1 - y0};
+}
+// Nearest screen directly to the left of / above `s` (sharing part of that edge, nothing in between,
+// touching or with a gap). Used to chain canvas positions so equal gaps get equal pixel counts.
+function neighbourBefore(s, dir){
+  const d = dims(s); let best = null;
+  for (const a of live()){
+    if (a === s) continue;
+    const ad = dims(a);
+    const ov = dir === 'h' ? Math.min(a.y + ad.h, s.y + d.h) - Math.max(a.y, s.y) : Math.min(a.x + ad.w, s.x + d.w) - Math.max(a.x, s.x);
+    const g = dir === 'h' ? s.x - (a.x + ad.w) : s.y - (a.y + ad.h);
+    const before = dir === 'h' ? a.x < s.x : a.y < s.y;
+    if (ov <= 1 || g < -0.5 || !before || (best && g >= best.g)) continue;
+    const blocked = g > 0.5 && (dir === 'h'
+      ? screenIn(a.x + ad.w, Math.max(a.y, s.y), g, ov, [a, s])
+      : screenIn(Math.max(a.x, s.x), a.y + ad.h, ov, g, [a, s]));
+    if (!blocked) best = {a, g: Math.max(0, g)};
+  }
+  return best;
+}
+// Content canvas: each screen sits at its neighbour's far edge plus the gap converted to pixels
+// (so the same physical gap is always the same pixel count); screens without a neighbour are
+// placed from their physical position.
+let inRender = false, _lay = null; // canvas layout cache, valid only during one redraw
+function canvasLayout(){
+  if (inRender && _lay) return _lay;
+  if (!live().length) return {W:0, H:0, items:[]};
+  const ref = refScreen(), rd = density(ref), b = bbox(live());
+  const memoX = new Map(), memoY = new Map();
+  const cx = s => {
+    if (memoX.has(s)) return memoX.get(s);
+    memoX.set(s, Math.round((s.x - b.x0) * rd.x)); // provisional, guards against loops
+    const n = neighbourBefore(s, 'h');
+    const v = n ? cx(n.a) + content(n.a).w + Math.round(n.g * rd.x) : Math.round((s.x - b.x0) * rd.x);
+    memoX.set(s, v); return v;
+  };
+  const cy = s => {
+    if (memoY.has(s)) return memoY.get(s);
+    memoY.set(s, Math.round((s.y - b.y0) * rd.y));
+    const n = neighbourBefore(s, 'v');
+    let v;
+    if (n) v = cy(n.a) + content(n.a).h + Math.round(n.g * rd.y);
+    else {
+      // Screens lined up along their bottoms or centres with a higher screen are placed from that screen's
+      // pixel edge, so aligned edges land on the very same pixel row even when content heights were rounded.
+      const d = dims(s), hs = content(s).h;
+      const higher = live().filter(o => o !== s && o.y < s.y - 0.5);
+      const bot = higher.find(o => Math.abs((o.y + dims(o).h) - (s.y + d.h)) < 0.5);
+      const mid = !bot && higher.find(o => Math.abs((o.y + dims(o).h / 2) - (s.y + d.h / 2)) < 0.5);
+      if (bot) v = cy(bot) + content(bot).h - hs;
+      else if (mid) v = cy(mid) + Math.round((content(mid).h - hs) / 2);
+      else v = Math.round((s.y - b.y0) * rd.y);
+    }
+    memoY.set(s, v); return v;
+  };
+  let items = live().map(s => { const c = content(s); return {s, x: cx(s), y: cy(s), w: c.w, h: c.h}; });
+  const mx = Math.min(...items.map(i => i.x)), my = Math.min(...items.map(i => i.y));
+  if (mx !== 0 || my !== 0) items = items.map(i => Object.assign(i, {x: i.x - mx, y: i.y - my}));
+  const W = Math.max(...items.map(i => i.x + i.w)), H = Math.max(...items.map(i => i.y + i.h));
+  const out = {W, H, items};
+  if (inRender) _lay = out; // reused for the rest of this redraw
+  return out;
+}
+
+/* ---------- screen list ---------- */
+const esc = t => String(t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const val = mm => trim(mm / U().f, U().d);
+
+function cardHTML(s){
+  const isRef = S.match.on && s.id === refScreen().id;
+  const isLed = s.mode === 'led';
+  const phys = isLed
+    ? `<label class="f">Cabinet<select data-k="cab">${Object.entries(CABS).map(([k, c]) => `<option value="${k}"${s.led.cab === k ? ' selected' : ''}>${c.name}</option>`).join('')}<option value="custom"${s.led.cab === 'custom' ? ' selected' : ''}>Custom size</option></select></label>`
+    : s.mode === 'diag'
+    ? `<label class="f">Diagonal (${S.unit})<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" step="any" min="0" data-k="diag" value="${un(s, 'diag') ? '' : val(s.diag)}" placeholder="${S.unit}"></label>`
+    : `<div class="x-sep"><label class="f">Width (${S.unit})<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" step="any" min="0" data-k="pw" value="${un(s, 'pw') ? '' : val(s.pw)}" placeholder="${S.unit}"></label><span>×</span><label class="f">Height (${S.unit})<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" step="any" min="0" data-k="ph" value="${un(s, 'ph') ? '' : val(s.ph)}" placeholder="${S.unit}"></label></div>`;
+  const custRow = isLed && s.led.cab === 'custom' ? `<div class="row r2">
+      <label class="f">Panel width (mm)<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" min="1" step="any" data-k="cw" value="${un(s, 'cw') ? '' : s.led.cw}" placeholder="mm"></label>
+      <label class="f">Panel height (mm)<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" min="1" step="any" data-k="ch" value="${un(s, 'ch') ? '' : s.led.ch}" placeholder="mm"></label>
+      <label class="f">Panel pixels across<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" min="1" step="1" data-k="cpx" value="${un(s, 'cpx') ? '' : s.led.cpx}" placeholder="px"></label>
+      <label class="f">Panel pixels down<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" min="1" step="1" data-k="cpy" value="${un(s, 'cpy') ? '' : s.led.cpy}" placeholder="px"></label>
+    </div>` : '';
+  const ledRow = custRow + (isLed ? `<div class="row ${s.led.cab === '500x1000' ? 'r3' : 'r2'}">
+      <label class="f">Columns<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" min="1" max="200" step="1" data-k="cols" value="${s.led.cols}"></label>
+      <label class="f">Rows<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" min="1" max="200" step="1" data-k="rows" value="${s.led.rows}"></label>
+      ${s.led.cab === '500x1000' ? `<label class="f">Half-panel row<select data-k="half">
+        <option value="none"${s.led.half === 'none' ? ' selected' : ''}>None</option>
+        <option value="top"${s.led.half === 'top' ? ' selected' : ''}>On top</option>
+        <option value="bottom"${s.led.half === 'bottom' ? ' selected' : ''}>On bottom</option></select></label>` : ''}
+    </div>` : '');
+  // Pixel size. For LED walls it's worked out from the panels, so it sits after Columns and Rows and can't be edited or selected.
+  const pxAttr = isLed ? ' disabled tabindex="-1" class="calc" title="Worked out from the panel pixels × columns and rows"' : '';
+  const pxRow = `<div class="x-sep"><label class="f">${isLed ? 'Total width (px)' : 'Width (px)'}<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" min="1" step="1" data-k="rw" value="${un(s, 'rw') || (isLed && !ready(s)) ? '' : s.rw}" placeholder="${isLed ? '—' : 'px'}"${pxAttr}></label><span>×</span><label class="f">${isLed ? 'Total height (px)' : 'Height (px)'}<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" min="1" step="1" data-k="rh" value="${un(s, 'rh') || (isLed && !ready(s)) ? '' : s.rh}" placeholder="${isLed ? '—' : 'px'}"${pxAttr}></label></div>`;
+  return `<article class="card${s.id === S.sel ? ' sel' : ''}" data-id="${s.id}">
+    <div class="card-head">
+      <button type="button" class="swatch" data-act="color" style="background:${s.color}" aria-label="Change color" aria-haspopup="dialog" title="Change color"></button>
+      <input class="lbl" data-k="label" value="${esc(s.label)}" aria-label="Screen label">
+      ${isRef ? '<span class="refbadge">Reference</span>' : ''}
+    </div>
+    ${isLed ? '' : pxRow}
+    <div class="row" style="grid-template-columns:minmax(0,130px) minmax(0,1fr)">
+      <label class="f">Size by<select data-k="mode"><option value="dims"${s.mode==='dims'?' selected':''}>Width × height</option><option value="diag"${s.mode==='diag'?' selected':''}>Diagonal</option><option value="led"${isLed?' selected':''}>LED cabinets</option></select></label>
+      ${phys}
+    </div>
+    ${ledRow}
+    ${isLed ? pxRow : ''}
+    <div class="derived" data-derived></div>
+    ${posHTML(s)}
+    <div class="card-tools">
+      ${S.match.on && !isRef && ready(s) ? '<button type="button" class="btn ghost" data-act="ref">Make reference</button>' : ''}
+      ${isLed ? '' : '<button type="button" class="btn ghost" data-act="rot">Rotate 90°</button>'}
+      <button type="button" class="btn ghost" data-act="dup">Duplicate</button>
+      <button type="button" class="btn ghost danger" data-act="del"${S.screens.length < 2 ? ' disabled' : ''}>Delete</button>
+    </div>
+  </article>`;
+}
+function derivedHTML(s){
+  if (!ready(s)) return s.mode === 'led'
+    ? '<span class="match">Enter the panel width and height in mm and its pixels across and down to place this wall.</span>'
+    : `<span class="match">Enter the width and height in pixels and in ${S.unit} to place this screen.</span>`;
+  const d = dims(s), c = content(s), pitch = d.w / s.rw;
+  let h = (s.mode === 'led' ? `<span><b>${ledCount(s)}</b></span>` : '') + `<span><b>${fmtLen2(d.w, d.h)}</b></span><span>${aspect(s.rw, s.rh)}</span><span>${ppiText(s)}</span><span>${pitch.toFixed(2)} mm pitch</span>`;
+  if (S.match.on && s.id !== refScreen().id) h += `<span class="match">Content <b class="match">${c.w} × ${c.h} px</b> · ×${(s.rw / c.w).toFixed(2)} to native</span>`;
+  return h;
+}
+function renderList(){
+  $('#list').innerHTML = S.screens.map(cardHTML).join('');
+  S.screens.forEach(updateDerived);
+  $('#count').value = S.screens.length;
+}
+// Run something that rebuilds the screen cards, then put the cursor back in the same box (same card,
+// same field, same caret spot) and keep the page scrolled where it was, so typing carries on.
+function keepPlace(fn){
+  const a = document.activeElement, card = a && a.closest && a.closest('.card');
+  const where = card ? {id: card.dataset.id, k: a.dataset.k, inEd: !!a.closest('#stageEd'), caret: a.selectionStart} : null;
+  const sx = window.scrollX, sy = window.scrollY, listTop = $('#list').scrollTop;
+  fn();
+  window.scrollTo(sx, sy); $('#list').scrollTop = listTop;
+  if (!where || !where.k) return;
+  const box = document.querySelector(`${where.inEd ? '#stageEd' : '#list'} .card[data-id="${where.id}"] [data-k="${where.k}"]`);
+  if (!box) return;
+  box.focus({preventScroll: true});
+  try { if (where.caret != null) box.setSelectionRange(where.caret, where.caret); } catch (e) {}
+}
+// A screen's card can appear twice: in the left pane and in the layout's edit panel. Update both.
+function updateDerived(s){
+  document.querySelectorAll(`.card[data-id="${s.id}"] [data-derived]`).forEach(el => { el.innerHTML = derivedHTML(s); });
+}
+// Position fields: canvas pixels (same as the spec sheet's Canvas X, Y) when matching is on,
+// otherwise physical units from the layout origin. Unfinished screens aren't on the canvas, so they use physical units.
+const posInPx = s => S.match.on && ready(s);
+function canvasPos(s){ const it = canvasLayout().items.find(i => i.s === s); return it ? {x: it.x, y: it.y} : {x: 0, y: 0}; }
+function posHTML(s){
+  if (posInPx(s)){
+    const p = canvasPos(s);
+    return `<details class="more"><summary>Position on canvas (px)</summary>
+      <div class="row r2"><label class="f">Left (px)<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" step="1" data-k="cx" value="${p.x}"></label><label class="f">Top (px)<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" step="1" data-k="cy" value="${p.y}"></label></div>
+    </details>`;
+  }
+  return `<details class="more"><summary>Position on layout</summary>
+      <div class="row r2"><label class="f">Left (${S.unit})<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" step="any" data-k="x" value="${val(s.x)}"></label><label class="f">Top (${S.unit})<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" step="any" data-k="y" value="${val(s.y)}"></label></div>
+    </details>`;
+}
+function syncPosInputs(s){
+  const p = posInPx(s) ? canvasPos(s) : null;
+  document.querySelectorAll(`.card[data-id="${s.id}"]`).forEach(card => {
+    for (const k of ['x','y']){ const i = card.querySelector(`[data-k="${k}"]`); if (i && document.activeElement !== i) i.value = val(s[k]); }
+    if (p) for (const k of ['x','y']){ const i = card.querySelector(`[data-k="c${k}"]`); if (i && document.activeElement !== i) i.value = p[k]; }
+  });
+}
+function selectScreen(id, scroll){
+  S.sel = id;
+  document.querySelectorAll('.card').forEach(c => c.classList.toggle('sel', c.dataset.id === id));
+  $('#oneSel').value = id;
+  renderStage(); renderTable();
+}
+
+// Card events are handled for both the left pane (#list) and the layout's edit panel (#stageEd).
+document.addEventListener('input', e => {
+  if (!e.target.closest('#list, #stageEd')) return;
+  const k = e.target.dataset.k; if (!k) return;
+  const s = getS(e.target.closest('.card').dataset.id); if (!s) return;
+  const t = e.target; let v = t.value;
+  if (k === 'color'){
+    if (!/^#[0-9a-f]{6}$/i.test(v)) return;
+    s.color = v.toUpperCase();
+    // Keep the other copy of this card's swatch in step without rebuilding it (its picker may be open).
+    document.querySelectorAll(`.card[data-id="${s.id}"] [data-k="color"]`).forEach(i => { if (i !== t) i.value = v; });
+    renderExpLabels(); renderStage(); renderTable(); save(); return;
+  }
+  if (k === 'label'){
+    s.label = v;
+    const el = document.querySelector(`#expLabels [data-lid="${s.id}"]`); if (el) el.value = v;
+    renderSelects(); renderStage(); renderTable(); save(); return;
+  }
+  if (k === 'mode'){
+    // Keep an unfinished screen's empty boxes empty when switching how its size is entered.
+    if (s.unset){
+      if (v === 'led') delete s.unset;
+      else {
+        const physUnset = s.unset.some(x => x === 'pw' || x === 'ph' || x === 'diag');
+        s.unset = s.unset.filter(x => x === 'rw' || x === 'rh').concat(physUnset ? (v === 'diag' ? ['diag'] : ['pw', 'ph']) : []);
+      }
+    }
+    const d = dims(s);
+    if (v === 'led'){
+      // Start from the nearest whole number of 500 × 500 cabinets, keeping the bottom edge in place.
+      const bottom = s.y + d.h;
+      s.led = s.led || {cab:'500x500', cols: Math.max(1, Math.round(d.w / 500)), rows: Math.max(1, Math.round(d.h / 500)), half:'none'};
+      s.mode = 'led'; applyLed(s); s.y = bottom - s.ph;
+    } else {
+      s.pw = d.w; s.ph = d.h; s.diag = Math.hypot(d.w, d.h); s.mode = v;
+    }
+    refreshAll(); maybeFit(); return;
+  }
+  if (k === 'cab' || k === 'half' || k === 'cols' || k === 'rows' || k === 'cw' || k === 'ch' || k === 'cpx' || k === 'cpy'){
+    let n = v;
+    if (k === 'cols' || k === 'rows'){
+      n = parseInt(v, 10);
+      const ok = n >= 1 && n <= 200; t.classList.toggle('bad', !ok); if (!ok) return;
+    }
+    if (k === 'cw' || k === 'ch' || k === 'cpx' || k === 'cpy'){
+      // Custom panel: size in mm, pixels as whole numbers.
+      n = (k === 'cpx' || k === 'cpy') ? parseInt(v, 10) : parseFloat(v);
+      const ok = isFinite(n) && n > 0 && n <= 100000 && ((k !== 'cpx' && k !== 'cpy') || String(v).trim() === String(n));
+      t.classList.toggle('bad', !ok); if (!ok) return;
+    }
+    if (k === 'cab' && v === 'custom' && !(s.led.cw > 0)){
+      // Start a custom panel from the cabinet it was before.
+      const prev = CABS[s.led.cab] || CABS['500x500'];
+      Object.assign(s.led, {cw: prev.w, ch: prev.h, cpx: prev.px, cpy: prev.py});
+    }
+    const bottom = s.y + s.ph;
+    s.led[k] = n; applyLed(s); s.y = bottom - s.ph;
+    if (s.unset && ['cw', 'ch', 'cpx', 'cpy'].includes(k)){
+      s.unset = s.unset.filter(x => x !== k);
+      // Panel fully described: the wall joins the layout. Rebuild without losing your place in the box you're typing in.
+      if (!s.unset.length){ delete s.unset; keepPlace(() => { refreshAll(); fitView(); renderStage(); }); return; }
+    }
+    if (k === 'cab'){ refreshAll(); }
+    else {
+      const card = t.closest('.card');
+      // Totals stay blank ("—") until the wall is fully described.
+      card.querySelector('[data-k="rw"]').value = ready(s) ? s.rw : ''; card.querySelector('[data-k="rh"]').value = ready(s) ? s.rh : '';
+      S.screens.forEach(syncPosInputs); S.screens.forEach(updateDerived); renderStage(); renderTable(); renderRef(); save();
+    }
+    maybeFit(); return;
+  }
+  if ((k === 'rw' || k === 'rh') && s.mode === 'led') return;
+  if (k === 'cx' || k === 'cy'){
+    // Move the screen by whole canvas pixels: the change in pixels, converted at the reference density.
+    const n = parseFloat(v), ok = isFinite(n) && n === Math.round(n);
+    t.classList.toggle('bad', !ok); if (!ok) return;
+    const rd = density(refScreen()), now = canvasPos(s);
+    if (k === 'cx') s.x += (n - now.x) / rd.x; else s.y += (n - now.y) / rd.y;
+    // A screen on the canvas's left or top edge defines where 0 is, so moving it shifts the origin instead.
+    const after = canvasPos(s)[k === 'cx' ? 'x' : 'y'];
+    if (after !== n) toast(`This screen is on the canvas's ${k === 'cx' ? 'left' : 'top'} edge, so it stays at 0; the other screens' positions shifted instead.`);
+    S.screens.forEach(syncPosInputs); maybeFit(); renderTable(); save(); return;
+  }
+  const n = parseFloat(v);
+  const ok = (k === 'x' || k === 'y') ? isFinite(n) : (isFinite(n) && n > 0);
+  t.classList.toggle('bad', !ok);
+  if (!ok) return;
+  if (s.unset){
+    // A size box was filled in; once all are, the screen joins the layout for real.
+    s.unset = s.unset.filter(x => x !== k);
+    if (!s.unset.length){
+      delete s.unset;
+      if (k === 'rw' || k === 'rh') s[k] = Math.max(1, Math.round(n)); else s[k] = n * U().f;
+      if (k === 'diag'){ const d = dims(s); s.pw = d.w; s.ph = d.h; }
+      if (k === 'pw' || k === 'ph') s.diag = Math.hypot(s.pw, s.ph);
+      renderSelects(); renderRef(); S.screens.forEach(updateDerived); fitView(); renderStage(); renderTable(); save(); return;
+    }
+  }
+  if (k === 'rw' || k === 'rh') s[k] = Math.max(1, Math.round(n));
+  else s[k] = n * U().f;
+  if (k === 'diag') { /* keep pw/ph in step for mode switch */ const d = dims(s); s.pw = d.w; s.ph = d.h; }
+  if (k === 'pw' || k === 'ph') s.diag = Math.hypot(s.pw, s.ph);
+  S.screens.forEach(updateDerived); S.screens.forEach(syncPosInputs);
+  maybeFit(); renderTable(); renderRef(); save();
+});
+document.addEventListener('focusin', e => {
+  if (!e.target.closest('#list, #stageEd')) return;
+  const c = e.target.closest('.card'); if (c && c.dataset.id !== S.sel) selectScreen(c.dataset.id, false);
+});
+document.addEventListener('click', e => {
+  if (!e.target.closest('#list, #stageEd')) return;
+  const b = e.target.closest('[data-act]');
+  const card = e.target.closest('.card'); if (!card) return;
+  const s = getS(card.dataset.id);
+  if (!b){ if (s.id !== S.sel) selectScreen(s.id, false); return; }
+  const act = b.dataset.act;
+  if (act === 'color'){ openPalette(s.id, b); return; }
+  if (act === 'ref'){ S.match.ref = s.id; refreshAll(); }
+  if (act === 'rot'){
+    const d = dims(s), cx = s.x + d.w / 2, cy = s.y + d.h / 2;
+    [s.rw, s.rh] = [s.rh, s.rw]; [s.pw, s.ph] = [s.ph, s.pw];
+    const n = dims(s); s.x = cx - n.w / 2; s.y = cy - n.h / 2;
+    refreshAll(); maybeFit();
+  }
+  if (act === 'dup'){
+    const d = dims(s), c = Object.assign({}, s, {id:nid(), label: s.label + ' copy', x: s.x + d.w + S.gap, color: nextColor()});
+    if (s.led) c.led = Object.assign({}, s.led);
+    if (s.unset) c.unset = s.unset.slice();
+    S.screens.splice(S.screens.indexOf(s) + 1, 0, c); S.sel = c.id; refreshAll(); fitView(); renderStage();
+  }
+  if (act === 'del'){
+    if (!b.classList.contains('arm')){ b.classList.add('arm'); b.textContent = 'Confirm delete'; setTimeout(() => { if (b.isConnected){ b.classList.remove('arm'); b.textContent = 'Delete'; } }, 3000); return; }
+    removeScreen(s.id);
+  }
+});
+function nextColor(){ const used = S.screens.map(s => s.color); return COLORS.find(c => !used.includes(c)) || COLORS[S.screens.length % COLORS.length]; }
+function removeScreen(id){
+  if (S.screens.length < 2) return;
+  S.screens = S.screens.filter(x => x.id !== id);
+  if (S.match.ref === id) S.match.ref = S.screens[0].id;
+  if (S.sel === id) S.sel = S.screens[0].id;
+  refreshAll(); fitView(); renderStage();
+}
+function addScreen(p){
+  const b = bbox(), s = mkScreen(p, {color: nextColor()});
+  const d = dims(s); s.x = b.x1 + S.gap; s.y = b.y1 - d.h;
+  S.screens.push(s); S.sel = s.id; refreshAll(); fitView(); renderStage();
+}
+function setCount(n){
+  n = Math.max(1, Math.min(24, Math.round(n) || 1));
+  while (S.screens.length < n){
+    const last = S.screens[S.screens.length - 1], label = last.label.replace(/ copy$/, '');
+    addScreen(last.mode === 'led' ? {label, mode:'led', led:Object.assign({}, last.led)}
+      : last.mode === 'diag' ? {label, rw:last.rw, rh:last.rh, mode:'diag', diagIn:last.diag/25.4}
+      : {label, rw:last.rw, rh:last.rh, mode:'dims', pw:last.pw, ph:last.ph});
+  }
+  while (S.screens.length > n) removeScreen(S.screens[S.screens.length - 1].id);
+  $('#count').value = S.screens.length;
+}
+$('#count').addEventListener('change', e => setCount(+e.target.value));
+$('#cPlus').addEventListener('click', () => setCount(S.screens.length + 1));
+$('#cMinus').addEventListener('click', () => setCount(S.screens.length - 1));
+$('#presetSel').innerHTML = PRESETS.map((p, i) => `<option value="${i}">${esc(p.name)}</option>`).join('');
+$('#btnAdd').addEventListener('click', () => addScreen(PRESETS[+$('#presetSel').value]));
+
+/* ---------- matching ---------- */
+function renderSelects(){
+  const opts = live().map(s => `<option value="${s.id}">${esc(s.label || 'Untitled')}</option>`).join('');
+  $('#refSel').innerHTML = opts; $('#refSel').value = refScreen().id;
+  // Test pattern target: one screen, or the full canvas when matching is on.
+  const keepCanvas = $('#oneSel').value === '__canvas';
+  const canvasOpt = S.match.on && live().length > 1 ? '<option value="__canvas">Full canvas (all screens)</option>' : '';
+  $('#oneSel').innerHTML = canvasOpt + opts;
+  $('#oneSel').value = keepCanvas && canvasOpt ? '__canvas' : S.sel;
+  if (!$('#oneSel').value && $('#oneSel').options.length) $('#oneSel').selectedIndex = canvasOpt ? 1 : 0;
+}
+function renderRef(){
+  const r = refScreen(), d = density(r);
+  $('#refLine').innerHTML = `Content density: <b>${(d.x * 25.4).toFixed(2)} px per inch</b> · ${(1 / d.x).toFixed(3)} mm per pixel, taken from <b>${esc(r.label)}</b>.`;
+  $('#matchBody').setAttribute('aria-disabled', S.match.on ? 'false' : 'true');
+  $('#oneRes').disabled = !S.match.on;
+  $('#btnCanvas').disabled = !S.match.on;
+  $('#canvasNote').textContent = S.match.on ? '' : 'Turn on pixel density matching to build a combined canvas guide. Test patterns use native resolution.';
+}
+$('#matchOn').addEventListener('change', e => { S.match.on = e.target.checked; refreshAll(); });
+$('#refSel').addEventListener('change', e => { S.match.ref = e.target.value; refreshAll(); });
+$('#roundSel').addEventListener('change', e => { S.match.round = +e.target.value; refreshAll(); });
+
+/* ---------- stage ---------- */
+const svg = $('#stage');
+let view = null, drag = null, pan = null;
+let zoomed = false; // true once the person zooms or pans; auto-fitting then stays out of the way
+function fitView(){
+  zoomed = false;
+  const b = bbox();
+  const pad = Math.max(b.w, b.h) * 0.09 + 1;
+  let x = b.x0 - pad, y = b.y0 - pad, w = b.w + pad * 2, h = b.h + pad * 2;
+  const ar = (svg.clientWidth || 800) / (svg.clientHeight || 450);
+  if (w / h < ar){ const nw = h * ar; x -= (nw - w) / 2; w = nw; } else { const nh = w / ar; y -= (nh - h) / 2; h = nh; }
+  view = [x, y, w, h];
+}
+function maybeFit(){
+  if (!view) return fitView();
+  const b = bbox(), [x, y, w, h] = view;
+  if (!zoomed && (b.x0 < x || b.y0 < y || b.x1 > x + w || b.y1 > y + h)) fitView();
+  renderStage();
+}
+// Zoom by factor f (>1 zooms in) keeping the layout point (px, py) fixed under the cursor.
+function zoomAt(f, px, py){
+  if (!view) fitView();
+  const [x, y, w, h] = view, b = bbox();
+  const maxW = Math.max(b.w, b.h, 1000) * 20, minW = 50; // 5 cm across at most zoomed in
+  const nw = Math.min(maxW, Math.max(minW, w / f)), k = nw / w;
+  view = [px - (px - x) * k, py - (py - y) * k, nw, h * k];
+  zoomed = true; scheduleStage();
+}
+function zoomCenter(f){ const [x, y, w, h] = view; zoomAt(f, x + w / 2, y + h / 2); }
+function updateZoomLabel(){
+  const el = $('#zoomPct'); if (!el || !view) return;
+  const b = bbox(), pad = Math.max(b.w, b.h) * 0.09 + 1;
+  const ar = (svg.clientWidth || 800) / (svg.clientHeight || 450);
+  const fitW = Math.max(b.w + pad * 2, (b.h + pad * 2) * ar);
+  el.textContent = Math.round(fitW / view[2] * 100) + '%';
+}
+function niceStep(span){
+  // Grid steps are round numbers in the unit being shown (1 ft, 2 ft, 5 ft…).
+  const f = U().f, steps = [0.1,0.25,0.5,1,2,5,10,25,50,100,250,500,1000,2500,5000,10000].map(v => v * f);
+  return steps.find(s => span / s <= 14) || steps[steps.length - 1];
+}
+// Width of the view that fits the whole layout; text is sized from this so it scales with the drawing.
+function fitWidth(){
+  const b = bbox(), pad = Math.max(b.w, b.h) * 0.09 + 1;
+  const ar = (svg.clientWidth || 800) / (svg.clientHeight || 450);
+  return Math.max(b.w + pad * 2, (b.h + pad * 2) * ar);
+}
+// Boxes already taken by labels in the current render, so later labels can steer around them.
+let placed = [];
+const boxHit = (a, b) => Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x) > 0 && Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y) > 0;
+const boxFree = (bx, skip, pad) => !screenIn(bx.x, bx.y, bx.w, bx.h, skip, pad) && !placed.some(p => boxHit(p, bx));
+// Dimensions drawn inside the screen: width along the inside of the bottom edge,
+// height along the inside of the right edge. Nothing reaches outside the screen.
+// `ut` sizes the text with the drawing; `us` (screen-size unit) decides when text is too small to show.
+function dimLines(s, d, c, ut, us){
+  const pxW = S.match.on ? c.w : s.rw, pxH = S.match.on ? c.h : s.rh;
+  const wTxt = `${fmtLen(d.w)} · ${pxW} px`, hTxt = `${fmtLen(d.h)} · ${pxH} px`;
+  const cx = s.x + d.w / 2, cy = s.y + d.h / 2;
+  const inset = Math.min(d.w, d.h) * 0.05, sw = Math.min(ut * 0.12, inset * 0.3);
+  const tk = Math.min(ut * 0.6, inset * 0.8);
+  // Text shrinks to fit the screen; hidden when it would be too small to read.
+  const fsW = Math.min(ut * 1.3, d.h * 0.07, d.w * 0.8 / (wTxt.length * 0.62));
+  const fsH = Math.min(ut * 1.3, d.w * 0.07, d.h * 0.8 / (hTxt.length * 0.62));
+  const yB = s.y + d.h - inset, xR = s.x + d.w - inset;
+  let out = `<g stroke="var(--stage-ink)" stroke-opacity=".75" stroke-width="${sw}" fill="none" pointer-events="none">
+      <line x1="${s.x}" y1="${yB}" x2="${s.x + d.w}" y2="${yB}"/>
+      <line x1="${s.x + sw}" y1="${yB - tk}" x2="${s.x + sw}" y2="${yB + tk}"/><line x1="${s.x + d.w - sw}" y1="${yB - tk}" x2="${s.x + d.w - sw}" y2="${yB + tk}"/>
+      <line x1="${xR}" y1="${s.y}" x2="${xR}" y2="${s.y + d.h}"/>
+      <line x1="${xR - tk}" y1="${s.y + sw}" x2="${xR + tk}" y2="${s.y + sw}"/><line x1="${xR - tk}" y1="${s.y + d.h - sw}" x2="${xR + tk}" y2="${s.y + d.h - sw}"/>
+    </g>`;
+  const pill = (w, h) => `<rect x="${-w / 2}" y="${-h / 2}" width="${w}" height="${h}" rx="${h / 2}" fill="var(--stage)" fill-opacity=".85"/>`;
+  if (fsW > us * 0.7){
+    const w = wTxt.length * fsW * 0.62 + fsW, h = fsW * 1.5;
+    // Sits just above the line, inside the screen.
+    out += `<g transform="translate(${cx} ${yB - h / 2 - tk * 0.6})" pointer-events="none">${pill(w, h)}<text y="${fsW * 0.36}" text-anchor="middle" font-size="${fsW}" fill="var(--stage-ink)" font-family="JetBrains Mono, monospace">${esc(wTxt)}</text></g>`;
+  }
+  if (fsH > us * 0.7){
+    const w = hTxt.length * fsH * 0.62 + fsH, h = fsH * 1.5;
+    // Sits just left of the line, inside the screen.
+    out += `<g transform="translate(${xR - h / 2 - tk * 0.6} ${cy}) rotate(-90)" pointer-events="none">${pill(w, h)}<text y="${fsH * 0.36}" text-anchor="middle" font-size="${fsH}" fill="var(--stage-ink)" font-family="JetBrains Mono, monospace">${esc(hTxt)}</text></g>`;
+  }
+  return out;
+}
+// Mouse moves can arrive several times per screen refresh. Batch them so the layout redraws at most once per frame.
+let rafId = 0;
+function scheduleStage(){
+  if (rafId) return;
+  rafId = requestAnimationFrame(() => { rafId = 0; renderStage(); if (drag) syncPosInputs(drag.s); });
+}
+function renderStage(){
+  if (!view) fitView();
+  if (rafId){ cancelAnimationFrame(rafId); rafId = 0; }
+  inRender = true; _lay = null;
+  try {
+  const [vx, vy, vw, vh] = view, u = vw / 100;
+  // Text unit: tied to the drawing, so labels shrink as you zoom out and grow as you zoom in
+  // (growth capped at 1.4× so close-ups stay tidy).
+  const ut = Math.min(fitWidth() / 100, u * 1.4);
+  placed = [];
+  svg.setAttribute('viewBox', `${vx} ${vy} ${vw} ${vh}`);
+  const step = niceStep(vw);
+  let grid = '';
+  for (let x = Math.ceil(vx / step) * step; x < vx + vw; x += step) grid += `<line x1="${x}" y1="${vy}" x2="${x}" y2="${vy + vh}"/>`;
+  for (let y = Math.ceil(vy / step) * step; y < vy + vh; y += step) grid += `<line x1="${vx}" y1="${y}" x2="${vx + vw}" y2="${y}"/>`;
+  let out = `<rect x="${vx}" y="${vy}" width="${vw}" height="${vh}" fill="var(--stage)"/><g stroke="var(--stage-grid)" stroke-width="${u * 0.08}">${grid}</g>`;
+  out += `<text x="${vx + u * 1.2}" y="${vy + vh - u * 1.2}" font-size="${u * 1.25}" fill="var(--stage-muted)" font-family="JetBrains Mono, monospace">grid ${esc(fmtLen(step))}</text>`;
+  if (S.match.on && live().length){
+    const b = bbox(live());
+    out += `<rect x="${b.x0}" y="${b.y0}" width="${b.w}" height="${b.h}" fill="var(--stage-canvas)" stroke="var(--stage-muted)" stroke-width="${u * 0.1}" stroke-dasharray="${u * 0.6} ${u * 0.6}"/>`;
+  }
+  const ref = refScreen();
+  const order = S.screens.filter(s => s.id !== S.sel).concat(S.screens.filter(s => s.id === S.sel));
+  const lay = S.match.on ? canvasLayout() : null;
+  for (const s of order){
+    if (!ready(s)){
+      // Unfinished custom screen: a dashed placeholder you can still drag into place.
+      const d = dims(s), sel = s.id === S.sel, label = s.label || 'Custom screen';
+      const fs = Math.min(ut * 2.2, d.w * 0.8 / (Math.max(label.length, 5) * 0.52), d.h / 5);
+      const fs2 = Math.min(fs * 0.6, d.w * 0.8 / (22 * 0.62));
+      out += `<g class="scr" data-sid="${s.id}">
+        <rect x="${s.x}" y="${s.y}" width="${d.w}" height="${d.h}" fill="var(--stage)" fill-opacity=".7" stroke="${s.color}" stroke-width="${u * (sel ? .4 : .22)}" stroke-dasharray="${u * 1.2} ${u * 0.8}"/>
+        <text x="${s.x + d.w / 2}" y="${s.y + d.h / 2 - fs2 * 0.3}" text-anchor="middle" font-size="${fs}" font-weight="700" fill="var(--stage-ink)" font-family="Barlow Semi Condensed, Arial Narrow, sans-serif">${esc(label)}</text>
+        <text x="${s.x + d.w / 2}" y="${s.y + d.h / 2 + fs2 * 1.6}" text-anchor="middle" font-size="${fs2}" fill="${s.color}" font-family="JetBrains Mono, monospace">Enter size in its card</text>
+      </g>`;
+      continue;
+    }
+    const d = dims(s), c = content(s), sel = s.id === S.sel;
+    const cx = s.x + d.w / 2, cy = s.y + d.h / 2;
+    const label = s.label || 'Untitled';
+    const lines = [
+      `${s.rw} × ${s.rh} px native`,
+      fmtLen2(d.w, d.h),
+    ];
+    if (S.match.on) lines.push(s.id === ref.id ? 'reference density' : `content ${c.w} × ${c.h} px`);
+    const maxLen = Math.max(...lines.map(l => l.length));
+    // When dimensions are drawn inside this screen, keep the name block clear of the bottom and right edges.
+    const dimsOn = sel || S.allDims, kw = dimsOn ? 0.74 : 0.9, kh = dimsOn ? 0.72 : 1, cyL = dimsOn ? cy - d.h * 0.05 : cy;
+    let fs = Math.min(ut * 2.4, d.w * kw / (Math.max(label.length, 5) * 0.52), d.h * kh / 4.6);
+    let fs2 = Math.min(fs * 0.6, d.w * kw / (maxLen * 0.62), ut * 1.5);
+    const showLines = fs2 > u * 0.75 && d.h * kh > fs * 1.2 + fs2 * 4.2;
+    const blockH = showLines ? fs + lines.length * fs2 * 1.45 : fs;
+    let t = `<text x="${cx}" y="${cyL - blockH / 2 + fs * 0.8}" text-anchor="middle" font-size="${fs}" font-weight="700" fill="var(--stage-ink)" font-family="Barlow Semi Condensed, Arial Narrow, sans-serif">${esc(label)}</text>`;
+    if (showLines) lines.forEach((l, i) => {
+      const accent = S.match.on && i === 2 && s.id !== ref.id;
+      t += `<text x="${cx}" y="${cyL - blockH / 2 + fs + fs2 * 1.45 * (i + 0.8)}" text-anchor="middle" font-size="${fs2}" fill="${accent ? s.color : 'var(--stage-muted)'}" font-family="JetBrains Mono, monospace">${esc(l)}</text>`;
+    });
+    if (lay){
+      const it = lay.items.find(i => i.s === s), cs = Math.min(ut * 1.1, d.h / 10);
+      if (cs > u * 0.6) t += `<text x="${s.x + ut * 0.8}" y="${s.y + cs * 1.6}" font-size="${cs}" fill="var(--stage-muted)" font-family="JetBrains Mono, monospace">@ ${it.x}, ${it.y}</text>`;
+    }
+    let seams = '';
+    if (s.mode === 'led'){
+      const sm = ledSeams(s);
+      seams = `<g stroke="${s.color}" stroke-opacity=".4" stroke-width="${u * .07}">` +
+        sm.xs.map(f => `<line x1="${s.x + d.w * f}" y1="${s.y}" x2="${s.x + d.w * f}" y2="${s.y + d.h}"/>`).join('') +
+        sm.ys.map(f => `<line x1="${s.x}" y1="${s.y + d.h * f}" x2="${s.x + d.w}" y2="${s.y + d.h * f}"/>`).join('') + '</g>';
+    }
+    out += `<g class="scr" data-sid="${s.id}">
+      <rect x="${s.x}" y="${s.y}" width="${d.w}" height="${d.h}" fill="var(--stage)"/>
+      <rect x="${s.x}" y="${s.y}" width="${d.w}" height="${d.h}" fill="${s.color}" fill-opacity="${sel ? .24 : .14}" stroke="${s.color}" stroke-width="${u * (sel ? .4 : .22)}"/>${seams}
+      ${sel ? `<rect x="${s.x - u * .7}" y="${s.y - u * .7}" width="${d.w + u * 1.4}" height="${d.h + u * 1.4}" fill="none" stroke="var(--stage-ink)" stroke-width="${u * .12}" stroke-dasharray="${u * .8} ${u * .5}"/>` : ''}
+      ${t}</g>`;
+    if (sel || S.allDims) out += dimLines(s, d, c, ut, u);
+  }
+  gapList = computeGaps();
+  out += gapList.map((g, i) => gapSVG(g, i, ut)).join('');
+  svg.innerHTML = out;
+  updateZoomLabel();
+  renderFoot();
+  } finally { inRender = false; _lay = null; }
+}
+/* ---------- gaps between screens ---------- */
+let gapList = [];
+// True when any screen (other than those in `skip`) overlaps the rectangle by more than a hair.
+function screenIn(x, y, w, h, skip, pad){
+  pad = pad || 0;
+  return live().some(c => {
+    if (skip && skip.includes(c)) return false;
+    const d = dims(c);
+    return Math.min(x + w, c.x + d.w + pad) - Math.max(x, c.x - pad) > 0.5 && Math.min(y + h, c.y + d.h + pad) - Math.max(y, c.y - pad) > 0.5;
+  });
+}
+// For each screen, find its nearest neighbour to the right and below that shares part of its edge,
+// counting a gap only when the space between them is empty (no third screen in between).
+function computeGaps(){
+  const out = [];
+  for (const a of live()){
+    const ad = dims(a); let h = null, v = null;
+    for (const b of live()){
+      if (b === a) continue;
+      const bd = dims(b);
+      const ylo = Math.max(a.y, b.y), yhi = Math.min(a.y + ad.h, b.y + bd.h), gh = b.x - (a.x + ad.w);
+      if (yhi - ylo > 1 && gh > 0.5 && (!h || gh < h.g) && !screenIn(a.x + ad.w, ylo, gh, yhi - ylo, [a, b]))
+        h = {dir:'h', a, b, g:gh, lo:ylo, hi:yhi};
+      const xlo = Math.max(a.x, b.x), xhi = Math.min(a.x + ad.w, b.x + bd.w), gv = b.y - (a.y + ad.h);
+      if (xhi - xlo > 1 && gv > 0.5 && (!v || gv < v.g) && !screenIn(xlo, a.y + ad.h, xhi - xlo, gv, [a, b]))
+        v = {dir:'v', a, b, g:gv, lo:xlo, hi:xhi};
+    }
+    if (h) out.push(h); if (v) out.push(v);
+  }
+  return out;
+}
+// Gap size in pixels at the reference screen's density.
+function gapPx(g){
+  // With matching on, read the gap straight off the content canvas so it agrees with the exported guide.
+  if (S.match.on){
+    const L = canvasLayout(), A = L.items.find(i => i.s === g.a), B = L.items.find(i => i.s === g.b);
+    if (A && B) return g.dir === 'h' ? B.x - (A.x + A.w) : B.y - (A.y + A.h);
+  }
+  const rd = density(refScreen()); return Math.round(g.g * (g.dir === 'h' ? rd.x : rd.y));
+}
+function gapSVG(g, i, u){
+  const ad = dims(g.a), fs = u * 1.3, tk = u * 0.6, sw = u * 0.12;
+  const txt = S.match.on ? `${fmtLen(g.g)} · ${gapPx(g)} px` : fmtLen(g.g);
+  const tw = txt.length * fs * 0.62 + fs * 1.2, th = fs * 1.7, pad = u * 0.3;
+  let line, cx, cy;
+  // Candidate spots for the label, best first. The first one that touches no screen wins.
+  const spots = [];
+  if (g.dir === 'h'){
+    const x1 = g.a.x + ad.w, x2 = g.b.x; cy = (g.lo + g.hi) / 2; cx = (x1 + x2) / 2;
+    line = `<line x1="${x1}" y1="${cy}" x2="${x2}" y2="${cy}"/><line x1="${x1}" y1="${cy - tk}" x2="${x1}" y2="${cy + tk}"/><line x1="${x2}" y1="${cy - tk}" x2="${x2}" y2="${cy + tk}"/>`;
+    spots.push({x:cx, y:cy, rot:false}, {x:cx, y:cy, rot:true});
+    const top = Math.min(g.a.y, g.b.y), bot = Math.max(g.a.y + ad.h, g.b.y + dims(g.b).h);
+    for (let k = 0; k < 12; k++){
+      spots.push({x:cx, y:top - th / 2 - u * 1.2 - k * th * 1.3, rot:false});
+      spots.push({x:cx, y:bot + th / 2 + u * 1.2 + k * th * 1.3, rot:false});
+    }
+  } else {
+    const y1 = g.a.y + ad.h, y2 = g.b.y; cx = (g.lo + g.hi) / 2; cy = (y1 + y2) / 2;
+    line = `<line x1="${cx}" y1="${y1}" x2="${cx}" y2="${y2}"/><line x1="${cx - tk}" y1="${y1}" x2="${cx + tk}" y2="${y1}"/><line x1="${cx - tk}" y1="${y2}" x2="${cx + tk}" y2="${y2}"/>`;
+    spots.push({x:cx, y:cy, rot:false});
+    const left = Math.min(g.a.x, g.b.x), right = Math.max(g.a.x + ad.w, g.b.x + dims(g.b).w);
+    for (let k = 0; k < 12; k++){
+      spots.push({x:right + tw / 2 + u * 1.2 + k * tw * 1.1, y:cy, rot:false});
+      spots.push({x:left - tw / 2 - u * 1.2 - k * tw * 1.1, y:cy, rot:false});
+    }
+  }
+  const box = s => s.rot ? {w:th, h:tw} : {w:tw, h:th};
+  const spot = spots.find(s => { const b = box(s); return boxFree({x: s.x - b.w / 2, y: s.y - b.h / 2, w: b.w, h: b.h}, null, pad); }) || spots[2] || spots[0];
+  const b = box(spot);
+  placed.push({x: spot.x - b.w / 2, y: spot.y - b.h / 2, w: b.w, h: b.h});
+  // When the label sits away from the gap, a dashed leader joins them.
+  const moved = Math.abs(spot.x - cx) > 0.5 || Math.abs(spot.y - cy) > 0.5;
+  const lead = moved ? `<line x1="${cx}" y1="${cy}" x2="${spot.x}" y2="${spot.y}" stroke-dasharray="${u * 0.5} ${u * 0.4}"/>` : '';
+  return `<g stroke="var(--stage-gap)" stroke-width="${sw}" pointer-events="none">${line}${lead}</g>
+    <g class="gaplbl" data-gap="${i}" role="button" aria-label="Gap ${esc(txt)}. Click to set.">
+      <rect x="${spot.x - b.w / 2}" y="${spot.y - b.h / 2}" width="${b.w}" height="${b.h}" rx="${th / 2}" fill="var(--stage)" stroke="var(--stage-gap)" stroke-width="${sw}"/>
+      <text ${spot.rot ? `transform="translate(${spot.x} ${spot.y}) rotate(-90)" x="0" y="${fs * 0.36}"` : `x="${spot.x}" y="${spot.y + fs * 0.36}"`} text-anchor="middle" font-size="${fs}" fill="var(--stage-gap)" font-family="JetBrains Mono, monospace">${esc(txt)}</text>
+    </g>`;
+}
+function renderFoot(){
+  const b = bbox();
+  let h = `<span>Layout span <b>${fmtLen2(b.w, b.h)}</b></span><span>Screens <b>${S.screens.length}</b></span>`;
+  if (S.match.on){ const L = canvasLayout(); h = `<span>Content canvas <b>${L.W} × ${L.H} px</b></span>` + h + `<span>Reference <b>${esc(refScreen().label)}</b></span>`; }
+  else h += `<span>Density matching off</span>`;
+  $('#stageFoot').innerHTML = h;
+}
+function svgPt(e){ const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); }
+function snap(s){
+  if (!S.snap) return;
+  const d = dims(s), th = view[2] * 0.012;
+  let bx = null, by = null;
+  for (const o of S.screens){
+    if (o === s) continue;
+    const od = dims(o);
+    for (const [a, t] of [[s.x, o.x], [s.x, o.x + od.w], [s.x, o.x + od.w + S.gap], [s.x + d.w, o.x - S.gap], [s.x + d.w, o.x], [s.x + d.w, o.x + od.w], [s.x + d.w / 2, o.x + od.w / 2]]){ const df = t - a; if (Math.abs(df) < th && (bx === null || Math.abs(df) < Math.abs(bx))) bx = df; }
+    for (const [a, t] of [[s.y, o.y], [s.y, o.y + od.h], [s.y, o.y + od.h + S.gap], [s.y + d.h, o.y - S.gap], [s.y + d.h, o.y], [s.y + d.h, o.y + od.h], [s.y + d.h / 2, o.y + od.h / 2]]){ const df = t - a; if (Math.abs(df) < th && (by === null || Math.abs(df) < Math.abs(by))) by = df; }
+  }
+  if (bx !== null) s.x += bx; if (by !== null) s.y += by;
+}
+/* Gap editor: opened by clicking a gap label on the layout. */
+const pop = $('#gapPop');
+let gapEdit = null; // {dir, aId, bId}
+function openGapEditor(g, el){
+  gapEdit = {dir: g.dir, aId: g.a.id, bId: g.b.id};
+  const rd = density(refScreen()), per = g.dir === 'h' ? rd.x : rd.y;
+  gapEdit.per = per;
+  $('#gpTitle').textContent = `${g.a.label || 'Untitled'} ${g.dir === 'h' ? '→' : '↓'} ${g.b.label || 'Untitled'}`;
+  $('#gpUnit').textContent = S.unit;
+  $('#gpLen').value = val(g.g); $('#gpPx').value = Math.round(g.g * per);
+  $('#gpNote').textContent = `Moves ${g.b.label || 'the screen'} and everything ${g.dir === 'h' ? 'to its right' : 'below it'}.` + (S.match.on ? ` Pixels are at ${refScreen().label}'s density.` : '');
+  $('#gpPxWrap').hidden = !S.match.on; $('#gapPop .gp-row').style.gridTemplateColumns = S.match.on ? '' : '1fr';
+  pop.hidden = false;
+  const wrap = pop.parentElement.getBoundingClientRect(), r = el.getBoundingClientRect();
+  const pw = pop.offsetWidth, ph = pop.offsetHeight;
+  let left = r.left - wrap.left + r.width / 2 - pw / 2;
+  left = Math.max(8, Math.min(left, wrap.width - pw - 8));
+  let top = r.bottom - wrap.top + 8;
+  if (top + ph > wrap.height - 8) top = Math.max(8, r.top - wrap.top - ph - 8);
+  pop.style.left = left + 'px'; pop.style.top = top + 'px';
+  $('#gpLen').focus({preventScroll:true}); $('#gpLen').select();
+}
+function closeGapEditor(){ pop.hidden = true; gapEdit = null; }
+$('#gpLen').addEventListener('input', e => { if (gapEdit) gapEdit.typed = 'len'; const n = parseFloat(e.target.value); if (gapEdit && isFinite(n) && n >= 0) $('#gpPx').value = Math.round(n * U().f * gapEdit.per); });
+$('#gpPx').addEventListener('input', e => { if (gapEdit) gapEdit.typed = 'px'; const n = parseFloat(e.target.value); if (gapEdit && isFinite(n) && n >= 0) $('#gpLen').value = trim(n / gapEdit.per / U().f, U().d + 1); });
+$('#gpCancel').addEventListener('click', closeGapEditor);
+pop.addEventListener('keydown', e => { if (e.key === 'Escape'){ e.stopPropagation(); closeGapEditor(); svg.focus({preventScroll:true}); } });
+pop.addEventListener('submit', e => {
+  e.preventDefault(); if (!gapEdit) return;
+  const a = getS(gapEdit.aId), b = getS(gapEdit.bId); if (!a || !b) return closeGapEditor();
+  // Use whichever box was typed in last, so a whole-pixel gap comes out exact.
+  const px = parseFloat($('#gpPx').value), len = parseFloat($('#gpLen').value);
+  const byPx = S.match.on && gapEdit.typed === 'px' && isFinite(px);
+  if (byPx ? (px < 0 || px !== Math.round(px)) : !(isFinite(len) && len >= 0)){ toast(byPx ? 'Enter a whole number of pixels, 0 or more.' : 'Enter a gap of 0 or more.'); return; }
+  const ad = dims(a), now = gapEdit.dir === 'h' ? b.x - (a.x + ad.w) : b.y - (a.y + ad.h);
+  // The canvas turns each gap into pixels on its own (gap × density, rounded), so typed pixels map back exactly.
+  const target = byPx ? px / gapEdit.per : len * U().f, delta = target - now;
+  if (gapEdit.dir === 'h'){ const edge = b.x; for (const o of S.screens) if (o !== a && o.x >= edge - 0.5) o.x += delta; }
+  else { const edge = b.y; for (const o of S.screens) if (o !== a && o.y >= edge - 0.5) o.y += delta; }
+  S.screens.forEach(syncPosInputs);
+  closeGapEditor(); maybeFit(); renderTable(); save();
+  toast('Gap set to ' + fmtLen(target));
+});
+
+svg.addEventListener('pointerdown', e => {
+  if (e.button !== 0) return; // right-click opens the menu instead
+  const gl = e.target.closest('[data-gap]');
+  if (gl){ e.preventDefault(); const g = gapList[+gl.dataset.gap]; if (g) openGapEditor(g, gl); return; }
+  if (!pop.hidden) closeGapEditor();
+  const g = e.target.closest('[data-sid]');
+  if (!g){
+    // Dragging the empty background pans the view.
+    pan = {cx: e.clientX, cy: e.clientY, v: view.slice(), k: 1 / svg.getScreenCTM().a};
+    try { svg.setPointerCapture(e.pointerId); } catch (err) {} svg.classList.add('panning'); svg.focus({preventScroll:true});
+    return;
+  }
+  const s = getS(g.dataset.sid), p = svgPt(e);
+  if (S.sel !== s.id){ S.sel = s.id; document.querySelectorAll('.card').forEach(c => c.classList.toggle('sel', c.dataset.id === s.id)); $('#oneSel').value = s.id; }
+  drag = {s, px: p.x, py: p.y, ox: s.x, oy: s.y, moved: false};
+  try { svg.setPointerCapture(e.pointerId); } catch (err) {} svg.classList.add('dragging'); svg.focus({preventScroll:true});
+  renderStage(); renderTable();
+});
+svg.addEventListener('pointermove', e => {
+  if (pan){
+    const dx = (e.clientX - pan.cx) * pan.k, dy = (e.clientY - pan.cy) * pan.k;
+    if (Math.abs(dx) + Math.abs(dy) > 0){ view = [pan.v[0] - dx, pan.v[1] - dy, pan.v[2], pan.v[3]]; zoomed = true; scheduleStage(); }
+    return;
+  }
+  if (!drag) return;
+  const p = svgPt(e);
+  drag.s.x = drag.ox + (p.x - drag.px); drag.s.y = drag.oy + (p.y - drag.py); drag.moved = true;
+  snap(drag.s); scheduleStage();
+});
+function endDrag(){
+  if (pan){ pan = null; svg.classList.remove('panning'); return; }
+  if (!drag) return;
+  const s = drag.s, moved = drag.moved; drag = null; svg.classList.remove('dragging');
+  S.screens.forEach(syncPosInputs); // canvas pixel positions of other screens can shift too
+  if (moved){ maybeFit(); renderTable(); save(); }
+}
+svg.addEventListener('pointerup', endDrag); svg.addEventListener('pointercancel', endDrag);
+svg.addEventListener('wheel', e => {
+  e.preventDefault();
+  const p = svgPt(e);
+  // Trackpad pinch arrives as ctrl+wheel with small deltas; mouse wheels send larger steps.
+  const f = Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0015));
+  zoomAt(f, p.x, p.y);
+}, {passive:false});
+svg.addEventListener('keydown', e => {
+  if (e.key === '+' || e.key === '='){ e.preventDefault(); zoomCenter(1.25); return; }
+  if (e.key === '-' || e.key === '_'){ e.preventDefault(); zoomCenter(0.8); return; }
+  if (e.key === '0'){ e.preventDefault(); fitView(); renderStage(); updateZoomLabel(); return; }
+  if (e.key === 'Delete' || e.key === 'Backspace'){
+    e.preventDefault();
+    const s = getS(S.sel); if (!s) return;
+    if (S.screens.length < 2){ toast('A guide needs at least one screen.'); return; }
+    removeScreen(s.id); toast('Deleted ' + (s.label || 'screen'));
+    svg.focus({preventScroll:true}); return;
+  }
+  const map = {ArrowLeft:[-1,0], ArrowRight:[1,0], ArrowUp:[0,-1], ArrowDown:[0,1]};
+  const m = map[e.key]; const s = getS(S.sel); if (!m || !s) return;
+  e.preventDefault();
+  const step = S.unit === 'm' ? (e.shiftKey ? 100 : 10) : 25.4 * (e.shiftKey ? 12 : 1); // 1 cm / 10 cm in meters, 1 in / 1 ft otherwise
+  s.x += m[0] * step; s.y += m[1] * step;
+  S.screens.forEach(syncPosInputs); maybeFit(); renderTable(); save();
+});
+$('#fitBtn').addEventListener('click', () => { fitView(); renderStage(); updateZoomLabel(); });
+$('#zoomIn').addEventListener('click', () => zoomCenter(1.25));
+$('#zoomOut').addEventListener('click', () => zoomCenter(0.8));
+
+/* ---------- full screen layout ---------- */
+const stageWrap = svg.closest('.stage-wrap');
+function setFull(on){
+  stageWrap.classList.toggle('max', on);
+  $('#fsBtn').setAttribute('aria-pressed', on); $('#fsBtn').textContent = on ? 'Exit full screen' : 'Full screen';
+  document.body.style.overflow = on ? 'hidden' : '';
+  // Real fullscreen where the browser allows it; the window-filling layout works either way.
+  try {
+    if (on && stageWrap.requestFullscreen && !document.fullscreenElement) stageWrap.requestFullscreen().catch(() => {});
+    if (!on && document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  } catch (e) {}
+  requestAnimationFrame(() => { if (!zoomed) fitView(); renderStage(); });
+}
+$('#fsBtn').addEventListener('click', () => setFull(!stageWrap.classList.contains('max')));
+document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && stageWrap.classList.contains('max')) setFull(false); });
+
+/* ---------- right-click menu ---------- */
+const ctx = $('#ctxMenu');
+function closeCtx(){ ctx.hidden = true; ctx.innerHTML = ''; }
+function openCtx(e, items){
+  ctx.innerHTML = items.map((it, i) => it.head ? `<div class="mh">${esc(it.head)}</div>` : it.sep ? '<hr>'
+    : `<button type="button" role="menuitem" data-i="${i}"${it.danger ? ' class="danger"' : ''}>${esc(it.label)}</button>`).join('');
+  ctx._items = items; ctx.hidden = false;
+  const r = stageWrap.getBoundingClientRect(), mw = ctx.offsetWidth, mh = ctx.offsetHeight;
+  ctx.style.left = Math.max(8, Math.min(e.clientX - r.left, r.width - mw - 8)) + 'px';
+  ctx.style.top = Math.max(8, Math.min(e.clientY - r.top, r.height - mh - 8)) + 'px';
+  const first = ctx.querySelector('button'); if (first) first.focus({preventScroll:true});
+}
+ctx.addEventListener('click', e => {
+  const b = e.target.closest('button[data-i]'); if (!b) return;
+  const it = ctx._items[+b.dataset.i]; closeCtx(); if (it && it.run) it.run();
+});
+ctx.addEventListener('keydown', e => {
+  const bs = [...ctx.querySelectorAll('button')], i = bs.indexOf(document.activeElement);
+  if (e.key === 'ArrowDown'){ e.preventDefault(); bs[(i + 1) % bs.length].focus(); }
+  if (e.key === 'ArrowUp'){ e.preventDefault(); bs[(i - 1 + bs.length) % bs.length].focus(); }
+  if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); closeCtx(); svg.focus({preventScroll:true}); }
+});
+document.addEventListener('pointerdown', e => { if (!ctx.hidden && !ctx.contains(e.target)) closeCtx(); }, true);
+// Right-click "Change color…": open the screen's edit panel and its color picker.
+function pickColor(id){
+  openEditor(id);
+  const b = stageEd.querySelector('[data-act="color"]'); if (b) openPalette(id, b);
+}
+
+/* ---------- color palette ---------- */
+// Primary and secondary colors, plus white and orange, then every color other screens already use,
+// then the browser's full picker for anything else.
+const PRIMARY = [['#FF0000','Red'],['#00FF00','Green'],['#0000FF','Blue'],['#FFFF00','Yellow'],['#00FFFF','Cyan'],['#FF00FF','Magenta'],['#FFFFFF','White']];
+let palEl = null, palFor = null;
+function setColor(s, v){
+  s.color = v.toUpperCase();
+  document.querySelectorAll(`.card[data-id="${s.id}"] [data-act="color"]`).forEach(b => { b.style.background = s.color; });
+  renderExpLabels(); renderStage(); renderTable(); save();
+}
+function closePalette(){ if (palEl){ palEl.remove(); palEl = null; } palFor = null; }
+function openPalette(id, anchor){
+  closePalette();
+  const s = getS(id); if (!s) return;
+  palFor = id;
+  // Colors other screens use, with the screen names as tooltips.
+  const used = new Map();
+  for (const o of S.screens) if (o !== s){ const c = o.color.toUpperCase(); used.set(c, (used.get(c) || []).concat(o.label || 'Untitled')); }
+  const chip = (c, title) => `<button type="button" class="chip" data-c="${c}" style="background:${c}" title="${esc(title)}" aria-label="${esc(title)}" aria-pressed="${c === s.color.toUpperCase()}"></button>`;
+  palEl = document.createElement('div');
+  palEl.className = 'pal'; palEl.setAttribute('role', 'dialog'); palEl.setAttribute('aria-label', `Color for ${s.label || 'screen'}`);
+  palEl.innerHTML = `<div class="pal-h">Primary colors</div>
+    <div class="pal-row">${PRIMARY.map(([c, n]) => chip(c, n)).join('')}</div>
+    <div class="pal-h">Used by other screens</div>
+    ${used.size ? `<div class="pal-row">${[...used].map(([c, names]) => chip(c, names.join(', '))).join('')}</div>` : '<div class="pal-none">No other screens yet.</div>'}
+    <div class="pal-more"><button type="button" class="btn" data-more>More colors…</button><input type="color" value="${s.color.toLowerCase()}" tabindex="-1" aria-hidden="true"></div>`;
+  // Inside the layout when the swatch is there (so it shows in full screen), otherwise on the page.
+  (anchor.closest('.stage-wrap') || document.body).appendChild(palEl);
+  const r = anchor.getBoundingClientRect(), pw = palEl.offsetWidth, ph = palEl.offsetHeight;
+  let left = Math.min(Math.max(8, r.left), window.innerWidth - pw - 8);
+  let top = r.bottom + 6; if (top + ph > window.innerHeight - 8) top = Math.max(8, r.top - ph - 6);
+  palEl.style.left = left + 'px'; palEl.style.top = top + 'px';
+  const native = palEl.querySelector('input[type=color]');
+  palEl.addEventListener('click', e => {
+    const c = e.target.closest('[data-c]');
+    if (c){ setColor(s, c.dataset.c); closePalette(); return; }
+    if (e.target.closest('[data-more]')){ try { native.showPicker ? native.showPicker() : native.click(); } catch (err) { native.click(); } }
+  });
+  native.addEventListener('input', () => setColor(s, native.value));
+  native.addEventListener('change', closePalette);
+  palEl.addEventListener('keydown', e => { if (e.key === 'Escape'){ e.stopPropagation(); closePalette(); anchor.isConnected && anchor.focus({preventScroll:true}); } });
+  const first = palEl.querySelector('.chip[aria-pressed="true"]') || palEl.querySelector('.chip'); if (first) first.focus({preventScroll:true});
+}
+// Close the palette when clicking anywhere else (but not the swatch that toggles it).
+document.addEventListener('pointerdown', e => {
+  if (palEl && !palEl.contains(e.target) && !e.target.closest('[data-act="color"]')) closePalette();
+}, true);
+// Run a screen card's own action (same code as the buttons in the left pane).
+function cardAct(id, act){ const b = document.querySelector(`#list .card[data-id="${id}"] [data-act="${act}"]`); if (b) b.click(); }
+function addScreenAt(p, x, y){
+  const s = mkScreen(p, {color: nextColor()}), d = dims(s);
+  s.x = x - d.w / 2; s.y = y - d.h / 2;
+  S.screens.push(s); S.sel = s.id; refreshAll(); maybeFit();
+  openEditor(s.id);
+}
+svg.addEventListener('contextmenu', e => {
+  e.preventDefault();
+  if (!pop.hidden) closeGapEditor();
+  const p = svgPt(e), g = e.target.closest('[data-sid]');
+  if (g){
+    const s = getS(g.dataset.sid); if (!s) return;
+    if (S.sel !== s.id) selectScreen(s.id, false);
+    const isRef = S.match.on && ready(s) && s.id === refScreen().id;
+    openCtx(e, [
+      {head: s.label || 'Screen'},
+      {label: 'Edit size and resolution…', run: () => openEditor(s.id)},
+      {label: 'Duplicate', run: () => cardAct(s.id, 'dup')},
+      ...(s.mode !== 'led' ? [{label: 'Rotate 90°', run: () => cardAct(s.id, 'rot')}] : []),
+      ...(S.match.on && ready(s) && !isRef ? [{label: 'Make reference', run: () => cardAct(s.id, 'ref')}] : []),
+      {label: 'Change color…', run: () => pickColor(s.id)},
+      {sep: true},
+      {label: 'Delete screen', danger: true, run: () => {
+        if (S.screens.length < 2){ toast('A guide needs at least one screen.'); return; }
+        const name = s.label || 'screen'; if (edId === s.id) closeEditor(); removeScreen(s.id); toast('Deleted ' + name);
+      }},
+    ]);
+  } else {
+    openCtx(e, [
+      {head: 'Add screen here'},
+      ...PRESETS.map(pr => ({label: pr.name, run: () => addScreenAt(pr, p.x, p.y)})),
+      {sep: true},
+      {label: 'Fit view', run: () => { fitView(); renderStage(); }},
+    ]);
+  }
+});
+svg.addEventListener('dblclick', e => { const g = e.target.closest('[data-sid]'); if (g) openEditor(g.dataset.sid); });
+
+/* ---------- edit panel inside the layout ---------- */
+let edId = null;
+const stageEd = $('#stageEd');
+function renderEditor(){
+  if (!edId) return;
+  const s = getS(edId); if (!s) return closeEditor();
+  $('#stageEdBody').innerHTML = cardHTML(s); updateDerived(s);
+}
+function openEditor(id){
+  edId = id; if (S.sel !== id) selectScreen(id, false);
+  stageEd.hidden = false; renderEditor();
+  const f = stageEd.querySelector('input:not([readonly])[data-k="rw"]') || stageEd.querySelector('[data-k="label"]');
+  if (f) f.focus({preventScroll:true});
+}
+function closeEditor(){ edId = null; stageEd.hidden = true; $('#stageEdBody').innerHTML = ''; }
+$('#edClose').addEventListener('click', closeEditor);
+stageEd.addEventListener('keydown', e => { if (e.key === 'Escape'){ e.stopPropagation(); closeEditor(); svg.focus({preventScroll:true}); } });
+// Keep the two copies of a card in step. These run after the card handlers above.
+document.addEventListener('input', e => {
+  if (e.target.closest('#stageEd')){ renderList(); renderExpLabels(); if (e.target.tagName === 'SELECT') renderEditor(); }
+  else if (e.target.closest('#list') && edId) renderEditor();
+});
+
+// When a screen gets wider or narrower, push or pull the screens to its right (in the same row)
+// by the same amount, so the gaps between them stay the same.
+let sizeSnap = null;
+document.addEventListener('input', e => {        // capture phase: runs before the card handler changes anything
+  const c = e.target.closest('#list .card, #stageEd .card'); if (!c) return;
+  const s = getS(c.dataset.id); if (!s) return;
+  const d = dims(s); sizeSnap = {s, x: s.x, y: s.y, w: d.w, h: d.h};
+}, true);
+document.addEventListener('input', () => {       // after the card handler has applied the change
+  if (!sizeSnap) return;
+  const {s, x, y, w, h} = sizeSnap; sizeSnap = null;
+  if (!getS(s.id)) return;
+  const d = dims(s), dw = d.w - w;
+  if (Math.abs(dw) < 0.01 || Math.abs(s.x - x) > 0.01) return;   // width unchanged, or the screen itself was moved
+  const right = x + w, top = Math.min(y, s.y), bot = Math.max(y + h, s.y + d.h);
+  let moved = 0;
+  for (const o of S.screens){
+    if (o === s) continue;
+    const od = dims(o);
+    const sameRow = Math.min(o.y + od.h, bot) - Math.max(o.y, top) > 0.5;
+    if (sameRow && o.x >= right - 0.5){ o.x += dw; moved++; }
+  }
+  if (moved){ S.screens.forEach(syncPosInputs); maybeFit(); renderTable(); save(); }
+});
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b || !e.target.closest('#list, #stageEd')) return;
+  if (b.classList.contains('arm')) return; // first click of Delete only asks to confirm
+  if (b.dataset.act === 'color') return; // opens the palette; nothing to re-render yet
+  if (edId && !getS(edId)) return closeEditor();
+  if (e.target.closest('#stageEd')) renderList();
+  if (edId) renderEditor();
+});
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (!ctx.hidden){ closeCtx(); return; }
+  if (!stageEd.hidden && stageEd.contains(document.activeElement)) return;
+  if (stageWrap.classList.contains('max') && $('#ov').hidden && pop.hidden) setFull(false);
+});
+svg.addEventListener('keydown', e => { if ((e.key === 'f' || e.key === 'F') && !e.ctrlKey && !e.metaKey) setFull(!stageWrap.classList.contains('max')); });
+$('#snapBtn').addEventListener('click', e => { S.snap = !S.snap; e.currentTarget.setAttribute('aria-pressed', S.snap); save(); });
+$('#dimBtn').addEventListener('click', e => { S.allDims = !S.allDims; e.currentTarget.setAttribute('aria-pressed', S.allDims); renderStage(); save(); });
+// Line the screens up in a row (left to right, in their current order), aligned along their top edges,
+// centres or bottom edges. Gaps you've already set are kept; screens that overlap get the default Spacing.
+function alignRow(align){
+  const list = S.screens.slice().sort((a, b) => a.x - b.x);
+  if (!list.length) return;
+  const ds = list.map(dims), maxH = Math.max(...ds.map(d => d.h));
+  const top = Math.min(...list.map(s => s.y));
+  let x = list[0].x;
+  list.forEach((s, i) => {
+    if (i > 0){
+      const prev = list[i - 1], prevOldRight = prev._oldX + ds[i - 1].w;
+      const gap = s.x - prevOldRight;               // the gap as it was before lining up
+      x = prev.x + ds[i - 1].w + (gap >= -0.5 ? Math.max(0, gap) : S.gap);
+    }
+    s._oldX = s.x; s.x = x;
+    s.y = align === 'top' ? top : align === 'middle' ? top + (maxH - ds[i].h) / 2 : top + maxH - ds[i].h;
+  });
+  list.forEach(s => delete s._oldX);
+  S.screens.forEach(syncPosInputs); maybeFit(); renderTable(); save();
+}
+document.querySelectorAll('[data-align]').forEach(b => b.addEventListener('click', () => alignRow(b.dataset.align)));
+// Re-space screens that sit side by side (no horizontal overlap), keeping their order and heights.
+function respaceRow(){
+  const list = S.screens.slice().sort((a, b) => a.x - b.x);
+  for (let i = 0; i + 1 < list.length; i++) if (list[i].x + dims(list[i]).w > list[i + 1].x + 0.5) return false;
+  let x = list[0].x;
+  for (const s of list){ s.x = x; x += dims(s).w + S.gap; }
+  S.screens.forEach(syncPosInputs);
+  return true;
+}
+$('#gapIn').addEventListener('input', e => {
+  const n = parseFloat(e.target.value), ok = isFinite(n) && n >= 0;
+  e.target.classList.toggle('bad', !ok); if (!ok) return;
+  S.gap = n * U().f;
+  if (respaceRow()){ maybeFit(); renderTable(); }
+  save();
+});
+let rsT; window.addEventListener('resize', () => { clearTimeout(rsT); rsT = setTimeout(() => { if (!zoomed) fitView(); renderStage(); updateZoomLabel(); }, 120); });
+
+/* ---------- table ---------- */
+function tableRows(){
+  const lay = S.match.on ? canvasLayout() : null;
+  return live().map(s => {
+    const d = dims(s), c = content(s), it = lay && lay.items.find(i => i.s === s);
+    return {s, label: s.label, native: `${s.rw} × ${s.rh}`, phys: fmtLen2(d.w, d.h), diag: fmtLen(Math.hypot(d.w, d.h)), aspect: aspect(s.rw, s.rh),
+      ppi: ppiText(s), pitch: (d.w / s.rw).toFixed(3) + ' mm', content: S.match.on ? `${c.w} × ${c.h}` : '—',
+      scale: S.match.on ? '×' + (s.rw / c.w).toFixed(3) : '—', offset: it ? `${it.x}, ${it.y}` : '—'};
+  });
+}
+function renderTable(){
+  const rows = tableRows();
+  let h = `<thead><tr><th>Screen</th><th>Native px</th><th>Physical</th><th>Diagonal</th><th>Aspect</th><th>Density</th><th>Pitch</th><th>Content px</th><th>Scale to native</th><th>Canvas X, Y</th></tr></thead><tbody>`;
+  for (const r of rows) h += `<tr data-id="${r.s.id}"${r.s.id === S.sel ? ' class="sel"' : ''}><td class="nm"><i style="background:${r.s.color}"></i>${esc(r.label)}</td><td>${r.native}</td><td>${r.phys}</td><td>${r.diag}</td><td>${r.aspect}</td><td>${r.ppi}</td><td>${r.pitch}</td><td class="acc">${r.content}</td><td>${r.scale}</td><td>${r.offset}</td></tr>`;
+  h += '</tbody>';
+  if (S.match.on){ const L = canvasLayout(); h += `<tfoot><tr><td class="nm">Full canvas</td><td colspan="6"></td><td class="acc">${L.W} × ${L.H}</td><td></td><td>0, 0</td></tr></tfoot>`; }
+  $('#tbl').innerHTML = h;
+}
+$('#tbl').addEventListener('click', e => { const tr = e.target.closest('tbody tr'); if (tr) selectScreen(tr.dataset.id, false); });
+function csv(){
+  const q = v => /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+  const head = ['Screen','Native px','Physical','Diagonal','Aspect','Density','Pitch','Content px','Scale to native','Canvas X, Y'];
+  const lines = [head.join(',')].concat(tableRows().map(r => [r.label, r.native, r.phys, r.diag, r.aspect, r.ppi, r.pitch, r.content, r.scale, r.offset].map(q).join(',')));
+  if (S.match.on){ const L = canvasLayout(); lines.push(['Full canvas','','','','','','',`${L.W} × ${L.H}`,'','0, 0'].map(q).join(',')); }
+  return lines.join('\n');
+}
+
+/* ---------- downloads ---------- */
+let downloads = null;
+(async () => { try { if (window.claude && window.claude.use) downloads = await window.claude.use('downloads'); } catch(e) { downloads = null; } })();
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 2600); }
+const slug = s => (s || 'guide').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'guide';
+// Saving files, best way first:
+// 1. the viewer's own save prompt (claude.ai on desktop);
+// 2. an ordinary browser download, which works when the page is open on its own (not inside the viewer);
+// 3. otherwise the caller's fallback, which shows the image to press-and-hold or right-click.
+const isTouch = () => matchMedia('(pointer: coarse)').matches;
+const saveHint = () => isTouch() ? 'Press and hold the image, then choose Save image.' : 'Right-click the image and choose Save image as…';
+function directDownload(blob, filename){
+  if (window.top !== window.self) return false; // inside the viewer's frame, page-started downloads are blocked
+  try {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = filename; a.rel = 'noopener';
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 5000);
+    return true;
+  } catch (e) { return false; }
+}
+async function offer(filename, data, fallback){
+  let err = null;
+  if (downloads){
+    try { await downloads.save({filename, data}); toast('Saved ' + filename); return; }
+    catch (e){
+      err = e; const c = e && e.code;
+      if (c === 'declined') return;
+      if (c === 'rate_limited') return toast('A save prompt is already open.');
+    }
+  }
+  const blob = data instanceof Blob ? data : new Blob([data], {type: /\.json$/.test(filename) ? 'application/json' : /\.csv$/.test(filename) ? 'text/csv' : 'application/octet-stream'});
+  if (directDownload(blob, filename)){ toast('Downloading ' + filename); return; }
+  fallback ? fallback(err) : toast(`Saving files isn't available on this device. ${saveHint()}`);
+}
+async function copyText(text, okMsg){
+  try { await navigator.clipboard.writeText(text); toast(okMsg); }
+  catch(e){ toast('Copy is blocked here. Use Save instead.'); }
+}
+$('#btnCopy').addEventListener('click', () => copyText(csv(), 'Spec sheet copied as CSV'));
+$('#btnCsv').addEventListener('click', () => offer(slug(S.name) + '-spec.csv', csv(), () => copyText(csv(), 'Saving is unavailable here, so the CSV was copied instead')));
+$('#btnSaveJson').addEventListener('click', () => { const j = JSON.stringify(S, null, 2); offer(slug(S.name) + '.json', j, () => copyText(j, 'Saving is unavailable here, so the JSON was copied instead')); });
+$('#btnImport').addEventListener('click', () => $('#fileIn').click());
+$('#fileIn').addEventListener('change', async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try { const n = sanitize(JSON.parse(await f.text())); if (!n) throw 0; S = n; view = null; refreshAll(); toast('Opened ' + f.name); }
+  catch(err){ toast('That file is not a guide saved from this tool.'); }
+});
+// Loading the example wipes the current guide, so ask first (the viewer blocks the browser's own confirm()).
+const cdlg = $('#confirmDlg');
+let cdlgReturn = null;
+function openConfirm(){ cdlgReturn = document.activeElement; cdlg.hidden = false; $('#cdlgCancel').focus({preventScroll:true}); }
+function closeConfirm(){ cdlg.hidden = true; if (cdlgReturn && cdlgReturn.focus) cdlgReturn.focus({preventScroll:true}); }
+$('#btnExample').addEventListener('click', openConfirm);
+$('#cdlgCancel').addEventListener('click', closeConfirm);
+$('#cdlgOk').addEventListener('click', () => { closeConfirm(); S = example(); view = null; refreshAll(); toast('Example loaded'); });
+$('#cdlgSaveFirst').addEventListener('click', () => $('#btnSaveJson').click());
+cdlg.addEventListener('click', e => { if (e.target === cdlg) closeConfirm(); });
+cdlg.addEventListener('keydown', e => {
+  if (e.key === 'Escape'){ e.stopPropagation(); closeConfirm(); }
+  if (e.key === 'Tab'){ // keep keyboard focus inside the dialog
+    const f = [...cdlg.querySelectorAll('button')], i = f.indexOf(document.activeElement);
+    e.preventDefault(); f[(i + (e.shiftKey ? f.length - 1 : 1)) % f.length].focus();
+  }
+});
+
+/* ---------- guide images ---------- */
+function rgba(hex, a){ const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; }
+function drawScreen(ctx, it, opts, physLabel){
+  const {x, y, w, h, s} = it, m = Math.min(w, h);
+  ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+  ctx.fillStyle = '#000'; ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = rgba(s.color, .16); ctx.fillRect(x, y, w, h);
+  const thin = Math.max(1, Math.round(m / 900));
+  if (opts.grid){
+    ctx.strokeStyle = 'rgba(255,255,255,.10)'; ctx.lineWidth = 1; ctx.beginPath();
+    for (let gx = 100; gx < w; gx += 100){ ctx.moveTo(x + gx + .5, y); ctx.lineTo(x + gx + .5, y + h); }
+    for (let gy = 100; gy < h; gy += 100){ ctx.moveTo(x, y + gy + .5); ctx.lineTo(x + w, y + gy + .5); }
+    ctx.stroke();
+  }
+  if (opts.seams && s.mode === 'led'){
+    const sm = ledSeams(s);
+    ctx.strokeStyle = rgba(s.color, .55); ctx.lineWidth = 1; ctx.beginPath();
+    for (const f of sm.xs){ const px = Math.round(x + w * f) + .5; ctx.moveTo(px, y); ctx.lineTo(px, y + h); }
+    for (const f of sm.ys){ const py = Math.round(y + h * f) + .5; ctx.moveTo(x, py); ctx.lineTo(x + w, py); }
+    ctx.stroke();
+  }
+  if (opts.safe){
+    ctx.lineWidth = thin; ctx.setLineDash([Math.max(4, m / 80), Math.max(3, m / 120)]);
+    ctx.strokeStyle = 'rgba(255,255,255,.45)'; ctx.strokeRect(x + w * .035, y + h * .035, w * .93, h * .93);
+    ctx.strokeStyle = 'rgba(255,255,255,.28)'; ctx.strokeRect(x + w * .05, y + h * .05, w * .9, h * .9);
+    ctx.setLineDash([]);
+  }
+  if (opts.cross){
+    // Center circles: a circle as tall as the screen (touching top and bottom) in the middle, with
+    // same-size circles repeating side by side out to both edges (cut off at the screen's sides).
+    const cx = x + w / 2, cy = y + h / 2, lw = Math.max(1, Math.round(m / 400)), r = h / 2 - lw / 2;
+    const n = Math.ceil(w / h / 2) + 1;
+    ctx.lineWidth = lw;
+    ctx.strokeStyle = 'rgba(255,255,255,.38)'; ctx.beginPath();
+    for (let k = -n; k <= n; k++){ if (k === 0) continue; const ox = cx + k * h; ctx.moveTo(ox + r, cy); ctx.arc(ox, cy, r, 0, Math.PI * 2); }
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.beginPath(); ctx.moveTo(cx + r, cy); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+    // Small dot marks the exact centre.
+    ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.beginPath(); ctx.arc(cx, cy, Math.max(2, lw * 1.5), 0, Math.PI * 2); ctx.fill();
+  }
+  const bw = Math.max(2, Math.round(m / 250));
+  ctx.strokeStyle = s.color; ctx.lineWidth = bw; ctx.strokeRect(x + bw / 2, y + bw / 2, w - bw, h - bw);
+  if (opts.labels){
+    // Name above the centre, measurements below it, each on a dark panel so they read over any color.
+    const DISP = '"Barlow Semi Condensed", "Arial Narrow", sans-serif', MONO = '"JetBrains Mono", Consolas, monospace';
+    const label = s.label || 'Untitled';
+    const l2 = `${w} × ${h} px`, l3 = physLabel;
+    const fs = Math.min(m * .11, w * .86 / (Math.max(label.length, 5) * .5), 220);
+    const fs2 = Math.min(Math.max(fs * .55, m * .055), w * .82 / (Math.max(l2.length, l3.length) * .62), 120);
+    const off = opts.cross ? m * .1 : m * .02;
+    const panel = (cx, cy, pw, ph) => {
+      ctx.fillStyle = 'rgba(0,0,0,.72)'; ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(cx - pw / 2, cy - ph / 2, pw, ph, Math.min(ph * .25, 16)); else ctx.rect(cx - pw / 2, cy - ph / 2, pw, ph);
+      ctx.fill();
+    };
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    if (fs >= 8){
+      ctx.font = `700 ${fs}px ${DISP}`;
+      const ly = y + h / 2 - off - fs * .7;
+      panel(x + w / 2, ly, Math.min(w - bw * 2, ctx.measureText(label).width + fs * .8), fs * 1.35);
+      ctx.fillStyle = '#FFFFFF'; ctx.fillText(label, x + w / 2, ly + fs * .04);
+    }
+    if (fs2 >= 9){
+      ctx.font = `600 ${fs2}px ${MONO}`;
+      const tw = Math.max(ctx.measureText(l2).width, ctx.measureText(l3).width) + fs2 * 1.2;
+      const ty = y + h / 2 + off + fs2 * 1.25;
+      panel(x + w / 2, ty, Math.min(w - bw * 2, tw), fs2 * 3.1);
+      ctx.fillStyle = '#FFFFFF'; ctx.fillText(l2, x + w / 2, ty - fs2 * .68);
+      ctx.fillStyle = '#D9DEE5'; ctx.fillText(l3, x + w / 2, ty + fs2 * .68);
+      const cs = Math.max(10, Math.min(fs2 * .75, 40));
+      ctx.font = `600 ${cs}px ${MONO}`; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+      const pos = `X ${x}  Y ${y}`, pw = ctx.measureText(pos).width + cs;
+      ctx.fillStyle = 'rgba(0,0,0,.72)'; ctx.fillRect(x + bw, y + bw, pw, cs * 1.5);
+      ctx.fillStyle = '#FFFFFF'; ctx.fillText(pos, x + bw + cs * .5, y + bw + cs * .28);
+    }
+  }
+  ctx.restore();
+}
+// Gap measurements on the full canvas guide: a dimension line across each gap, labelled in
+// physical units and canvas pixels. Labels go in empty canvas only, never over a screen.
+// `st` lets the layout drawing restyle it: {color, bg, base, text(g, px)}.
+function drawGaps(ctx, items, W, H, st){
+  st = st || {};
+  const GAP = st.color || '#FFC34D', BG = st.bg || '#0B0B0B', byId = new Map(items.map(i => [i.s.id, i]));
+  const gaps = computeGaps().filter(g => byId.has(g.a.id) && byId.has(g.b.id));
+  const base = st.base || Math.max(16, Math.min(72, Math.round(Math.min(W, H) * 0.045)));
+  const hits = (x, y, w, h) => x < 0 || y < 0 || x + w > W || y + h > H ||
+    items.some(i => Math.min(x + w, i.x + i.w) - Math.max(x, i.x) > 0 && Math.min(y + h, i.y + i.h) - Math.max(y, i.y) > 0);
+  ctx.save();
+  for (const g of gaps){
+    const A = byId.get(g.a.id), B = byId.get(g.b.id), hz = g.dir === 'h';
+    const p1 = hz ? A.x + A.w : A.y + A.h, p2 = hz ? B.x : B.y, px = p2 - p1;
+    if (px <= 0) continue;
+    const lo = hz ? Math.max(A.y, B.y) : Math.max(A.x, B.x), hi = hz ? Math.min(A.y + A.h, B.y + B.h) : Math.min(A.x + A.w, B.x + B.w);
+    const mid = (lo + hi) / 2, cx = hz ? (p1 + p2) / 2 : mid, cy = hz ? mid : (p1 + p2) / 2;
+    const lw = Math.max(1, Math.round(base / 14)), tk = base * 0.45;
+    ctx.strokeStyle = GAP; ctx.lineWidth = lw; ctx.setLineDash([]); ctx.beginPath();
+    if (hz){ ctx.moveTo(p1, cy); ctx.lineTo(p2, cy); ctx.moveTo(p1 + lw / 2, cy - tk); ctx.lineTo(p1 + lw / 2, cy + tk); ctx.moveTo(p2 - lw / 2, cy - tk); ctx.lineTo(p2 - lw / 2, cy + tk); }
+    else { ctx.moveTo(cx, p1); ctx.lineTo(cx, p2); ctx.moveTo(cx - tk, p1 + lw / 2); ctx.lineTo(cx + tk, p1 + lw / 2); ctx.moveTo(cx - tk, p2 - lw / 2); ctx.lineTo(cx + tk, p2 - lw / 2); }
+    ctx.stroke();
+    const txt = st.text ? st.text(g, px) : `${fmtLen(g.g)} · ${px} px`;
+    // Try sizes from the base size down; at each size try the gap itself (flat, then turned), then clear canvas nearby.
+    let pick = null;
+    for (let fs = base; fs >= 7 && !pick; fs = Math.floor(fs * 0.8)){
+      ctx.font = `500 ${fs}px "JetBrains Mono", Consolas, monospace`;
+      const tw = ctx.measureText(txt).width + fs, th = fs * 1.6;
+      const spots = [{x:cx, y:cy, rot:false}, {x:cx, y:cy, rot:true}];
+      const far = hz ? [Math.min(A.y, B.y), Math.max(A.y + A.h, B.y + B.h)] : [Math.min(A.x, B.x), Math.max(A.x + A.w, B.x + B.w)];
+      for (let k = 0; k < 6; k++){
+        const off = fs + k * th * 1.3;
+        if (hz){ spots.push({x:cx, y:far[0] - th / 2 - off, rot:false}, {x:cx, y:far[1] + th / 2 + off, rot:false}); }
+        else { spots.push({x:far[1] + tw / 2 + off, y:cy, rot:false}, {x:far[0] - tw / 2 - off, y:cy, rot:false}); }
+      }
+      for (const s of spots){
+        const bw = s.rot ? th : tw, bh = s.rot ? tw : th;
+        if (!hits(s.x - bw / 2, s.y - bh / 2, bw, bh)){ pick = {s, fs, tw, th}; break; }
+      }
+    }
+    if (!pick) continue; // no clear spot anywhere: keep the dimension line only
+    const {s, fs, tw, th} = pick;
+    if (Math.abs(s.x - cx) > 1 || Math.abs(s.y - cy) > 1){
+      ctx.setLineDash([lw * 4, lw * 3]); ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(s.x, s.y); ctx.stroke(); ctx.setLineDash([]);
+    }
+    ctx.save(); ctx.translate(s.x, s.y); if (s.rot) ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = BG; ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(-tw / 2, -th / 2, tw, th, th / 2); else ctx.rect(-tw / 2, -th / 2, tw, th);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = GAP; ctx.font = `500 ${fs}px "JetBrains Mono", Consolas, monospace`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(txt, 0, fs * 0.05);
+    ctx.restore();
+  }
+  ctx.restore();
+}
+/* Screen labels in the export panel: the same label as on each screen's card. */
+function renderExpLabels(){
+  $('#expLabels').innerHTML = S.screens.map(s =>
+    `<label class="lbl-row"><i style="background:${s.color}"></i><input data-lid="${s.id}" value="${esc(s.label)}" aria-label="Label for ${esc(s.label || 'screen')}" placeholder="Screen label"></label>`).join('');
+}
+$('#expLabels').addEventListener('input', e => {
+  const id = e.target.dataset.lid; const s = id && getS(id); if (!s) return;
+  s.label = e.target.value;
+  const card = document.querySelector(`.card[data-id="${id}"] [data-k="label"]`); if (card) card.value = s.label;
+  renderSelects(); renderStage(); renderTable(); save();
+});
+let lastBlob = null, lastName = '';
+async function makePNG(W, H, items, title, foot, over){
+  if (W > 16384 || H > 16384 || W * H > 150e6){ toast(`Too large to draw (${W} × ${H} px). Pick a lower-density reference screen.`); return; }
+  await (document.fonts ? document.fonts.ready : Promise.resolve());
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#0B0B0B'; ctx.fillRect(0, 0, W, H);
+  if (items.length > 1){
+    ctx.strokeStyle = '#1A1A1A'; ctx.lineWidth = Math.max(1, Math.round(Math.min(W, H) / 400)); ctx.beginPath();
+    const st = Math.max(16, Math.round(Math.min(W, H) / 40));
+    for (let i = -H; i < W; i += st){ ctx.moveTo(i, 0); ctx.lineTo(i + H, H); } ctx.stroke();
+  }
+  const opts = Object.assign({}, S.exp, over || {});
+  for (const it of items){ const d = dims(it.s); drawScreen(ctx, it, opts, fmtLen2(d.w, d.h)); }
+  if (opts.gaps && items.length > 1) drawGaps(ctx, items, W, H);
+  showPreview(cv, title, foot);
+}
+function showPreview(cv, title, foot){
+  cv.toBlob(b => {
+    if (!b){ toast('Could not draw the image.'); return; }
+    lastBlob = b; lastName = title;
+    const img = $('#ovImg'); if (img.src) URL.revokeObjectURL(img.src); img.src = URL.createObjectURL(b);
+    $('#ovTitle').textContent = title;
+    $('#ovFoot').textContent = foot + (downloads || window.top === window.self ? '' : ' · ' + saveHint());
+    $('#ovSave').hidden = false; // always offer Save: it falls back to a normal download or the hint
+    $('#ov').hidden = false; $('#ovClose').focus({preventScroll:true});
+  }, 'image/png');
+}
+$('#btnCanvas').addEventListener('click', () => {
+  const L = canvasLayout();
+  makePNG(L.W, L.H, L.items, `${slug(S.name)}-canvas-${L.W}x${L.H}.png`, `Full canvas ${L.W} × ${L.H} px · ${S.screens.length} screens at ${(density(refScreen()).x * 25.4).toFixed(2)} PPI`, {safe:false});
+});
+/* Layout drawing: a to-scale, print-style picture of the arrangement on white,
+   with labels, physical sizes, gaps and overall dimensions. */
+async function makeLayoutDrawing(){
+  await (document.fonts ? document.fonts.ready : Promise.resolve());
+  const INK = '#1A1F26', MUTED = '#5A6473', LINE = '#C9CFD8', GAPC = '#B45309';
+  const DISP = '"Barlow Semi Condensed", "Arial Narrow", sans-serif', MONO = '"JetBrains Mono", Consolas, monospace';
+  const b = bbox(live()), W = 3200, M = 240, titleH = 210;
+  let sc = (W - 2 * M) / b.w;
+  if (b.h * sc > 2200) sc = 2200 / b.h;
+  const dw = b.w * sc, dh = b.h * sc, ox = (W - dw) / 2, top = titleH + 150;
+  // Spec sheet table (same numbers as the app's spec sheet). Content columns only when matching is on.
+  const BODY = '"Barlow", system-ui, sans-serif';
+  const head = ['Screen', 'Native px', 'Physical', 'Diagonal', 'Aspect', 'Density', 'Pitch'].concat(S.match.on ? ['Content px', 'Scale to native', 'Canvas X, Y'] : []);
+  const rowsT = tableRows().map(r => [r.label, r.native, r.phys, r.diag, r.aspect, r.ppi, r.pitch].concat(S.match.on ? [r.content, r.scale, r.offset] : []).concat([r.s.color]));
+  const totalRow = S.match.on ? (() => { const Lc = canvasLayout(); return ['Full canvas', '', '', '', '', '', '', `${Lc.W} × ${Lc.H}`, '', '0, 0']; })() : null;
+  const meas = document.createElement('canvas').getContext('2d');
+  const colWidths = tf => head.map((hd, i) => {
+    const chipW = i === 0 ? tf * 0.8 + tf * 0.5 : 0;
+    meas.font = `700 ${tf * 0.8}px ${BODY}`; let wmax = meas.measureText(hd.toUpperCase()).width;
+    meas.font = `500 ${tf}px ${i === 0 ? BODY : MONO}`;
+    for (const r of rowsT.concat(totalRow ? [totalRow] : [])) wmax = Math.max(wmax, meas.measureText(r[i]).width + chipW);
+    return wmax + tf * 1.4;
+  });
+  let tf = 30, colW = colWidths(tf);
+  const fitW = W - 2 * M, sumW = colW.reduce((a, c) => a + c, 0);
+  if (sumW > fitW){ tf = Math.max(16, tf * fitW / sumW); colW = colWidths(tf); }
+  const tableW = colW.reduce((a, c) => a + c, 0), rowH = Math.round(tf * 1.75);
+  const tableTop = top + dh + 260, tableH = 70 + rowH * (rowsT.length + 1 + (totalRow ? 1 : 0));
+  const H = Math.round(tableTop + tableH + 60 + 130);
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, W, H);
+
+  // Title block
+  ctx.fillStyle = INK; ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
+  ctx.font = `700 76px ${DISP}`; ctx.fillText(S.name || 'Untitled guide', M, 120);
+  ctx.fillStyle = MUTED; ctx.font = `500 32px ${DISP}`;
+  const nScr = S.screens.length;
+  ctx.fillText(`SCREEN LAYOUT · DRAWN TO SCALE · ${nScr} SCREEN${nScr === 1 ? '' : 'S'} · UNITS ${S.unit.toUpperCase()}`, M, 172);
+  ctx.textAlign = 'right'; ctx.font = `500 30px ${MONO}`;
+  ctx.fillText(new Date().toLocaleDateString(undefined, {year:'numeric', month:'short', day:'numeric'}), W - M, 120);
+  ctx.strokeStyle = LINE; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(M, titleH); ctx.lineTo(W - M, titleH); ctx.stroke();
+
+  // Screens
+  const items = live().map(s => { const d = dims(s); return {s, d, x: ox + (s.x - b.x0) * sc, y: top + (s.y - b.y0) * sc, w: d.w * sc, h: d.h * sc}; });
+  const ref = refScreen();
+  for (const it of items){
+    const {s, d, x, y, w, h} = it;
+    ctx.fillStyle = rgba(s.color, .18); ctx.fillRect(x, y, w, h);
+    if (S.exp.seams && s.mode === 'led'){
+      const sm = ledSeams(s); ctx.strokeStyle = rgba(s.color, .55); ctx.lineWidth = 1.5; ctx.beginPath();
+      for (const f of sm.xs){ ctx.moveTo(x + w * f, y); ctx.lineTo(x + w * f, y + h); }
+      for (const f of sm.ys){ ctx.moveTo(x, y + h * f); ctx.lineTo(x + w, y + h * f); }
+      ctx.stroke();
+    }
+    ctx.fillStyle = s.color; ctx.fillRect(x, y, w, Math.max(6, Math.min(14, h * 0.04)));
+    ctx.strokeStyle = INK; ctx.lineWidth = 3; ctx.strokeRect(x, y, w, h);
+    // Text block, shrunk to fit inside the screen
+    const label = s.label || 'Untitled', c = content(s);
+    const lines = [fmtLen2(d.w, d.h), `${s.rw} × ${s.rh} px`];
+    if (s.mode === 'led') lines.push(ledCount(s));
+    if (S.match.on) lines.push(s.id === ref.id ? 'reference density' : `content ${c.w} × ${c.h} px`);
+    let fs = Math.min(64, h / 4.2), fs2;
+    ctx.font = `700 ${fs}px ${DISP}`;
+    while (fs > 12 && ctx.measureText(label).width > w * 0.88){ fs *= 0.9; ctx.font = `700 ${fs}px ${DISP}`; }
+    fs2 = Math.min(fs * 0.55, 34);
+    ctx.font = `500 ${fs2}px ${MONO}`;
+    while (fs2 > 9 && Math.max(...lines.map(l => ctx.measureText(l).width)) > w * 0.88) { fs2 *= 0.9; ctx.font = `500 ${fs2}px ${MONO}`; }
+    const showLines = fs + lines.length * fs2 * 1.45 < h * 0.9;
+    const blockH = showLines ? fs + lines.length * fs2 * 1.45 : fs;
+    let ty = y + h / 2 - blockH / 2 + fs * 0.8;
+    ctx.textAlign = 'center'; ctx.fillStyle = INK; ctx.font = `700 ${fs}px ${DISP}`; ctx.fillText(label, x + w / 2, ty);
+    if (showLines){
+      ctx.font = `500 ${fs2}px ${MONO}`;
+      lines.forEach((l, i) => { ctx.fillStyle = i === 0 ? INK : MUTED; ctx.fillText(l, x + w / 2, ty + fs2 * 1.45 * (i + 1) + fs2 * 0.1); });
+    }
+  }
+
+  // Gaps
+  if (S.exp.gaps && items.length > 1){
+    drawGaps(ctx, items, W, H, {color: GAPC, bg: '#FFFFFF', base: 30,
+      text: g => S.match.on ? `${fmtLen(g.g)} · ${gapPx(g)} px` : fmtLen(g.g)});
+  }
+
+  // Overall dimensions: width along the bottom, height up the right side
+  ctx.strokeStyle = INK; ctx.fillStyle = INK; ctx.lineWidth = 2.5;
+  const yb = top + dh + 110, xr = ox + dw + 110, tk = 18;
+  ctx.beginPath();
+  ctx.moveTo(ox, yb); ctx.lineTo(ox + dw, yb); ctx.moveTo(ox, yb - tk); ctx.lineTo(ox, yb + tk); ctx.moveTo(ox + dw, yb - tk); ctx.lineTo(ox + dw, yb + tk);
+  ctx.moveTo(xr, top); ctx.lineTo(xr, top + dh); ctx.moveTo(xr - tk, top); ctx.lineTo(xr + tk, top); ctx.moveTo(xr - tk, top + dh); ctx.lineTo(xr + tk, top + dh);
+  ctx.stroke();
+  ctx.setLineDash([8, 8]); ctx.strokeStyle = LINE; ctx.lineWidth = 1.5; ctx.beginPath();
+  ctx.moveTo(ox, top + dh); ctx.lineTo(ox, yb + tk); ctx.moveTo(ox + dw, top + dh); ctx.lineTo(ox + dw, yb + tk);
+  ctx.moveTo(ox + dw, top); ctx.lineTo(xr + tk, top); ctx.moveTo(ox + dw, top + dh); ctx.lineTo(xr + tk, top + dh);
+  ctx.stroke(); ctx.setLineDash([]);
+  ctx.font = `600 34px ${MONO}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  const wTxt = `Overall width ${fmtLen(b.w)}`, hTxt = `Overall height ${fmtLen(b.h)}`;
+  const pill = (t, cx, cy, rot) => {
+    const tw = ctx.measureText(t).width + 36, th = 54;
+    ctx.save(); ctx.translate(cx, cy); if (rot) ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = '#FFFFFF'; ctx.fillRect(-tw / 2, -th / 2, tw, th);
+    ctx.fillStyle = INK; ctx.fillText(t, 0, 2); ctx.restore();
+  };
+  pill(wTxt, ox + dw / 2, yb, false);
+  pill(hTxt, xr, top + dh / 2, true);
+
+  // Spec sheet
+  {
+    const tx = M, ty0 = tableTop + 70;
+    ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left'; ctx.fillStyle = INK; ctx.font = `700 40px ${DISP}`;
+    ctx.fillText('SPEC SHEET', tx, tableTop + 40);
+    const drawRow = (cells, y, o) => {
+      if (o.fill){ ctx.fillStyle = o.fill; ctx.fillRect(tx, y, tableW, rowH); }
+      let x = tx;
+      head.forEach((_, i) => {
+        let px = x + tf * 0.7;
+        ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+        if (i === 0 && o.chip){ const cs = tf * 0.8; ctx.fillStyle = o.chip; ctx.fillRect(px, y + rowH / 2 - cs / 2, cs, cs); ctx.strokeStyle = 'rgba(0,0,0,.25)'; ctx.lineWidth = 1; ctx.strokeRect(px, y + rowH / 2 - cs / 2, cs, cs); px += cs + tf * 0.5; }
+        ctx.fillStyle = o.color || INK;
+        ctx.font = o.head ? `700 ${tf * 0.8}px ${BODY}` : `${o.bold ? 700 : 500} ${tf}px ${i === 0 ? BODY : MONO}`;
+        ctx.fillText(o.head ? cells[i].toUpperCase() : cells[i], px, y + rowH / 2);
+        x += colW[i];
+      });
+    };
+    drawRow(head, ty0, {head: true, color: MUTED});
+    ctx.strokeStyle = LINE; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(tx, ty0 + rowH); ctx.lineTo(tx + tableW, ty0 + rowH); ctx.stroke();
+    rowsT.forEach((r, i) => drawRow(r, ty0 + rowH * (i + 1), {chip: r[r.length - 1], fill: i % 2 ? '#F4F6F8' : null}));
+    if (totalRow){
+      const yt = ty0 + rowH * (rowsT.length + 1);
+      ctx.strokeStyle = LINE; ctx.beginPath(); ctx.moveTo(tx, yt); ctx.lineTo(tx + tableW, yt); ctx.stroke();
+      drawRow(totalRow, yt, {bold: true});
+    }
+  }
+
+  // Footer
+  const fy = H - 90;
+  ctx.strokeStyle = LINE; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(M, fy - 50); ctx.lineTo(W - M, fy - 50); ctx.stroke();
+  ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left'; ctx.fillStyle = MUTED; ctx.font = `500 28px ${MONO}`;
+  let foot = `Scale 1 : ${Math.round(1 / (sc * 0.0846667)).toLocaleString()} at 300 dpi`;
+  if (S.match.on){ const L = canvasLayout(); foot += `  ·  Reference ${ref.label} @ ${(density(ref).x * 25.4).toFixed(2)} PPI  ·  Content canvas ${L.W} × ${L.H} px`; }
+  ctx.fillText(foot, M, fy);
+
+  showPreview(cv, `${slug(S.name)}-layout.png`, `Layout drawing ${W} × ${H} px · ${nScr} screens`);
+}
+$('#btnLayout').addEventListener('click', makeLayoutDrawing);
+/* ---------- test patterns ---------- */
+const TP_BARS = ['#FFFFFF', '#FFFF00', '#00FFFF', '#00FF00', '#FF00FF', '#FF0000', '#0000FF', '#000000'];
+// What to draw: one screen at content or native resolution, or every screen at its place on the full canvas.
+function tpTarget(){
+  if ($('#oneSel').value === '__canvas' && S.match.on){
+    const L = canvasLayout();
+    return {W: L.W, H: L.H, regions: L.items, name: 'canvas'};
+  }
+  const s = getS($('#oneSel').value) || live()[0]; if (!s) return null;
+  const c = (S.match.on && $('#oneRes').value === 'content') ? content(s) : {w: s.rw, h: s.rh};
+  return {W: c.w, H: c.h, regions: [{s, x: 0, y: 0, w: c.w, h: c.h}], name: slug(s.label)};
+}
+// LED cabinet grid: every cabinet (and half panel) filled at its exact pixel position, alternating colors.
+const LED_PALETTES = {
+  primaries: ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#00FFFF', '#FF00FF'],
+  grays: ['#5A5A5A', '#9A9A9A'],
+};
+const hexRGB = h => { const n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+const lumaOf = h => { const [r, g, b] = hexRGB(h); return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255; };
+// A shade lighter for dark colors, a shade darker for light ones.
+function shadeOf(h){
+  const [r, g, b] = hexRGB(h), dark = lumaOf(h) < 0.5;
+  const mix = v => Math.round(dark ? v + (255 - v) * 0.35 : v * 0.7);
+  return `rgb(${mix(r)},${mix(g)},${mix(b)})`;
+}
+function drawLedCabinets(ctx, r, o){
+  const {x, y, w, h, s} = r, sm = ledSeams(s);
+  const xs = [0, ...sm.xs, 1].map(f => Math.round(x + f * w)), ys = [0, ...sm.ys, 1].map(f => Math.round(y + f * h));
+  const pal = o.ledpal === 'twotone' ? [o.ledA, o.ledB] : LED_PALETTES[o.ledpal] || LED_PALETTES.grays;
+  for (let ri = 0; ri < ys.length - 1; ri++){
+    for (let ci = 0; ci < xs.length - 1; ci++){
+      const x0 = xs[ci], x1 = xs[ci + 1], y0 = ys[ri], y1 = ys[ri + 1], cw = x1 - x0, ch = y1 - y0;
+      // Neighbours always differ: across a row the index steps by 1, down a column by 2 (or 1 for two colors).
+      const col = pal[pal.length === 2 ? (ci + ri) % 2 : (ci + ri * 2) % pal.length].toUpperCase();
+      ctx.fillStyle = col; ctx.fillRect(x0, y0, cw, ch);
+      if (o.lededge && cw > 2 && ch > 2){ ctx.strokeStyle = shadeOf(col); ctx.lineWidth = 1; ctx.strokeRect(x0 + .5, y0 + .5, cw - 1, ch - 1); }
+      if (o.lednums){
+        // "column,row" in the panel's bottom-right corner, clear of the 1 px edge.
+        const fs = Math.min(cw * 0.16, ch * 0.16, 40);
+        if (fs >= 7){
+          const pad = Math.max(3, Math.round(fs * 0.35));
+          ctx.font = `600 ${fs}px "JetBrains Mono", Consolas, monospace`; ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
+          ctx.fillStyle = lumaOf(col) > 0.55 ? 'rgba(0,0,0,.75)' : 'rgba(255,255,255,.85)';
+          ctx.fillText(`${ci + 1},${ri + 1}`, x1 - pad, y1 - pad);
+        }
+      }
+    }
+  }
+}
+function drawTPRegion(ctx, r, o){
+  const {x, y, w, h, s} = r, m = Math.min(w, h);
+  const DISP = '"Barlow Semi Condensed", "Arial Narrow", sans-serif', MONO = '"JetBrains Mono", Consolas, monospace';
+  ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+  ctx.fillStyle = o.pat === 'solid' ? o.solid : o.bg; ctx.fillRect(x, y, w, h);
+  const grid = () => {
+    // Lines sit on whole pixels counted from the canvas origin, so they line up across screens.
+    const step = Math.max(8, Math.round(o.grid));
+    for (const major of [false, true]){
+      ctx.strokeStyle = major ? 'rgba(255,255,255,.75)' : 'rgba(255,255,255,.35)'; ctx.lineWidth = 1; ctx.beginPath();
+      for (let gx = Math.ceil(x / step) * step; gx < x + w; gx += step){ if ((gx / step % 5 === 0) === major){ ctx.moveTo(gx + .5, y); ctx.lineTo(gx + .5, y + h); } }
+      for (let gy = Math.ceil(y / step) * step; gy < y + h; gy += step){ if ((gy / step % 5 === 0) === major){ ctx.moveTo(x, gy + .5); ctx.lineTo(x + w, gy + .5); } }
+      ctx.stroke();
+    }
+  };
+  const bars = (bx, by, bw, bh) => { TP_BARS.forEach((c, i) => { ctx.fillStyle = c; ctx.fillRect(Math.round(bx + bw * i / 8), by, Math.round(bx + bw * (i + 1) / 8) - Math.round(bx + bw * i / 8), bh); }); };
+  const steps = (bx, by, bw, bh, label) => {
+    for (let i = 0; i <= 10; i++){
+      const v = Math.round(i * 25.5), x0 = Math.round(bx + bw * i / 11), x1 = Math.round(bx + bw * (i + 1) / 11);
+      ctx.fillStyle = `rgb(${v},${v},${v})`; ctx.fillRect(x0, by, x1 - x0, bh);
+      if (label){
+        const fs = Math.max(9, Math.min(bh * 0.28, (x1 - x0) * 0.32));
+        ctx.font = `600 ${fs}px ${MONO}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = v > 140 ? '#000' : '#FFF'; ctx.fillText(`${i * 10}%`, (x0 + x1) / 2, by + bh / 2);
+      }
+    }
+  };
+  // Layers, back to front: full-screen fills, then guide lines (diagonals, centre circles and lines),
+  // then the color bars and gray steps on top so the lines pass behind them.
+  // 1. Full-screen fills
+  if (o.pat === 'grid' || o.pat === 'composite' || (o.pat === 'led' && s.mode !== 'led')) grid();
+  if (o.pat === 'led' && s.mode === 'led') drawLedCabinets(ctx, r, o);
+  if (o.pat === 'checker'){
+    const pc = document.createElement('canvas'); pc.width = pc.height = 2;
+    const p = pc.getContext('2d'); p.fillStyle = '#000'; p.fillRect(0, 0, 2, 2); p.fillStyle = '#FFF'; p.fillRect(0, 0, 1, 1); p.fillRect(1, 1, 1, 1);
+    ctx.fillStyle = ctx.createPattern(pc, 'repeat'); ctx.fillRect(x, y, w, h);
+  }
+  // 2. Guide lines
+  const lw = Math.max(1, Math.round(m / 500));
+  if (o.diag){
+    ctx.strokeStyle = 'rgba(255,255,255,.6)'; ctx.lineWidth = lw; ctx.beginPath();
+    ctx.moveTo(x, y); ctx.lineTo(x + w, y + h); ctx.moveTo(x + w, y); ctx.lineTo(x, y + h); ctx.stroke();
+  }
+  if (o.circles && (o.pat === 'grid' || o.pat === 'composite')){
+    const cx = x + w / 2, cy = y + h / 2, r0 = h / 2 - lw / 2, n = Math.ceil(w / h / 2) + 1;
+    ctx.lineWidth = lw; ctx.strokeStyle = 'rgba(255,255,255,.45)'; ctx.beginPath();
+    for (let k = -n; k <= n; k++){ if (k){ const ox = cx + k * h; ctx.moveTo(ox + r0, cy); ctx.arc(ox, cy, r0, 0, Math.PI * 2); } }
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.beginPath(); ctx.moveTo(cx + r0, cy); ctx.arc(cx, cy, r0, 0, Math.PI * 2);
+    // Full-length centre lines
+    ctx.moveTo(Math.floor(cx) + .5, y); ctx.lineTo(Math.floor(cx) + .5, y + h); ctx.moveTo(x, Math.floor(cy) + .5); ctx.lineTo(x + w, Math.floor(cy) + .5);
+    ctx.stroke();
+  }
+  // 3. Color bars and gray steps, in front of the guide lines
+  if (o.pat === 'composite'){
+    bars(x + w * 0.12, Math.round(y + h * 0.60), w * 0.76, Math.round(h * 0.12));
+    steps(x + w * 0.12, Math.round(y + h * 0.72), w * 0.76, Math.round(h * 0.10), true);
+  }
+  if (o.pat === 'bars'){ bars(x, y, w, Math.round(h * 0.78)); steps(x, y + Math.round(h * 0.78), w, h - Math.round(h * 0.78), true); }
+  if (o.pat === 'gray'){
+    const g = ctx.createLinearGradient(x, 0, x + w, 0); g.addColorStop(0, '#000'); g.addColorStop(1, '#FFF');
+    ctx.fillStyle = g; ctx.fillRect(x, y, w, Math.round(h / 2));
+    steps(x, y + Math.round(h / 2), w, h - Math.round(h / 2), true);
+  }
+  if (o.safe){
+    ctx.lineWidth = lw; ctx.setLineDash([Math.max(4, m / 60), Math.max(3, m / 90)]);
+    ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.strokeRect(x + w * .035, y + h * .035, w * .93, h * .93);
+    ctx.strokeStyle = 'rgba(255,255,255,.45)'; ctx.strokeRect(x + w * .05, y + h * .05, w * .9, h * .9);
+    ctx.setLineDash([]);
+  }
+  if (o.border && s.mode !== 'led'){
+    // White band at the very edge, then a red band of the same width just inside it,
+    // so you can see at a glance whether any edge pixels are cropped.
+    const n = Math.max(1, Math.min(Math.round(o.borderpx || 1), Math.floor(Math.min(w, h) / 4)));
+    const band = (k, c) => { ctx.fillStyle = c; ctx.fillRect(x + k, y + k, w - 2 * k, n); ctx.fillRect(x + k, y + h - k - n, w - 2 * k, n); ctx.fillRect(x + k, y + k, n, h - 2 * k); ctx.fillRect(x + w - k - n, y + k, n, h - 2 * k); };
+    band(0, '#FFFFFF'); band(n, '#FF0000');
+  }
+  if (o.labels){
+    const d = dims(s), t1 = s.label || 'Untitled', t2 = `${w} × ${h} px`, t3 = fmtLen2(d.w, d.h);
+    const fs = Math.max(10, Math.min(m * 0.085, w * 0.8 / (Math.max(t1.length, 6) * 0.5), 160)), fs2 = Math.max(9, fs * 0.5);
+    ctx.font = `600 ${fs2}px ${MONO}`;
+    const tw = Math.max(ctx.measureText(t2).width, ctx.measureText(t3).width);
+    ctx.font = `700 ${fs}px ${DISP}`;
+    const pw = Math.min(w * 0.9, Math.max(ctx.measureText(t1).width, tw) + fs), ph = fs * 1.2 + fs2 * 2.9;
+    const px = x + w / 2, py = y + h * (o.pat === 'composite' ? 0.30 : 0.5);
+    ctx.fillStyle = 'rgba(0,0,0,.78)'; ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(px - pw / 2, py - ph / 2, pw, ph, Math.min(16, ph * .15)); else ctx.rect(px - pw / 2, py - ph / 2, pw, ph);
+    ctx.fill();
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#FFFFFF'; ctx.fillText(t1, px, py - ph / 2 + fs * 0.7);
+    ctx.font = `600 ${fs2}px ${MONO}`; ctx.fillText(t2, px, py - ph / 2 + fs * 1.2 + fs2 * 0.9);
+    ctx.fillStyle = '#D9DEE5'; ctx.fillText(t3, px, py - ph / 2 + fs * 1.2 + fs2 * 2.15);
+  }
+  ctx.restore();
+}
+let tpEffPat = 'composite'; // the pattern actually drawn (LED walls always use the cabinet grid)
+let tpBlob = null, tpSeq = 0; // PNG of the current preview, prepared ahead of the Save click
+function renderTP(){
+  const t = tpTarget(), cv = $('#tpCanvas');
+  const hasLed = !!t && t.regions.some(r => r.s.mode === 'led'), allLed = !!t && t.regions.every(r => r.s.mode === 'led');
+  // A single LED wall only gets the LED cabinet grid. The saved pattern choice is kept for other screens.
+  const ledOnly = !!t && t.regions.length === 1 && allLed;
+  const o = ledOnly ? Object.assign({}, S.tp, {pat: 'led', safe: false, border: false}) : S.tp;
+  tpEffPat = o.pat;
+  const patSel = $('#tpPat');
+  [...patSel.options].forEach(op => {
+    op.hidden = ledOnly && op.value !== 'led';
+    op.disabled = ledOnly ? op.value !== 'led' : (op.value === 'led' && !hasLed);
+  });
+  patSel.value = o.pat; patSel.disabled = ledOnly;
+  $('#tpGridWrap').hidden = !(o.pat === 'grid' || o.pat === 'composite' || (o.pat === 'led' && t && t.regions.some(r => r.s.mode !== 'led')));
+  $('#tpSolidWrap').hidden = o.pat !== 'solid';
+  $('#tpLedWrap').hidden = o.pat !== 'led';
+  $('#tpLedABWrap').hidden = o.ledpal !== 'twotone';
+  $('#tpCirclesWrap').hidden = !(o.pat === 'grid' || o.pat === 'composite');
+  $('#tpSafeWrap').hidden = ledOnly;   // safe areas are for video framing, not LED cabinet checks
+  $('#tpBorderWrap').hidden = ledOnly; // LED walls don't use the edge border
+  $('#tpBorderPx').disabled = !S.tp.border;
+  $('#tpBgWrap').hidden = o.pat === 'solid' || o.pat === 'checker' || (o.pat === 'led' && allLed);
+  $('#oneRes').disabled = !S.match.on || $('#oneSel').value === '__canvas';
+  // "Native panel" only makes sense for LED walls; other screens have a native resolution.
+  const tsel = getS($('#oneSel').value);
+  $('#oneRes').querySelector('option[value="native"]').textContent = tsel && tsel.mode === 'led' ? 'Native panel' : 'Native resolution';
+  if (!t){ $('#tpInfo').textContent = 'Add a screen first.'; $('#tpSave').disabled = true; return; }
+  if (t.W > 16384 || t.H > 16384 || t.W * t.H > 150e6){ $('#tpInfo').textContent = `Too large to draw (${t.W} × ${t.H} px).`; $('#tpSave').disabled = true; return; }
+  cv.width = t.W; cv.height = t.H;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, t.W, t.H);
+  for (const r of t.regions) drawTPRegion(ctx, r, o);
+  // Encode the PNG now, so Save hands over a ready file straight from the click.
+  // (Encoding can take a second or more for big images; the button says so meanwhile.)
+  const seq = ++tpSeq; tpBlob = null;
+  const sb = $('#tpSave'); sb.disabled = true; sb.textContent = 'Preparing…';
+  cv.toBlob(b => { if (seq !== tpSeq) return; tpBlob = b; sb.disabled = !b; sb.textContent = 'Save PNG'; }, 'image/png');
+  $('#tpInfo').textContent = `${t.W} × ${t.H} px` + (t.regions.length > 1 ? ` · ${t.regions.length} screens on the full canvas; gaps are black` : '') +
+    (o.pat === 'led' && !hasLed ? ' · This screen isn\'t an LED wall, so it shows the grid pattern' : '') +
+    (o.pat === 'led' && hasLed && !allLed ? ' · Screens that aren\'t LED walls show the grid pattern' : '') +
+    '';
+}
+function syncTPControls(){
+  const o = S.tp;
+  $('#tpPat').value = o.pat; $('#tpGrid').value = o.grid; $('#tpBg').value = o.bg; $('#tpSolid').value = o.solid.toLowerCase();
+  for (const k of ['labels', 'circles', 'border', 'diag', 'safe', 'lededge', 'lednums']) $('#tp' + k[0].toUpperCase() + k.slice(1)).checked = !!o[k];
+  $('#tpLedPal').value = o.ledpal; $('#tpLedA').value = o.ledA.toLowerCase(); $('#tpLedB').value = o.ledB.toLowerCase();
+  $('#tpBorderPx').value = o.borderpx;
+}
+async function openTP(){
+  await (document.fonts ? document.fonts.ready : Promise.resolve());
+  syncTPControls(); tpDefaultRes(); $('#tp').hidden = false; renderTP(); $('#tpClose').focus({preventScroll:true});
+}
+function closeTP(){ $('#tp').hidden = true; }
+$('#btnTP').addEventListener('click', openTP);
+$('#tpClose').addEventListener('click', closeTP);
+$('#tp').addEventListener('click', e => { if (e.target.id === 'tp') closeTP(); });
+$('#tp').addEventListener('keydown', e => { if (e.key === 'Escape'){ e.stopPropagation(); closeTP(); } });
+$('#tp').addEventListener('input', e => {
+  const id = e.target.id, o = S.tp;
+  if (id === 'tpPat') o.pat = e.target.value;
+  else if (id === 'tpGrid'){ const n = Math.round(+e.target.value); if (!(n >= 8 && n <= 4000)) return; o.grid = n; }
+  else if (id === 'tpBg') o.bg = e.target.value;
+  else if (id === 'tpSolid') o.solid = e.target.value.toUpperCase();
+  else if (id === 'tpLedPal') o.ledpal = e.target.value;
+  else if (id === 'tpLedA') o.ledA = e.target.value.toUpperCase();
+  else if (id === 'tpLedB') o.ledB = e.target.value.toUpperCase();
+  else if (id === 'tpBorderPx'){ const n = Math.round(+e.target.value); e.target.classList.toggle('bad', !(n >= 1 && n <= 500)); if (!(n >= 1 && n <= 500)) return; o.borderpx = n; }
+  else if (id.startsWith('tp') && e.target.type === 'checkbox'){ const k = id.slice(2).toLowerCase(); if (k in o) o[k] = e.target.checked; }
+  save(); renderTP();
+});
+$('#oneSel').addEventListener('change', () => { tpDefaultRes(); if (!$('#tp').hidden) renderTP(); });
+// LED walls default to their native panel resolution (exact cabinet pixels); other screens to content resolution.
+function tpDefaultRes(){ const s = getS($('#oneSel').value); if (s) $('#oneRes').value = s.mode === 'led' ? 'native' : 'content'; }
+$('#oneRes').addEventListener('change', () => { if (!$('#tp').hidden) renderTP(); });
+$('#tpSave').addEventListener('click', () => {
+  const t = tpTarget(); if (!t) return;
+  const name = `${slug(S.name)}-${t.name}-${tpEffPat}-${t.W}x${t.H}.png`;
+  // Last resort: show the finished PNG as a real image, which phones and browsers can save by press-and-hold or right-click.
+  const fail = err => {
+    const img = $('#ovImg'); if (img.src) URL.revokeObjectURL(img.src); img.src = URL.createObjectURL(tpBlob);
+    lastBlob = tpBlob; lastName = name;
+    $('#ovTitle').textContent = name;
+    $('#ovFoot').textContent = `Saving files isn't available on this device${err && err.code ? ` (${err.code})` : ''}. ${saveHint()}`;
+    $('#ovSave').hidden = true;
+    $('#ov').hidden = false; $('#ovClose').focus({preventScroll:true});
+  };
+  if (tpBlob) offer(name, tpBlob, fail);
+});
+$('#oneSel').addEventListener('change', e => { if (e.target.value !== '__canvas') selectScreen(e.target.value, false); });
+$('#ovSave').addEventListener('click', () => { if (lastBlob) offer(lastName, lastBlob); });
+function closeOv(){ $('#ov').hidden = true; }
+$('#ovClose').addEventListener('click', closeOv);
+$('#ov').addEventListener('click', e => { if (e.target.id === 'ov') closeOv(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#ov').hidden) closeOv(); });
+for (const [id, k] of [['oLabels','labels'],['oCross','cross'],['oSeams','seams'],['oGaps','gaps'],['oGrid','grid']]){
+  $('#' + id).addEventListener('change', e => { S.exp[k] = e.target.checked; save(); });
+}
+
+/* ---------- header ---------- */
+$('#pname').addEventListener('input', e => { S.name = e.target.value; save(); });
+$('#units').addEventListener('click', e => { const b = e.target.closest('[data-u]'); if (!b) return; S.unit = b.dataset.u; refreshAll(); });
+
+function refreshAll(){
+  $('#pname').value = S.name;
+  document.querySelectorAll('#units [data-u]').forEach(b => b.setAttribute('aria-pressed', b.dataset.u === S.unit));
+  $('#matchOn').checked = S.match.on; $('#roundSel').value = String(S.match.round);
+  $('#snapBtn').setAttribute('aria-pressed', S.snap); $('#dimBtn').setAttribute('aria-pressed', S.allDims);
+  if (document.activeElement !== $('#gapIn')) $('#gapIn').value = val(S.gap); $('#gapUnit').textContent = S.unit;
+  for (const [id, k] of [['oLabels','labels'],['oCross','cross'],['oSeams','seams'],['oGaps','gaps'],['oGrid','grid']]) $('#' + id).checked = !!S.exp[k];
+  renderSelects(); renderRef(); renderList(); renderExpLabels(); renderStage(); renderTable(); save();
+  if (typeof edId !== 'undefined' && edId) renderEditor();
+}
+refreshAll();
+requestAnimationFrame(() => { fitView(); renderStage(); });
+})();
+</script>
