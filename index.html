@@ -877,6 +877,10 @@ label.lbl{font-size:12px;color:var(--muted);display:flex;flex-direction:column;g
 .stage-scroll{background:var(--stage);border:1px solid var(--line);border-radius:8px;overflow:auto;height:68vh;min-height:260px}
 .stage-inner{position:relative;margin:0}
 .stage-inner svg{display:block;width:100%;height:auto;touch-action:none;user-select:none;-webkit-user-select:none}
+#editSugs{position:absolute;z-index:4;display:flex;flex-wrap:wrap;justify-content:center;gap:6px;max-width:380px;padding:6px;background:rgba(10,12,16,.94);border:1px solid #2b3340;border-radius:6px;transform:translateX(-50%);box-shadow:0 6px 18px rgba(0,0,0,.35)}
+#editSugs[hidden]{display:none}
+#editSugs button{font:600 14px var(--f-display);color:#fff;background:#232a35;border:1px solid #3a4452;border-radius:4px;padding:3px 10px;cursor:pointer}
+#editSugs button:hover,#editSugs button.on{background:var(--focus);border-color:var(--focus);color:#0b0e12}
 #editor{position:absolute;display:none;text-align:center;font-family:var(--f-display);font-weight:600;background:rgba(10,12,16,.92);color:#fff;border:2px solid var(--focus);border-radius:4px;padding:0 6px;min-width:120px;z-index:3}
 .scr{fill:var(--screen);stroke:var(--screen-line);stroke-width:2;vector-effect:non-scaling-stroke}
 .scr.custom{stroke-dasharray:6 4;fill:#15281f}
@@ -1054,6 +1058,7 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
       <div class="stage-inner" id="inner">
         <svg id="svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Screen layout"></svg>
         <input id="editor" type="text" maxlength="60" aria-label="Edit name">
+        <div id="editSugs" class="edsugs" role="group" aria-label="Suggested names" hidden></div>
       </div>
     </div>
     <section class="panel">
@@ -1712,7 +1717,7 @@ function renderInspector(){
         <button class="btn sm ${mir?'':'on'}" data-which="orig">Original</button>
         <button class="btn sm ${mir?'on':''}" data-which="mirror">Mirror copy</button></div>
         ${mir?'<p class="hint">Editing the mirror copy. The original moves and resizes the opposite way.</p>':''}`:''}
-      <label class="lbl" for="iText">Name (shown in the middle)<input id="iText" class="field" value="${esc(p.text)}" placeholder="e.g. Speaker IMAG"></label>
+      <label class="lbl" for="iText">Name (shown in the middle)<input id="iText" class="field" value="${esc(p.text)}" placeholder="e.g. Speaker IMAG" list="pipSugList" autocomplete="off"><datalist id="pipSugList">${PIP_SUGS.map(t=>`<option value="${esc(t)}">`).join('')}</datalist></label>
       <label class="lbl" for="iMirror">Mirror<select id="iMirror" class="field">
         <option value="none">Off</option><option value="h">Left ↔ Right</option><option value="v">Top ↔ Bottom</option><option value="hv">Both</option></select></label>
       <label class="chk" title="Mirror across the centre of the screen this PiP is on, instead of the centre of the whole video wall"><input type="checkbox" id="iMirScr" ${p.mirrorRef==='screen'?'checked':''} ${!p.mirror||p.mirror==='none'?'disabled':''}> Screen mirror${screenUnder(p)?`: across the centre of ${esc(sname(screenUnder(p)))}`:''}</label>
@@ -2048,13 +2053,27 @@ function startEdit(kind,id){
   ed.style.fontSize=fsz+'px';
   ed.value=kind==='pip'?o.text:kind==='object'?(o.name||''):sname(o);
   editor={kind,id}; editorAt=performance.now(); renderStage();
+  /* PiP names: suggested names in a row under the box; typing anything else still works */
+  const sg=$('editSugs');
+  if(kind==='pip'){
+    sg.innerHTML=PIP_SUGS.map(t=>`<button type="button" data-sug="${esc(t)}">${esc(t)}</button>`).join('');
+    sg.hidden=false; const room=(inner.clientHeight||0)-(top+hpx);
+    sg.style.left=(left+wpx/2)+'px'; sg.style.top=(room>sg.offsetHeight+10||top<sg.offsetHeight+10?top+hpx+6:top-sg.offsetHeight-6)+'px';
+    markSugs();
+  }else sg.hidden=true;
   /* focus after the click's own mouse events have finished, or the browser takes the focus back */
   ed.focus(); ed.select();
   setTimeout(()=>{if(editor&&document.activeElement!==ed){ed.focus();ed.select();}},40);
 }
 let editorAt=0;
+const PIP_SUGS=['GFX 1','GFX 2','GFX 3','PB A','PB B','IMAG'];   /* suggested PiP names */
+function markSugs(){const v=$('editor').value.trim().toLowerCase(); $('editSugs').querySelectorAll('button').forEach(b=>b.classList.toggle('on',!!v&&b.dataset.sug.toLowerCase()===v));}
+$('editSugs').addEventListener('pointerdown',e=>{if(e.target.closest('[data-sug]')) e.preventDefault();});   /* keep the typing box focused */
+$('editSugs').addEventListener('click',e=>{const b=e.target.closest('[data-sug]'); if(!b||!editor) return; $('editor').value=b.dataset.sug; commitEdit();});
+$('editor').addEventListener('input',markSugs);
 function commitEdit(cancel){
   if(!editor) return;
+  $('editSugs').hidden=true;
   const {kind,id}=editor, ed=$('editor'), v=ed.value.trim();
   editor=null; ed.style.display='none';
   if(!cancel){
@@ -3187,8 +3206,8 @@ fitCanvas();
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.52.html). Bump it with every release.
-const APP_VERSION = '3.52';
+// (pixelplanner-v3.53.html). Bump it with every release.
+const APP_VERSION = '3.53';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
