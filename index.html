@@ -53,6 +53,7 @@ header.top{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 20px;paddin
 .optchk[aria-pressed="true"]::before{background:var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/12px no-repeat;border-color:var(--accent)}
 .optchk kbd{margin-left:auto;font:600 11px var(--f-mono);color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 5px}
 .optitem.danger{color:var(--danger)}
+a.optitem{text-decoration:none}
 .optsep{height:1px;background:var(--line);margin:4px 2px}
 
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--panel)}
@@ -456,6 +457,8 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
         <div class="optsep builder-only" role="separator"></div>
         <button class="optitem builder-only" id="btnExample" type="button">Load example</button>
         <button class="optitem danger" id="btnResetApp" type="button" title="Erase everything PixelPlanner has saved in this browser and start fresh">Reset app</button>
+        <div class="optsep" role="separator"></div>
+        <a class="optitem" id="lnkReadme" href="https://github.com/VideoStuff/PixelPlanner#readme" target="_blank" rel="noopener" title="What PixelPlanner does and how to use it (opens in a new tab)">Help &amp; README <span aria-hidden="true" style="margin-left:auto;color:var(--muted)">↗</span></a>
       </div>
     </div>
     <input type="file" id="fileIn" accept=".json,application/json" hidden>
@@ -3140,8 +3143,8 @@ fitCanvas();
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.49.html). Bump it with every release.
-const APP_VERSION = '3.49';
+// (pixelplanner-v3.50.html). Bump it with every release.
+const APP_VERSION = '3.50';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
