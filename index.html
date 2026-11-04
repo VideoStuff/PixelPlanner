@@ -1057,6 +1057,7 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
       <label class="chk" title="Show where screens overlap each other, and objects that cover a screen, from the Screen Builder"><input type="checkbox" id="showOverlaps" checked> Overlaps</label>
       <label class="chk" title="When you drag a screen, PiPs centred on it (in every preset) move with it"><input type="checkbox" id="follow" checked> PiPs follow screens</label>
       <label class="chk" title="Dropping a PiP onto one of about the same size asks whether to replace it. Untick to replace without asking."><input type="checkbox" id="askReplace" checked> Ask before replacing</label>
+      <label class="chk" title="Show each PiP's name on top of its picture, on the layout and in the PowerPoint and Excel. Untick to see the pictures clearly."><input type="checkbox" id="picNames" checked> Names on pictures</label>
       <div class="grp" style="margin-left:auto">
         <button class="btn sm" id="zOut" aria-label="Zoom out">−</button>
         <span class="count" id="zVal">100%</span>
@@ -1568,9 +1569,10 @@ function renderStage(){
     /* a picture fills the PiP (clipped to it), under a light wash of the PiP's colour */
     const picSvg=(q,k)=>pic?`<clipPath id="pc${p.id}${k}"><rect x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}" rx="${Math.min(6,q.h/10)}"/></clipPath><image href="${pic.url}" x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}" preserveAspectRatio="${PIC_PAR[p.fit]||PIC_PAR.fill}" clip-path="url(#pc${p.id}${k})" pointer-events="none"/>`:'';
     g+=`<g data-kind="pip" data-id="${p.id}">${picSvg(r,'')}${pipShape(p,r,'pip',fill,p.color)}${p.locked?lockBadge(r,scale):''}</g>`;
-    labs.push({txt,r});
+    const named=!(pic&&S.hidePicNames);   /* Names on pictures off: a PiP with a picture shows no name */
+    if(named) labs.push({txt,r});
     const m=mirrorRect(p); /* the mirror copy stacks with its original */
-    if(m){g+=`<g data-kind="pip" data-id="${p.id}" data-mirror="1">${picSvg(m,'m')}${pipShape(p,m,'pip',fill,p.color)}${p.locked?lockBadge(m,scale):''}</g>`; labs.push({txt,r:m});}
+    if(m){g+=`<g data-kind="pip" data-id="${p.id}" data-mirror="1">${picSvg(m,'m')}${pipShape(p,m,'pip',fill,p.color)}${p.locked?lockBadge(m,scale):''}</g>`; if(named) labs.push({txt,r:m});}
   });
   g+=placePipLabels(labs).map(l=>`<text class="pip-t" x="${l.x}" y="${l.y}" font-size="${l.fs}" style="pointer-events:none">${esc(l.txt)}</text>`).join('');
   /* objects you added: above every screen and PiP; a locked one is click-through (pick it from the Objects list) */
@@ -1808,7 +1810,7 @@ function renderInspector(){
     el.querySelector('h2').insertAdjacentHTML('afterend','<p class="hint lockhint">Locked. It can\'t be moved, resized, renamed, replaced or deleted until you unlock it.</p>');
   }
 }
-function renderAll(){$('askReplace').checked=!S.autoReplace; renderSide();renderStage();renderInspector();renderPreview();renderLibrary();renderPics();
+function renderAll(){$('askReplace').checked=!S.autoReplace; $('picNames').checked=!S.hidePicNames; renderSide();renderStage();renderInspector();renderPreview();renderLibrary();renderPics();
 }
 /* warning before editing screens that came from the imported JSON */
 const warnOK=new Set(); let warnAll=false, warnId=null;
@@ -2946,6 +2948,7 @@ function makeThumb(P,s){
   const obsHere=allObjects().map(o=>({x:(o.x-s.x)*sc,y:(o.y-s.y)*sc,w:o.w*sc,h:o.h*sc}));
   {g.font=`600 ${nfs}px "Barlow Condensed","Arial Narrow",Arial,sans-serif`; obsHere.push({x:0,y:0,w:Math.min(cw,g.measureText(sname(s).toUpperCase()).width+nfs*1.2),h:nfs*2});}   /* and of the screen's name */
   items.forEach((it,n)=>{
+    if(S.hidePicNames&&it.p.img&&IMGS.has(it.p.img)) return;   /* Names on pictures is off */
     const sx=Math.max(0,it.q.x), sy=Math.max(0,it.q.y);
     let free=[{x:sx,y:sy,w:Math.min(cw,it.q.x+it.q.w)-sx,h:Math.min(ch,it.q.y+it.q.h)-sy}];
     for(let m=n+1;m<items.length;m++) free=cut(free,items[m].q);
@@ -3163,6 +3166,7 @@ async function buildPptx(){
        so a PiP at the back stays readable. */
     const obs=allObjects();
     pipItems.forEach((it,n)=>{
+      if(S.hidePicNames&&it.p.img&&IMGS.has(it.p.img)) return;   /* Names on pictures is off */
       let free=[{...it.r}];
       for(let m=n+1;m<pipItems.length;m++) free=subtractRect(free,pipItems[m].r);
       for(const ob of obs) free=subtractRect(free,ob);
@@ -3328,6 +3332,7 @@ $('dlgReplace').addEventListener('cancel',e=>{e.preventDefault(); cancelReplace(
 $('repGo').onclick=()=>{const r=replacePending;replacePending=null;
   if($('repAlways').checked){S.autoReplace=true; $('askReplace').checked=false;}
   $('dlgReplace').close();if(r) doReplace(r.newId,r.targetId);};
+$('picNames').onchange=e=>{if(e.target.checked) delete S.hidePicNames; else S.hidePicNames=true; renderAll(); touch(); say(e.target.checked?'PiP names show on their pictures.':'PiPs with a picture show the picture only.','ok');};
 $('askReplace').onchange=e=>{S.autoReplace=!e.target.checked; touch(); say(e.target.checked?'Dropping a PiP on another one asks before replacing it.':'Dropping a PiP on another one replaces it without asking.','ok');};
 $('warnGo').onclick=()=>{
   if($('warnAll').checked) warnAll=true; else warnOK.add(warnId);
@@ -3378,8 +3383,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.55.html). Bump it with every release.
-const APP_VERSION = '3.55';
+// (pixelplanner-v3.56.html). Bump it with every release.
+const APP_VERSION = '3.56';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
