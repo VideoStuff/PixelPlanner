@@ -520,6 +520,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
           <label class="f">Height (<span class="oaU">ft</span>)<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="oaH"></label>
         </div>
         <p class="hint" id="oaDrawHint" hidden>Click on the layout to place each corner, then press Enter (or Finish). Shift keeps an edge straight; Esc cancels.</p>
+        <label class="f" id="oaSideRow" hidden>Ramp side<select id="oaSide"><option value="rampL">Left of the stage (rises to the right)</option><option value="rampR">Right of the stage (rises to the left)</option></select></label>
         <label class="chk-row" id="oaRailRow" hidden><input type="checkbox" id="oaRail" checked> Handrails, 38 in above the ramp</label>
         <p class="hint">Objects show on the layout, the layout snapshot and the layout summary so you can place screens around them. They aren't part of the content canvas, gaps or spec sheet.</p>
         <div class="gp-actions">
@@ -3186,8 +3187,8 @@ fitCanvas();
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.51.html). Bump it with every release.
-const APP_VERSION = '3.51';
+// (pixelplanner-v3.52.html). Bump it with every release.
+const APP_VERSION = '3.52';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
@@ -4478,7 +4479,7 @@ function objCardHTML(o){
   const inp = (k, v, lbl) => `<label class="f">${lbl} (${uLabel()})<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" data-ok="${k}" value="${val(v)}"${lock(k)}></label>`;
   return `<article class="ocard${o.id === selObj ? ' sel' : ''}" data-oid="${o.id}">
     <div class="card-head"><button type="button" class="grip" data-ogrip aria-label="Reorder ${esc(o.label || 'object')}: drag, or use the up and down arrow keys. Top of the list is in front." title="Drag to change which object is in front (top = front)">⠿</button><button type="button" class="swatch" data-act="color" data-oact="color" style="background:${ocol(o)}" aria-label="Change color" aria-haspopup="dialog" title="Change color"></button><span class="otag">Object</span><input class="lbl" data-ok="label" value="${esc(o.label)}" aria-label="Object name">${o.locked ? '<span class="lockbadge" title="Locked: can\'t be dragged or nudged">Locked</span>' : ''}</div>
-    <div class="x-sep">${inp('w', o.w, ramp ? 'Length' : 'Width')}<span>×</span>${inp('h', o.h, 'Height')}</div>${ramp ? `<label class="chk-row"><input type="checkbox" data-ok="rail"${o.rail !== false ? ' checked' : ''}> Handrails, 38 in above the ramp</label><p class="hint">ADA ramp, 1:12: set the height and the length follows (each inch of height is a foot of length).</p>` : ''}${o.shape === 'poly' ? '<p class="hint">Drawn shape: changing its width or height stretches it.</p>' : ''}
+    <div class="x-sep">${inp('w', o.w, ramp ? 'Length' : 'Width')}<span>×</span>${inp('h', o.h, 'Height')}</div>${ramp ? `<label class="f">Ramp side<select data-ok="side">${RAMP_SIDES.map(([sh, side, rises]) => `<option value="${sh}"${o.shape === sh ? ' selected' : ''}>${side} of the stage (${rises})</option>`).join('')}</select></label><label class="chk-row"><input type="checkbox" data-ok="rail"${o.rail !== false ? ' checked' : ''}> Handrails, 38 in above the ramp</label><p class="hint">ADA ramp, 1:12: set the height and the length follows (each inch of height is a foot of length).</p>` : ''}${o.shape === 'poly' ? '<p class="hint">Drawn shape: changing its width or height stretches it.</p>' : ''}
     <details class="more"><summary>Position on layout</summary>
       <div class="row r2">${inp('x', o.x, 'Left')}${inp('y', o.y, 'Top')}</div>
     </details>
@@ -4557,6 +4558,7 @@ function removeObj(id){
 document.addEventListener('input', e => {
   const c = e.target.closest('.ocard'); if (!c) return;
   const o = getO(c.dataset.oid), k = e.target.dataset.ok, t = e.target; if (!o || !k) return;
+  if (k === 'side'){ setRampSide(o, t.value); return; }
   if (k === 'rail'){ o.rail = t.checked; document.querySelectorAll(`.ocard[data-oid="${o.id}"] [data-ok="rail"]`).forEach(i => { if (i !== t) i.checked = t.checked; }); renderStage(); save(); return; }
   if (k === 'label') o.label = t.value;
   else {
@@ -4597,13 +4599,20 @@ document.addEventListener('click', e => {
 const OBJ_PRESETS = [{name: 'Lectern (24 × 46 in)', label: 'Lectern', w: 609.6, h: 1168.4},
   {name: 'Stage (36 × 2 ft)', label: 'Stage', w: 36 * 304.8, h: 2 * 304.8},
   {name: 'Person in a suit (6 ft, standing)', label: 'Person', shape: 'person', w: PERSON_W, h: PERSON_H},
-  {name: 'ADA ramp left (1:12, rises to the right)', label: 'ADA ramp left', shape: 'rampL', w: 609.6 * RAMP_RUN, h: 609.6},
-  {name: 'ADA ramp right (1:12, rises to the left)', label: 'ADA ramp right', shape: 'rampR', w: 609.6 * RAMP_RUN, h: 609.6}];
-const oaRamp = () => { const p = OBJ_PRESETS[$('#oaPreset').value]; return p && (p.shape === 'rampL' || p.shape === 'rampR') ? p.shape : null; };
-const oaShape = () => { const p = OBJ_PRESETS[$('#oaPreset').value]; return p && p.shape ? p.shape : null; };
+  {name: 'ADA ramp (1:12)', label: 'ADA ramp', shape: 'ramp', w: 609.6 * RAMP_RUN, h: 609.6}]; // 'ramp': left or right is chosen when it's added
+// Which way a ramp faces: on the left of the stage it rises to the right, on the right it rises to the left.
+const RAMP_SIDES = [['rampL', 'Left', 'rises to the right'], ['rampR', 'Right', 'rises to the left']];
+const oaRamp = () => { const p = OBJ_PRESETS[$('#oaPreset').value]; return p && p.shape === 'ramp' ? ($('#oaSide').value === 'rampR' ? 'rampR' : 'rampL') : null; };
+const oaShape = () => { const p = OBJ_PRESETS[$('#oaPreset').value]; return p && p.shape ? (p.shape === 'ramp' ? oaRamp() : p.shape) : null; };
+// Turn a ramp to face the other way, in place (same footprint).
+function setRampSide(o, shape){
+  if (!isRamp(o) || o.shape === shape) return;
+  o.shape = shape; renderObjects(); if (edObj === o.id) openObjEditor(o.id, true); renderStage(); save();
+  toast(`${o.label || 'Ramp'} now ${shape === 'rampL' ? 'rises to the right' : 'rises to the left'}`);
+}
 // For a ramp the length is set by the height: 12 times as long, in any unit.
 function oaRampSync(){
-  const r = oaRamp(); $('#oaRailRow').hidden = !r; $('#oaW').disabled = !!r; $('#oaW').title = r ? 'Set by the height: a 1:12 ramp is 12 times as long as it is high' : '';
+  const r = oaRamp(); $('#oaRailRow').hidden = !r; $('#oaSideRow').hidden = !r; $('#oaW').disabled = !!r; $('#oaW').title = r ? 'Set by the height: a 1:12 ramp is 12 times as long as it is high' : '';
   if (r){ const h = parseLen($('#oaH').value); $('#oaW').value = isFinite(h) && h > 0 ? (isFtIn() ? ftIn(h * RAMP_RUN * U().f) : String(+(h * RAMP_RUN).toFixed(4))) : ''; }
 }
 $('#oaH').addEventListener('input', oaRampSync);
@@ -5751,6 +5760,7 @@ svg.addEventListener('contextmenu', e => {
       {label: 'Change color…', run: () => { openObjEditor(ob.id, true); const b = stageEd.querySelector('[data-oact="color"]'); if (b) openPalette(ob.id, b); }},
       {label: ob.locked ? 'Unlock position' : 'Lock position', run: () => setLocked([ob], !ob.locked)},
       {label: 'Duplicate', run: () => dupObj(ob)},
+      ...(isRamp(ob) ? [{sep: true}, {head: 'Ramp side'}, ...RAMP_SIDES.map(([sh, side, rises]) => ({label: `${ob.shape === sh ? '✓ ' : ''}${side} (${rises})`, run: () => setRampSide(ob, sh)}))] : []),
       {sep: true},
       {label: 'Delete object', danger: true, run: () => { removeObj(ob.id); toast('Deleted ' + (ob.label || 'object')); }},
     ]);
@@ -5792,7 +5802,10 @@ svg.addEventListener('contextmenu', e => {
       {label: 'Custom rectangle (set its size next)', run: () => placeObj('', 4 * FT, 4 * FT)},
       {label: 'Custom shape (draw it on the layout)', run: () => { setShapeDraw(true, ''); toast('Click on the layout to place each corner. Enter finishes the shape, Backspace removes the last corner, Esc cancels.'); }},
       {sep: true},
-      ...OBJ_PRESETS.map(pr => ({label: pr.name, run: () => placeObj(objName(pr.label), pr.w, pr.h, pr.shape)}))];
+      ...OBJ_PRESETS.map(pr => pr.shape === 'ramp'
+        ? {label: pr.name + '…', run: () => openCtx(e, [{label: '‹ Back', run: () => openCtx(e, otypes)}, {sep: true}, {head: 'Which side of the stage?'},
+            ...RAMP_SIDES.map(([sh, side, rises]) => ({label: `${side} (${rises})`, run: () => placeObj(objName(pr.label), pr.w, pr.h, sh)}))])}
+        : {label: pr.name, run: () => placeObj(objName(pr.label), pr.w, pr.h, pr.shape)})];
     const items = [
       {label: 'Add screen here…', run: () => openCtx(e, types)},
       {label: 'Add object here…', run: () => openCtx(e, otypes)},
