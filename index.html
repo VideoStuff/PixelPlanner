@@ -1038,9 +1038,7 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
         <button class="btn" id="btnRedo" title="Redo (Ctrl/Cmd+Shift+Z)">Redo</button>
       </div>
       <div class="grp">
-        <button class="btn" id="tSelect">Select</button>
-        <button class="btn" id="tDraw" title="Drag on the stage to draw a PiP (D)">Draw PiP</button>
-        <button class="btn" id="tAdd">+ Add PiP</button>
+        <button class="btn" id="tAdd" title="Add a PiP in the middle of the first screen and type its name. Or right-click the layout and choose Create… → PiP to add one at that spot.">+ Add PiP</button>
       </div>
       <label class="chk" title="Snap to screen edges, centres and other PiPs. Hold Ctrl (Cmd on a Mac) while dragging to place freely."><input type="checkbox" id="snap" checked> Snap</label>
       <label class="chk" title="Aspect ratio for new PiPs. Lock and change the ratio of an existing PiP in the side panel."><select id="newAR" class="field" style="width:auto" aria-label="Aspect ratio for new PiPs"><option value="16:9">16:9</option><option value="3:1">3:1</option></select> new PiPs</label>
@@ -1628,7 +1626,7 @@ function renderPreview(){
     if(m) rows.push(`<tr class="zrow mirror ${isSel&&sel.mirror?'sel':''}" data-of="${p.id}"><td></td><td></td><td>${esc(nm)} <span class="tag">mirror</span></td><td>${esc(on(m))}</td></tr>`);
   });
   $('preview').innerHTML='<thead><tr><th></th><th title="1 is the front">Layer</th><th>PiP</th><th>Screens</th></tr></thead><tbody>'+
-    (rows.length?rows.join(''):'<tr><td colspan="4" class="hint">No PiPs yet. Choose Draw PiP and drag on a screen.</td></tr>')+'</tbody>';
+    (rows.length?rows.join(''):'<tr><td colspan="4" class="hint">No PiPs yet. Choose + Add PiP, or right-click a screen and choose Create… → PiP.</td></tr>')+'</tbody>';
 }
 /* click a row to select that PiP, drag a row up or down to change the stacking order (top row is in front) */
 $('preview').addEventListener('pointerdown',e=>{
@@ -1777,7 +1775,7 @@ function renderInspector(){
       <p class="hint">Drag it on the layout and use the white handles to resize. Objects always sit above every screen and PiP.</p>
       <div class="row"><button class="btn sm" id="oDup">Duplicate</button><button class="btn sm danger" id="oDel">Delete</button></div>`;
   }else{
-    el.innerHTML=`<h2>Inspector</h2><p class="hint">Select a PiP, a screen or an object to edit it. Use <b>Draw PiP</b>, then drag across a screen to make one, and double-click it to type its name.</p>
+    el.innerHTML=`<h2>Inspector</h2><p class="hint">Select a PiP, a screen or an object to edit it. Use <b>+ Add PiP</b>, or right-click a screen and choose <b>Create… → PiP</b> to add one there. Double-click a PiP to type its name.</p>
       ${S.example?'<div class="banner">This is an example layout. Import your v2 video content guide JSON to replace the video screens, then edit or delete the example presets.</div>':''}`;
   }
   /* a locked PiP or screen: everything that could change it is switched off until it is unlocked */
@@ -1788,7 +1786,7 @@ function renderInspector(){
   }
 }
 function renderAll(){$('askReplace').checked=!S.autoReplace; renderSide();renderStage();renderInspector();renderPreview();renderLibrary();
-  $('tSelect').classList.toggle('on',tool==='select');$('tDraw').classList.toggle('on',tool==='draw');}
+}
 /* warning before editing screens that came from the imported JSON */
 const warnOK=new Set(); let warnAll=false, warnId=null;
 const needsWarn=id=>{const s=scrById(id);return !!s&&s.kind==='source'&&!warnAll&&!warnOK.has(id);};
@@ -2109,7 +2107,6 @@ window.addEventListener('keydown',e=>{
   if((e.ctrlKey||e.metaKey)&&(e.key==='y'||e.key==='Y')){e.preventDefault();redo();return;}
   if((e.ctrlKey||e.metaKey)&&(e.key==='c'||e.key==='C')){if(copySel()) e.preventDefault();return;}
   if((e.ctrlKey||e.metaKey)&&(e.key==='v'||e.key==='V')){if(clip){e.preventDefault();pasteClip();}return;}
-  if(e.key==='d'||e.key==='D'){tool=tool==='draw'?'select':'draw';renderAll();return;}
   if(e.key==='Escape'){tool='select';sel=null;renderAll();return;}
   if(!sel) return;
   if(selTarget()?.locked&&(e.key==='Delete'||e.key==='Backspace'||e.key.startsWith('Arrow'))){e.preventDefault();say('It is locked. Unlock it in the inspector first.');return;}
@@ -2128,8 +2125,6 @@ function deleteSel(){
 }
 
 /* ---------- toolbar / sidebar ---------- */
-$('tSelect').onclick=()=>{tool='select';renderAll();};
-$('tDraw').onclick=()=>{tool=tool==='draw'?'select':'draw';renderAll();};
 $('tAdd').onclick=()=>{
   const s=wallScreens()[0]||S.screens[0]; const {w,h}=defPipSize(newAR());
   const c=s?{x:s.x+s.w/2,y:s.y+s.h/2}:{x:960,y:540};
@@ -3206,8 +3201,8 @@ fitCanvas();
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.53.html). Bump it with every release.
-const APP_VERSION = '3.53';
+// (pixelplanner-v3.54.html). Bump it with every release.
+const APP_VERSION = '3.54';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
