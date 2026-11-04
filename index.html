@@ -3140,8 +3140,8 @@ fitCanvas();
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.47.html). Bump it with every release.
-const APP_VERSION = '3.47';
+// (pixelplanner-v3.48.html). Bump it with every release.
+const APP_VERSION = '3.48';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
@@ -5550,7 +5550,9 @@ svg.addEventListener('keydown', e => {
   if (!e.ctrlKey && !e.metaKey && !e.altKey && (e.key === 'r' || e.key === 'R')){ e.preventDefault(); $('#rulerBtn').click(); return; }
   const m = map[e.key]; const s = (selObj && (getO(selObj) || getN(selObj))) || getS(S.sel); if (!m || !s) return;
   e.preventDefault();
-  const step = S.unit === 'm' ? (e.shiftKey ? 100 : 10) : 25.4 * (e.shiftKey ? 12 : 1); // 1 cm / 10 cm in meters, 1 in / 1 ft otherwise
+  // Arrows: 1 in (Shift: 1 ft). Ctrl or Cmd + arrows: 1 in (Shift: 6 in). In meters: 1 cm (Shift: 10 cm), Ctrl + Shift: 15 cm.
+  const fine = e.ctrlKey || e.metaKey;
+  const step = S.unit === 'm' ? (e.shiftKey ? (fine ? 150 : 100) : 10) : 25.4 * (e.shiftKey ? (fine ? 6 : 12) : 1);
   const moving = (multi.size ? groupItems() : [s]).filter(o => !o.locked);
   if (!moving.length){ toast(`${s.label || 'This item'} is locked. Unlock it to move it.`); return; }
   moving.forEach(o => { o.x += m[0] * step; o.y += m[1] * step; });
