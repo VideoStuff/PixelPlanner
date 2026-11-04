@@ -692,7 +692,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <h3>Screen Builder</h3>
 <ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
 <h3>Preset Guide</h3>
-<ul><li>Uses the screens from the Screen Builder.</li><li>Build presets of PiPs (picture-in-picture windows) on each screen, with mirroring and aspect ratio lock.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li>Exports to PowerPoint and Excel.</li></ul>
+<ul><li>Uses the screens from the Screen Builder.</li><li>Build presets of PiPs (picture-in-picture windows) on each screen, with mirroring and aspect ratio lock.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Exports to PowerPoint and Excel.</li></ul>
 <h3>Exports</h3>
 <ul><li>Canvas export PNG at exact pixel size, layout snapshot, layout summary and test patterns.</li><li>PDF spec pack, PowerPoint template, layered PSD and SVG.</li><li>Spec sheet as CSV.</li><li>Switcher planning <code>.xml</code> (screens, layers and auxes).</li><li><strong>Advanced → EDID (experimental):</strong> an EDID <code>.bin</code> for a screen, with connector, refresh rate, CVT blanking and a split across outputs. Check results on your hardware before you rely on them.</li></ul>
 <h2>Using it</h2>
@@ -956,6 +956,18 @@ table.t td{padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:to
 .tbl-wrap{overflow-x:auto}
 .status{font-size:13px;min-height:20px}
 .lib{display:flex;flex-wrap:wrap;gap:8px}
+.pics{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px;margin-top:10px}
+.pic{position:relative;display:grid;gap:4px;padding:6px;border:1px solid var(--line);border-radius:6px;background:var(--panel);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;min-width:0}
+.pic:hover,.pic:focus-visible{border-color:var(--focus)}
+.pic img{display:block;width:100%;aspect-ratio:16/9;object-fit:contain;background:repeating-conic-gradient(#2a3140 0 25%,#222833 0 50%) 0 0/12px 12px;border-radius:3px;pointer-events:none}
+.pic-nm{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pic-use{font-size:11px;color:var(--muted)}
+.pic-x{position:absolute;top:2px;right:2px;border:0;border-radius:4px;background:rgba(10,12,16,.75);color:#fff;font-size:12px;line-height:1;padding:3px 6px;cursor:pointer}
+.pic-x.arm{background:#c4352c}
+#picPanel.drop-ok,.stage-scroll.file-ok{outline:2px dashed var(--focus);outline-offset:-4px}
+.pic-ghost{position:fixed;z-index:70;pointer-events:none;width:120px;border-radius:4px;opacity:.85;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+.pic-row{display:flex;gap:8px;align-items:center}
+.pic-row img{width:64px;height:36px;object-fit:cover;border-radius:3px;border:1px solid var(--line);flex:none}
 .lib-item{display:flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--line);border-radius:6px;background:var(--panel);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;min-width:0;max-width:100%}
 .lib-item:hover{background:var(--panel-2);border-color:var(--muted)}
 .lib-item:active{cursor:grabbing}
@@ -1063,6 +1075,12 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
       <h2>PiP library <span class="count" id="libCount"></span></h2>
       <div class="lib" id="library" role="list"></div>
       <p class="hint" id="libHint">Drag a PiP onto the layout to add it to this preset. Every named PiP from any preset is listed here, at its own aspect ratio. Click one to drop it in the middle of the first screen.</p>
+    </section>
+    <section class="panel" id="picPanel">
+      <h2>Picture library <span class="count" id="picCount"></span></h2>
+      <div class="row"><button class="btn sm" id="picAdd" type="button">Add pictures…</button><input type="file" id="picFile" accept="image/*" multiple hidden></div>
+      <div class="pics" id="pics" role="list"></div>
+      <p class="hint">Pictures are shared by every preset. Select a PiP and click a picture to put it in that PiP, or drag a picture onto a PiP (dropping it on an empty spot makes a new PiP). You can also drop image files here or straight onto a PiP. Pictures are shrunk to at most 1920 px and saved in the guide's .json.</p>
     </section>
     <p class="hint">Right-click the layout to add a PiP or screen at that spot. Double-click a PiP to type its name. Drag to move, use the white handles to resize. Hold Ctrl (Cmd on a Mac) while dragging to skip snapping. Scroll the mouse wheel over the layout to zoom. Delete removes it, arrow keys nudge.</p>
     <section class="panel">
@@ -1546,10 +1564,13 @@ function renderStage(){
   const labs=[];   /* every PiP and mirror copy, back to front, for the names drawn on top */
   P.pips.forEach((p,i)=>{
     const txt=pname(p,i), r={x:p.x,y:p.y,w:p.w,h:p.h};
-    g+=`<g data-kind="pip" data-id="${p.id}">${pipShape(p,r,'pip',p.color+'99',p.color)}${p.locked?lockBadge(r,scale):''}</g>`;
+    const pic=p.img&&IMGS.get(p.img), fill=pic?p.color+'26':p.color+'99';
+    /* a picture fills the PiP (clipped to it), under a light wash of the PiP's colour */
+    const picSvg=(q,k)=>pic?`<clipPath id="pc${p.id}${k}"><rect x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}" rx="${Math.min(6,q.h/10)}"/></clipPath><image href="${pic.url}" x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}" preserveAspectRatio="${PIC_PAR[p.fit]||PIC_PAR.fill}" clip-path="url(#pc${p.id}${k})" pointer-events="none"/>`:'';
+    g+=`<g data-kind="pip" data-id="${p.id}">${picSvg(r,'')}${pipShape(p,r,'pip',fill,p.color)}${p.locked?lockBadge(r,scale):''}</g>`;
     labs.push({txt,r});
     const m=mirrorRect(p); /* the mirror copy stacks with its original */
-    if(m){g+=`<g data-kind="pip" data-id="${p.id}" data-mirror="1">${pipShape(p,m,'pip',p.color+'99',p.color)}${p.locked?lockBadge(m,scale):''}</g>`; labs.push({txt,r:m});}
+    if(m){g+=`<g data-kind="pip" data-id="${p.id}" data-mirror="1">${picSvg(m,'m')}${pipShape(p,m,'pip',fill,p.color)}${p.locked?lockBadge(m,scale):''}</g>`; labs.push({txt,r:m});}
   });
   g+=placePipLabels(labs).map(l=>`<text class="pip-t" x="${l.x}" y="${l.y}" font-size="${l.fs}" style="pointer-events:none">${esc(l.txt)}</text>`).join('');
   /* objects you added: above every screen and PiP; a locked one is click-through (pick it from the Objects list) */
@@ -1715,7 +1736,9 @@ function renderInspector(){
         <button class="btn sm ${mir?'':'on'}" data-which="orig">Original</button>
         <button class="btn sm ${mir?'on':''}" data-which="mirror">Mirror copy</button></div>
         ${mir?'<p class="hint">Editing the mirror copy. The original moves and resizes the opposite way.</p>':''}`:''}
-      <label class="lbl" for="iText">Name (shown in the middle)<input id="iText" class="field" value="${esc(p.text)}" placeholder="e.g. Speaker IMAG" list="pipSugList" autocomplete="off"><datalist id="pipSugList">${PIP_SUGS.map(t=>`<option value="${esc(t)}">`).join('')}</datalist></label>
+      <label class="lbl" for="iText">Name (shown in the middle)<input id="iText" class="field" value="${esc(p.text)}" placeholder="e.g. Speaker IMAG" list="pipSugList" autocomplete="off"><datalist id="pipSugList">${PIP_SUGS.map(t=>`<option value="${esc(t)}">`).join('')}</datalist>
+      <label class="lbl" for="iPic">Picture<span class="pic-row">${p.img&&IMGS.get(p.img)?`<img src="${IMGS.get(p.img).url}" alt="">`:''}<select id="iPic" class="field"><option value="">None</option>${[...IMGS.values()].map(e=>`<option value="${e.id}"${e.id===p.img?' selected':''}>${esc(e.name)}</option>`).join('')}</select></span></label>
+      ${p.img&&IMGS.get(p.img)?`<label class="lbl" for="iFit">Picture fit<select id="iFit" class="field"><option value="fill"${(p.fit||'fill')==='fill'?' selected':''}>Fill (crop to the PiP)</option><option value="fit"${p.fit==='fit'?' selected':''}>Fit (show all of it)</option><option value="stretch"${p.fit==='stretch'?' selected':''}>Stretch</option></select></label>`:IMGS.size?'':'<p class="hint" style="margin-top:-4px">Add pictures in the Picture library below the layout.</p>'}</label>
       <label class="lbl" for="iMirror">Mirror<select id="iMirror" class="field">
         <option value="none">Off</option><option value="h">Left ↔ Right</option><option value="v">Top ↔ Bottom</option><option value="hv">Both</option></select></label>
       <label class="chk" title="Mirror across the centre of the screen this PiP is on, instead of the centre of the whole video wall"><input type="checkbox" id="iMirScr" ${p.mirrorRef==='screen'?'checked':''} ${!p.mirror||p.mirror==='none'?'disabled':''}> Screen mirror${screenUnder(p)?`: across the centre of ${esc(sname(screenUnder(p)))}`:''}</label>
@@ -1785,7 +1808,7 @@ function renderInspector(){
     el.querySelector('h2').insertAdjacentHTML('afterend','<p class="hint lockhint">Locked. It can\'t be moved, resized, renamed, replaced or deleted until you unlock it.</p>');
   }
 }
-function renderAll(){$('askReplace').checked=!S.autoReplace; renderSide();renderStage();renderInspector();renderPreview();renderLibrary();
+function renderAll(){$('askReplace').checked=!S.autoReplace; renderSide();renderStage();renderInspector();renderPreview();renderLibrary();renderPics();
 }
 /* warning before editing screens that came from the imported JSON */
 const warnOK=new Set(); let warnAll=false, warnId=null;
@@ -2284,6 +2307,144 @@ $('nsAdd').onclick=()=>{
   S.screens.push(s); sel={kind:'screen',id:s.id}; $('nsName').value=''; renderAll(); touch();
 };
 
+/* ---------- picture library: pictures shared by every preset, kept in the browser's IndexedDB ----------
+   A PiP refers to a picture by id (p.img) and says how it sits (p.fit: fill, fit or stretch). The pictures stay out
+   of the guide state so undo and browser storage stay small; the Screen Builder page writes them into the .json. */
+const IMGS=new Map();   /* id -> {id,name,w,h,data,url,el} */
+const PIC_MAX=1920, PIC_PAR={fill:'xMidYMid slice',fit:'xMidYMid meet',stretch:'none'};
+function picDB(){
+  if(picDB.p) return picDB.p;
+  return picDB.p=new Promise(res=>{try{const r=indexedDB.open('pixelplanner-pictures',1);
+    r.onupgradeneeded=()=>r.result.createObjectStore('pics',{keyPath:'id'}); r.onsuccess=()=>res(r.result); r.onerror=r.onblocked=()=>res(null);}catch(e){res(null);}});
+}
+async function picTx(mode,fn){
+  const db=await picDB(); if(!db) return null;
+  return new Promise(res=>{try{const t=db.transaction('pics',mode), q=fn(t.objectStore('pics'));
+    t.oncomplete=()=>res(q&&'result' in q?q.result:true); t.onerror=t.onabort=()=>res(null);}catch(e){res(null);}});
+}
+const picRec=r=>({id:r.id,name:r.name,w:r.w,h:r.h,data:r.data});   /* what is stored and saved */
+function dataBlob(d){const [h,b]=d.split(','), bin=atob(b), a=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) a[i]=bin.charCodeAt(i); return new Blob([a],{type:(h.match(/data:([^;]+)/)||[])[1]||'image/png'});}
+function picLoad(r){
+  if(!r||typeof r.id!=='string'||typeof r.data!=='string'||!/^data:image\//.test(r.data)) return null;
+  const old=IMGS.get(r.id); if(old&&old.url) URL.revokeObjectURL(old.url);
+  const e={...picRec(r),name:String(r.name||'Picture').slice(0,60)}; try{e.url=URL.createObjectURL(dataBlob(e.data));}catch(err){e.url=e.data;}
+  e.el=new Image(); e.el.src=e.url; IMGS.set(e.id,e); return e;
+}
+function picsSet(list){ for(const e of IMGS.values()) if(e.url&&e.url.startsWith('blob:')) URL.revokeObjectURL(e.url); IMGS.clear(); (list||[]).forEach(picLoad); }
+function postPics(){ try{parent.postMessage({type:'pp-pg-images',images:[...IMGS.values()].map(picRec)},'*');}catch(e){} }
+const picUses=id=>{let n=0; for(const P of S.presets) for(const p of P.pips) if(p.img===id) n++; return n;};
+/* a picture file, shrunk to at most PIC_MAX px a side: JPEG, or PNG when it has see-through parts */
+async function shrinkPic(f){
+  const src=URL.createObjectURL(f), img=new Image(); img.src=src;
+  try{await img.decode();}catch(e){URL.revokeObjectURL(src); throw e;}
+  const nw=img.naturalWidth||1, nh=img.naturalHeight||1, k=Math.min(1,PIC_MAX/Math.max(nw,nh)), w=Math.max(1,Math.round(nw*k)), h=Math.max(1,Math.round(nh*k));
+  const cv=document.createElement('canvas'); cv.width=w; cv.height=h; const g=cv.getContext('2d'); g.drawImage(img,0,0,w,h); URL.revokeObjectURL(src);
+  let alpha=false;
+  if(!/jpe?g/i.test(f.type)){const d=g.getImageData(0,0,w,h).data; for(let i=3;i<d.length;i+=64) if(d[i]<250){alpha=true;break;}}
+  return {id:'img'+uid(),name:(f.name||'Picture').replace(/\.[^.]+$/,'').slice(0,60)||'Picture',w,h,data:alpha?cv.toDataURL('image/png'):cv.toDataURL('image/jpeg',0.86)};
+}
+async function addPicFiles(files){
+  const added=[];
+  for(const f of [...files]){
+    if(!/^image\//.test(f.type)){say(`${f.name} isn't a picture.`,'err');continue;}
+    try{added.push(picLoad(await shrinkPic(f)));}catch(e){say(`Couldn't read ${f.name}.`,'err');}
+  }
+  if(!added.length) return [];
+  const ok=await picTx('readwrite',st=>{added.forEach(r=>st.put(picRec(r)));});
+  postPics(); renderAll();
+  say(`Added ${added.length===1?added[0].name:added.length+' pictures'} to the picture library.`+(ok?'':' This browser can\'t keep pictures between visits, so save the .json to keep them.'),ok?'ok':'err');
+  return added;
+}
+function setPipPic(p,id){
+  if(!p) return;
+  if(p.locked){say('It is locked. Unlock it in the inspector first.');return;}
+  if(id){p.img=id; if(!p.fit) p.fit='fill';} else {delete p.img; delete p.fit;}
+  renderAll(); touch();
+  say(id?`${(IMGS.get(id)||{}).name||'Picture'} is in ${p.text||'the PiP'}.`:'Picture removed from the PiP.','ok');
+}
+async function removePic(id){
+  const e=IMGS.get(id); if(!e) return;
+  for(const P of S.presets) for(const p of P.pips) if(p.img===id){delete p.img; delete p.fit;}
+  if(e.url&&e.url.startsWith('blob:')) URL.revokeObjectURL(e.url); IMGS.delete(id);
+  await picTx('readwrite',st=>st.delete(id)); postPics(); renderAll(); touch(); say(`Removed ${e.name} from the picture library.`,'ok');
+}
+/* draw a PiP's picture into box q on a canvas, as its fit says (fill crops, fit letterboxes, stretch distorts) */
+function drawPic(g,e,q,fit){
+  let dw=q.w, dh=q.h, dx=q.x, dy=q.y;
+  if(fit!=='stretch'){const k=fit==='fit'?Math.min(q.w/e.w,q.h/e.h):Math.max(q.w/e.w,q.h/e.h); dw=e.w*k; dh=e.h*k; dx=q.x+(q.w-dw)/2; dy=q.y+(q.h-dh)/2;}
+  g.save(); g.beginPath(); g.rect(q.x,q.y,q.w,q.h); g.clip(); try{g.drawImage(e.el,dx,dy,dw,dh);}catch(err){} g.restore();
+}
+/* the picture as it shows in a w × h PiP, as a JPEG for PowerPoint */
+function picForBox(e,fit,w,h){
+  const k=Math.min(1,1280/Math.max(w,h)), cw=Math.max(2,Math.round(w*k)), ch=Math.max(2,Math.round(h*k));
+  const cv=document.createElement('canvas'); cv.width=cw; cv.height=ch; const g=cv.getContext('2d');
+  g.fillStyle='#000'; g.fillRect(0,0,cw,ch); drawPic(g,e,{x:0,y:0,w:cw,h:ch},fit); return cv.toDataURL('image/jpeg',0.86);
+}
+const picsReady=()=>Promise.all([...IMGS.values()].map(e=>e.el.decode().catch(()=>{})));
+function renderPics(){
+  const list=[...IMGS.values()];
+  $('picCount').textContent=list.length||'';
+  $('pics').innerHTML=list.length?list.map(e=>{const n=picUses(e.id);
+    return `<div class="pic" role="listitem" tabindex="0" data-pic="${e.id}" title="${esc(e.name)} · ${e.w} × ${e.h} px. Click to put it in the selected PiP, or drag it onto a PiP.">
+      <img src="${e.url}" alt=""><span class="pic-nm">${esc(e.name)}</span><span class="pic-use">${n?`In ${n} PiP${n===1?'':'s'}`:'Not used'} · ${e.w} × ${e.h}</span>
+      <button class="pic-x" type="button" data-picdel="${e.id}" title="Remove from the library">✕</button></div>`;}).join('')
+    :'<p class="hint" style="margin:0">No pictures yet. Use Add pictures, or drop image files here.</p>';
+}
+$('picAdd').onclick=()=>$('picFile').click();
+$('picFile').onchange=e=>{const f=e.target.files; if(f&&f.length) addPicFiles(f); e.target.value='';};
+/* remove: the first click arms the button, a second click within 3 seconds removes the picture */
+$('pics').addEventListener('click',e=>{
+  const x=e.target.closest('[data-picdel]'); if(!x) return;
+  e.stopPropagation();
+  if(x.classList.contains('arm')){removePic(x.dataset.picdel);return;}
+  const n=picUses(x.dataset.picdel); x.classList.add('arm'); x.textContent=n?`Remove (in ${n})`:'Remove';
+  setTimeout(()=>{if(x.isConnected){x.classList.remove('arm');x.textContent='✕';}},3000);
+});
+/* click a picture: into the selected PiP. Drag it: onto a PiP, or onto an empty spot for a new PiP with it. */
+$('pics').addEventListener('pointerdown',e=>{
+  const it=e.target.closest('[data-pic]'); if(!it||e.button!==0||e.target.closest('[data-picdel]')) return;
+  const pic=IMGS.get(it.dataset.pic); if(!pic) return;
+  e.preventDefault();
+  const sx=e.clientX, sy=e.clientY, scroll=$('scroll'); let ghost=null;
+  const overStage=ev=>{const r=svg.getBoundingClientRect(), v=scroll.getBoundingClientRect();
+    return ev.clientX>=Math.max(r.left,v.left)&&ev.clientX<=Math.min(r.right,v.right)&&ev.clientY>=Math.max(r.top,v.top)&&ev.clientY<=Math.min(r.bottom,v.bottom);};
+  const move=ev=>{
+    if(!ghost){if(Math.hypot(ev.clientX-sx,ev.clientY-sy)<5) return; ghost=document.createElement('img'); ghost.className='pic-ghost'; ghost.src=pic.url; document.body.appendChild(ghost);}
+    ghost.style.left=(ev.clientX-60)+'px'; ghost.style.top=(ev.clientY-34)+'px'; scroll.classList.toggle('drop-ok',overStage(ev));
+  };
+  const up=ev=>{
+    window.removeEventListener('pointermove',move); window.removeEventListener('pointerup',up); window.removeEventListener('pointercancel',up);
+    scroll.classList.remove('drop-ok');
+    if(!ghost){ if(ev.type!=='pointerup') return;
+      const p=sel&&sel.kind==='pip'&&pipById(sel.id); if(p) setPipPic(p,pic.id); else say('Select a PiP first, or drag the picture onto a PiP.'); return; }
+    ghost.remove(); if(ev.type!=='pointerup'||!overStage(ev)) return;
+    dropPicAt(pic.id,ev);
+  };
+  window.addEventListener('pointermove',move); window.addEventListener('pointerup',up); window.addEventListener('pointercancel',up);
+});
+$('pics').addEventListener('keydown',e=>{
+  const it=e.target.closest('[data-pic]'); if(!it||(e.key!=='Enter'&&e.key!==' ')||e.target.closest('[data-picdel]')) return;
+  e.preventDefault(); const p=sel&&sel.kind==='pip'&&pipById(sel.id); if(p) setPipPic(p,it.dataset.pic); else say('Select a PiP first.');
+});
+/* a picture dropped on the layout: into the PiP under the pointer, or a new PiP there */
+function dropPicAt(id,ev){
+  const hit=document.elementFromPoint(ev.clientX,ev.clientY), t=hit&&hit.closest('[data-kind="pip"]');
+  if(t){const p=pipById(t.dataset.id); sel={kind:'pip',id:p.id,...(t.dataset.mirror==='1'?{mirror:true}:{})}; setPipPic(p,id); return;}
+  lockVB=null; curVB=computeVB(); const pt=toSvg(ev), {w,h}=defPipSize(newAR()), P=preset(), n=P.pips.length;
+  const p={id:uid(),text:'',x:round(pt.x-w/2),y:round(pt.y-h/2),w,h,ar:newAR(),shape:'rect',color:COLORS[n%COLORS.length],mirror:'none',img:id,fit:'fill'};
+  P.pips.push(p); sel={kind:'pip',id:p.id}; renderAll(); touch(); say(`New PiP with ${(IMGS.get(id)||{}).name||'the picture'}. Double-click it to name it.`,'ok');
+}
+/* image files dropped from the computer: onto the library, or onto the layout (into the PiP under them) */
+for(const [el,cls] of [[$('picPanel'),'drop-ok'],[$('scroll'),'file-ok']]){
+  el.addEventListener('dragover',e=>{if(e.dataTransfer&&[...e.dataTransfer.types].includes('Files')){e.preventDefault(); el.classList.add(cls);}});
+  el.addEventListener('dragleave',()=>el.classList.remove(cls));
+  el.addEventListener('drop',async e=>{
+    if(!e.dataTransfer||!e.dataTransfer.files.length) return; e.preventDefault(); el.classList.remove(cls);
+    const added=await addPicFiles(e.dataTransfer.files);
+    if(added.length&&el.id==='scroll') dropPicAt(added[0].id,e);
+  });
+}
+
 /* ---------- PiP library: every named PiP from every preset, one entry per name and aspect ratio ---------- */
 let libEntries=[];
 const ratioOf=p=>{const r=(pipLocked(p)&&p.ar>0)?p.ar:p.w/p.h; for(const k of [16/9,3]) if(Math.abs(r/k-1)<0.01) return k; return r;};
@@ -2296,8 +2457,8 @@ function libraryEntries(){
     /* the entry shows the colour most recently picked for a PiP of this name (the current preset wins a tie) */
     const rank=(p.colorAt||0)+(P.id===S.cur?0.5:0);
     let e=map.get(key);
-    if(!e){e={name,ratio,color:p.color,shape:p.shape,lockAR:p.lockAR,presets:new Set(),rank};map.set(key,e);}
-    else if(rank>e.rank){e.color=p.color;e.rank=rank;}
+    if(!e){e={name,ratio,color:p.color,shape:p.shape,lockAR:p.lockAR,img:p.img,fit:p.fit,presets:new Set(),rank};map.set(key,e);}
+    else if(rank>e.rank){e.color=p.color;e.img=p.img;e.fit=p.fit;e.rank=rank;}
     e.presets.add(P.id);
   }));
   return [...map.values()].sort((a,b)=>a.name.localeCompare(b.name)||a.ratio-b.ratio);
@@ -2330,6 +2491,7 @@ function addFromLibrary(e,pt,rect){
   const r=rect||libRect(e,pt);
   const p={id:uid(),text:e.name,x:r.x,y:r.y,w:r.w,h:r.h,ar:e.ratio,shape:e.shape,color:e.color,mirror:'none'};
   if(e.lockAR===false) p.lockAR=false;
+  if(e.img&&IMGS.has(e.img)){p.img=e.img; p.fit=e.fit||'fill';}
   commitEdit(); preset().pips.push(p); sel={kind:'pip',id:p.id}; tool='select'; renderAll(); touch();
   say(`Added ${e.name} to ${preset().name||'this preset'}.`,'ok');
   if(dropped){const t=findReplaceTarget(p,p.id); if(t) askReplace(p.id,t.id,()=>{const Q=preset(); Q.pips=Q.pips.filter(q=>q!==p); if(sel&&sel.id===p.id) sel=null;});}
@@ -2541,6 +2703,8 @@ insp.addEventListener('change',e=>{
     renderAll(); touch();
   }
   if(e.target.id==='iSzMode'){sizeMode=e.target.value;renderInspector();return;}
+  if(e.target.id==='iPic'&&t&&sel&&sel.kind==='pip'){setPipPic(t,e.target.value);return;}
+  if(e.target.id==='iFit'&&t&&sel&&sel.kind==='pip'){t.fit=e.target.value;renderAll();touch();return;}
   if((e.target.id==='iPosX'||e.target.id==='iPosY')&&t&&sel&&sel.kind==='pip'){
     const r={...selRect()}, s=sizeRef(r), v=parseFloat(e.target.value);
     if(!s||!Number.isFinite(v)){renderInspector();return;}
@@ -2758,9 +2922,10 @@ function makeThumb(P,s){
   }
   g.save(); g.beginPath(); g.rect(0,0,cw,ch); for(const b of blocked) g.rect(b.x,b.y,b.w,b.h); g.clip('evenodd');
   for(const {p,q} of items){
+    const pic=p.img&&IMGS.get(p.img); if(pic) drawPic(g,pic,q,p.fit);
     g.beginPath();
     g.rect(q.x,q.y,q.w,q.h);
-    g.globalAlpha=.65; g.fillStyle=p.color; g.fill(); g.globalAlpha=1;
+    g.globalAlpha=pic?.15:.65; g.fillStyle=p.color; g.fill(); g.globalAlpha=1;
     g.lineWidth=3; g.strokeStyle=p.color; g.stroke();
   }
   g.restore();
@@ -2879,6 +3044,7 @@ const XBOTTOM={font:{size:11},alignment:{horizontal:'center',vertical:'bottom',w
 const XLABEL={font:{bold:true,size:11},fill:{type:'pattern',pattern:'solid',fgColor:{argb:'FFE3E9F0'}},alignment:{horizontal:'center',vertical:'middle',wrapText:true},border:XBORDER};
 const XTEXT={font:{size:11},alignment:{horizontal:'left',vertical:'top',wrapText:true},border:XBORDER};
 async function buildWorkbook(){
+  await picsReady();
   const model=buildModel(), wb=new ExcelJS.Workbook(), used=new Set();
   wb.creator='PixelPlanner';
   for(const sh of model.sheets){
@@ -2960,7 +3126,7 @@ function ratioText(w,h){
   return (rw<=32&&rh<=32)?`${rw}:${rh}`:`${(w/h).toFixed(2)}:1`;
 }
 async function buildPptx(){
-  syncAutoNames();
+  syncAutoNames(); await picsReady();
   const pptx=new PptxGenJS(); pptx.layout='LAYOUT_WIDE'; pptx.title=S.name||'Preset guide'; pptx.author='PixelPlanner';
   const NAVY='1F3A4D', INK='14181F', MUTED='5D6878', FONT='Calibri', hex=c=>c.replace('#','').toUpperCase();
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -2988,8 +3154,11 @@ async function buildPptx(){
     /* PiPs back to front, each mirror copy with its original */
     const pipItems=[];
     P.pips.forEach((p,i)=>{const nm=pname(p,i); for(const r of [p,mirrorRect(p)]) if(r) pipItems.push({p,r,nm});});
-    for(const {p,r} of pipItems)
-      sl.addShape(pptx.ShapeType.rect,{x:X(r.x),y:Y(r.y),w:r.w*sc,h:r.h*sc,fill:{color:hex(p.color),transparency:30},line:{color:hex(p.color),width:1.5}});
+    for(const {p,r} of pipItems){
+      const pic=p.img&&IMGS.get(p.img);
+      if(pic) sl.addImage({data:picForBox(pic,p.fit,r.w,r.h),x:X(r.x),y:Y(r.y),w:r.w*sc,h:r.h*sc});
+      sl.addShape(pptx.ShapeType.rect,{x:X(r.x),y:Y(r.y),w:r.w*sc,h:r.h*sc,fill:{color:hex(p.color),transparency:pic?85:30},line:{color:hex(p.color),width:1.5}});
+    }
     /* Each name goes in the largest part of its PiP that no PiP in front (or object) covers, as on the Excel thumbnails,
        so a PiP at the back stays readable. */
     const obs=allObjects();
@@ -3132,6 +3301,7 @@ window.addEventListener('message',e=>{
     if(m.force) say(PP.canvases.some(c=>c&&c.screens&&c.screens.length)?'Screens refreshed from the Screen Builder.':'There are no finished screens in the Screen Builder yet.',PP.canvases.length?'ok':'err');
   }else if(m.type==='pp-pg-load'){
     commitEdit(true); hideCtx();
+    if(Array.isArray(m.images)) picsSet(m.images);   /* the guide's own pictures (the Screen Builder page has stored them) */
     S=validState(m.state)?rectsOnly(JSON.parse(JSON.stringify(m.state))):defaultState();
     if(!S.presets.find(p=>p.id===S.cur)) S.cur=S.presets[0].id;
     applyBuilder(!validState(m.state)); sel=null; tool='select'; lockVB=null;
@@ -3167,6 +3337,13 @@ $('btnUndo').onclick=undo; $('btnRedo').onclick=redo; $('btnReset').onclick=rese
 syncUndo();
 renderAll();
 fitCanvas();
+/* pictures: from this browser's store, or (if it can't keep them) from the copy the Screen Builder page holds */
+picTx('readonly',st=>st.getAll()).then(list=>{
+  const init=Array.isArray(PP.init.images)?PP.init.images:[];
+  picsSet(list&&list.length?list:init);
+  if(list&&!list.length&&init.length) picTx('readwrite',st=>{init.forEach(r=>st.put(picRec(r)));});
+  postPics(); if(IMGS.size) renderAll();
+});
 
 })();
 </script>
@@ -3201,8 +3378,8 @@ fitCanvas();
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.54.html). Bump it with every release.
-const APP_VERSION = '3.54';
+// (pixelplanner-v3.55.html). Bump it with every release.
+const APP_VERSION = '3.55';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
@@ -6273,12 +6450,26 @@ function contentCanvasJSON(id){
       pixelsPerInch: ref ? +(density(ref).x * 25.4).toFixed(2) : null, screens, objects};
   });
 }
-function guideFileJSON(){
+/* The Preset Guide's picture library lives in IndexedDB (shared with the Preset Guide frame, which has this page's
+   origin). The .json carries the pictures as data URLs in presetGuideImages. */
+const PICS = {
+  db(){ if (this.p) return this.p; return this.p = new Promise(res => { try { const r = indexedDB.open('pixelplanner-pictures', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('pics', {keyPath: 'id'}); r.onsuccess = () => res(r.result); r.onerror = r.onblocked = () => res(null); } catch (e) { res(null); } }); },
+  async tx(mode, fn){ const db = await this.db(); if (!db) return null;
+    return new Promise(res => { try { const t = db.transaction('pics', mode), q = fn(t.objectStore('pics')); t.oncomplete = () => res(q && 'result' in q ? q.result : true); t.onerror = t.onabort = () => res(null); } catch (e) { res(null); } }); },
+  mem: [], // the latest list the Preset Guide reported, for browsers that can't keep pictures
+  async all(){ const l = await this.tx('readonly', st => st.getAll()); return Array.isArray(l) && (l.length || !this.mem.length) ? l : this.mem; },
+  async replace(list){ this.mem = list; await this.tx('readwrite', st => { st.clear(); list.forEach(r => st.put(r)); }); },
+  clean: list => (Array.isArray(list) ? list : []).filter(r => r && typeof r.id === 'string' && typeof r.data === 'string' && /^data:image\/(png|jpeg|webp|gif);base64,/.test(r.data))
+    .slice(0, 500).map(r => ({id: r.id.slice(0, 40), name: String(r.name || 'Picture').slice(0, 60), w: Math.round(+r.w) || 0, h: Math.round(+r.h) || 0, data: r.data})),
+};
+function guideFileJSON(pics){
   // The pixel canvas goes first so tools that pick the first list of screens they find get the right one.
   return JSON.stringify(Object.assign({format: 'multiscreen-guide-builder', version: 2, appVersion: APP_VERSION,
-    contentCanvas: contentCanvasJSON(S.cur), layoutCanvases: S.layouts.map(l => contentCanvasJSON(l.id))}, S, pgState ? {presetGuide: pgState} : {}), null, 2);
+    contentCanvas: contentCanvasJSON(S.cur), layoutCanvases: S.layouts.map(l => contentCanvasJSON(l.id))}, S, pgState ? {presetGuide: pgState} : {},
+    pics && pics.length ? {presetGuideImages: pics} : {}), null, 2);
 }
-$('#btnSaveJson').addEventListener('click', () => { const j = guideFileJSON(); offer(slug(S.name) + '.json', j, () => copyText(j, 'Saving is unavailable here, so the JSON was copied instead')); });
+$('#btnSaveJson').addEventListener('click', async () => { const j = guideFileJSON(PICS.clean(await PICS.all())); offer(slug(S.name) + '.json', j, () => copyText(j, 'Saving is unavailable here, so the JSON was copied instead')); });
 $('#btnImport').addEventListener('click', () => $('#fileIn').click());
 $('#fileIn').addEventListener('change', async e => {
   const f = e.target.files[0]; e.target.value = ''; if (!f) return;
@@ -6287,7 +6478,8 @@ $('#fileIn').addEventListener('change', async e => {
     if (raw && Array.isArray(raw.presets) && raw.presets.length && Array.isArray(raw.screens) && !raw.layouts && !raw.match){
       pgSetState(raw); setSection('presets'); toast('Opened the presets from ' + f.name); return;
     }
-    const n = sanitize(raw); if (!n) throw 0; S = n; view = null; refreshAll(); pgSetState(raw.presetGuide); if (document.body.classList.contains('tab-presets')) pgPost({type: 'pp-screens', canvases: pgCanvases(), name: S.name}); toast('Opened ' + f.name); }
+    const n = sanitize(raw); if (!n) throw 0; S = n; view = null; refreshAll();
+    const pics = PICS.clean(raw.presetGuideImages); await PICS.replace(pics); pgSetState(raw.presetGuide, pics); /* the guide's own pictures replace the library */ if (document.body.classList.contains('tab-presets')) pgPost({type: 'pp-screens', canvases: pgCanvases(), name: S.name}); toast('Opened ' + f.name); }
   catch(err){ toast('That file is not a guide saved from this tool.'); }
 });
 // Loading the example wipes the current guide, so ask first (the viewer blocks the browser's own confirm()).
@@ -6313,6 +6505,7 @@ $('#rdlgOk').addEventListener('click', async () => {
     try { const a = st(); for (const k of Object.keys(a)) if (ours(k)) a.removeItem(k); } catch (e) {}
   }
   try { if (window.caches) for (const k of await caches.keys()) await caches.delete(k); } catch (e) {}
+  try { await PICS.tx('readwrite', st => st.clear()); PICS.mem = []; indexedDB.deleteDatabase('pixelplanner-pictures'); } catch (e) {} // the picture library
   rdlg.hidden = true; toast('PixelPlanner was reset. Reloading…');
   setTimeout(() => { try { location.reload(); } catch (e) {} }, 400);
   // If this view can't reload itself, start fresh in place.
@@ -8226,13 +8419,13 @@ function pgFreshSummary(){
 const pgCanvases = () => S.layouts.map(l => contentCanvasJSON(l.id));
 const pgTheme = () => document.documentElement.getAttribute('data-theme') || '';
 function pgPost(msg){ if (pgFrame && pgFrame.contentWindow) pgFrame.contentWindow.postMessage(msg, '*'); }
-function pgSetState(st){ // a guide was opened: its presets (or none) replace the current ones
+function pgSetState(st, images){ // a guide was opened: its presets (or none) and pictures replace the current ones
   pgState = st && typeof st === 'object' ? st : null;
   store(PG_KEY, JSON.stringify(pgState));
-  pgPost({type: 'pp-pg-load', state: pgState});
+  pgPost(Object.assign({type: 'pp-pg-load', state: pgState}, images ? {images} : {}));
 }
 function pgBuild(){
-  const init = JSON.stringify({state: pgState, canvases: pgCanvases(), name: S.name, theme: pgTheme()}).replace(/</g, '\\u003c');
+  const init = JSON.stringify({state: pgState, canvases: pgCanvases(), name: S.name, theme: pgTheme(), images: PICS.mem}).replace(/</g, '\\u003c');
   const head = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
     + '<style>body{margin:0}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>'
     + '<script>window.__PP_INIT=' + init + '<\/script>';
@@ -8249,6 +8442,7 @@ window.addEventListener('message', e => {
   const m = e.data; if (!m || typeof m !== 'object') return;
   pgFrame.started = true; const fail = $('#pgWrap .pg-fail'); if (fail) fail.remove();
   if (m.type === 'pp-refresh'){ pgPost({type: 'pp-screens', canvases: pgCanvases(), name: S.name, force: true}); return; }
+  if (m.type === 'pp-pg-images'){ PICS.mem = PICS.clean(m.images); return; }
   if (m.type === 'pp-pg-state'){ pgState = m.state; store(PG_KEY, JSON.stringify(pgState)); if (m.summary){ pgSummary = m.summary; const w = pgWaiters.splice(0); w.forEach(f => f()); } }
   else if (m.type === 'pp-save' && typeof m.filename === 'string'){
     const d = m.data, mime = /\.xlsx$/i.test(m.filename) ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : /\.pptx$/i.test(m.filename) ? 'application/vnd.openxmlformats-officedocument.presentationml.presentation' : 'application/octet-stream';
