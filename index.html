@@ -692,7 +692,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <h3>Screen Builder</h3>
 <ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
 <h3>Preset Guide</h3>
-<ul><li>Uses the screens from the Screen Builder.</li><li>Build presets of PiPs (picture-in-picture windows) on each screen, with mirroring and aspect ratio lock.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Exports to PowerPoint and Excel.</li></ul>
+<ul><li>Uses the screens from the Screen Builder.</li><li>Build presets of PiPs (picture-in-picture windows) on each screen, with mirroring and aspect ratio lock.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li>Exports to PowerPoint and Excel.</li></ul>
 <h3>Exports</h3>
 <ul><li>Canvas export PNG at exact pixel size, layout snapshot, layout summary and test patterns.</li><li>PDF spec pack, PowerPoint template, layered PSD and SVG.</li><li>Spec sheet as CSV.</li><li>Switcher planning <code>.xml</code> (screens, layers and auxes).</li><li><strong>Advanced → EDID (experimental):</strong> an EDID <code>.bin</code> for a screen, with connector, refresh rate, CVT blanking and a split across outputs. Check results on your hardware before you rely on them.</li></ul>
 <h2>Using it</h2>
@@ -1082,7 +1082,7 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
       <div class="pics" id="pics" role="list"></div>
       <p class="hint">Pictures are shared by every preset. Select a PiP and click a picture to put it in that PiP, or drag a picture onto a PiP (dropping it on an empty spot makes a new PiP). You can also drop image files here or straight onto a PiP. Pictures are shrunk to at most 1920 px and saved in the guide's .json.</p>
     </section>
-    <p class="hint">Right-click the layout to add a PiP or screen at that spot. Double-click a PiP to type its name. Drag to move, use the white handles to resize. Hold Ctrl (Cmd on a Mac) while dragging to skip snapping. Scroll the mouse wheel over the layout to zoom. Delete removes it, arrow keys nudge.</p>
+    <p class="hint">Right-click the layout to add a PiP or screen at that spot. Double-click a PiP to type its name. Drag to move, use the white handles to resize. Hold Ctrl (Cmd on a Mac) while dragging to skip snapping. Scroll the mouse wheel over the layout to zoom. Delete removes it, arrow keys nudge. On a phone or tablet: pinch to zoom, drag the background (or a screen you haven't selected) to scroll, tap a screen to select it before dragging it, double-tap the background to fit, and press and hold for the menu.</p>
     <section class="panel">
       <h2>What the Excel will say for this preset</h2>
       <p class="hint" style="margin-top:-4px">Layer 1 is in front. Drag a row up or down to change the stacking order, or right-click a PiP on the layout.</p>
@@ -1902,6 +1902,53 @@ function snapEdges(v,offs,list,thr){
 const snapOn=()=>$('snap').checked;
 const thr=()=>9/((inner.clientWidth||1)/curVB.w);
 
+/* ---------- touch: pinch to zoom, one finger to pan, long press for the menu ---------- */
+let bgTapAt=0, pinch=null, lpTimer=0, lpAt=0;
+const touches=new Map();   /* pointerId -> {x,y} for fingers on the layout */
+function startPan(e,bg){const sc=$('scroll'); drag={type:'pan',cx:e.clientX,cy:e.clientY,sl:sc.scrollLeft,st:sc.scrollTop,bg,moved:false};}
+const lpCancel=()=>{clearTimeout(lpTimer); lpTimer=0;};
+const tMid=()=>{const a=[...touches.values()]; return {x:(a[0].x+a[1].x)/2,y:(a[0].y+a[1].y)/2,d:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)||1};};
+inner.addEventListener('pointerdown',e=>{
+  if(e.pointerType!=='touch') return;
+  touches.set(e.pointerId,{x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY});
+  if(touches.size===2){
+    /* a second finger: whatever the first one started is undone, and the two fingers zoom and pan */
+    e.stopPropagation(); lpCancel(); commitEdit(); hideCtx();
+    if(drag){const moved=drag.type!=='pan'&&JSON.stringify(S)!==base; drag=null; replaceHint=null; if(moved) restore(base);}
+    try{svg.setPointerCapture(e.pointerId);}catch(err){}
+    pinch=tMid(); return;
+  }
+  if(touches.size>2){e.stopPropagation(); return;}
+  /* hold one finger still to open the menu (the same one a right-click opens) */
+  lpCancel(); const x=e.clientX, y=e.clientY;
+  lpTimer=setTimeout(()=>{lpTimer=0; if(touches.size!==1) return;
+    drag=null; lockVB=null; lpAt=performance.now();
+    const el=document.elementFromPoint(x,y)||svg; el.dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:x,clientY:y}));
+  },550);
+},true);
+window.addEventListener('pointermove',e=>{
+  const t=touches.get(e.pointerId); if(!t) return;
+  t.x=e.clientX; t.y=e.clientY;
+  if(lpTimer&&Math.hypot(t.x-t.x0,t.y-t.y0)>10) lpCancel();
+  if(pinch&&touches.size===2){
+    const m=tMid(), sc=$('scroll');
+    wheelZoom(m.d/pinch.d,m.x,m.y);                       /* zoom around the point between the fingers */
+    sc.scrollLeft-=m.x-pinch.x; sc.scrollTop-=m.y-pinch.y; /* and follow them as they move */
+    pinch=m;
+  }
+},true);
+const touchEnd=e=>{
+  if(!touches.has(e.pointerId)) return;
+  touches.delete(e.pointerId); lpCancel();
+  if(touches.size<2) pinch=null;
+  if(touches.size===1&&!drag){ /* one finger left after a pinch: it pans from here */
+    const [id,t]=[...touches.entries()][0]; const sc=$('scroll'); drag={type:'pan',cx:t.x,cy:t.y,sl:sc.scrollLeft,st:sc.scrollTop,bg:false,moved:true};
+  }
+};
+window.addEventListener('pointerup',touchEnd,true); window.addEventListener('pointercancel',touchEnd,true);
+/* a phone's own long-press menu event: the long press above already opened ours */
+inner.addEventListener('contextmenu',e=>{ if(e.isTrusted&&performance.now()-lpAt<1500){e.preventDefault(); e.stopPropagation();} else if(lpTimer) lpCancel(); },true);
+
 svg.addEventListener('pointerdown',e=>{
   if(e.button!==0) return;
   /* a finger or pen stays tied to the element it first touched, and the redraw below replaces that element:
@@ -1920,10 +1967,13 @@ svg.addEventListener('pointerdown',e=>{
   }
   if(kind==='pip'||kind==='screen'||kind==='object'){
     const id=t.dataset.id, now=performance.now(), isMir=kind==='pip'&&t.dataset.mirror==='1';
+    const wasSel=!!sel&&sel.kind===kind&&sel.id===id;
     sel=isMir?{kind,id,mirror:true}:{kind,id};
     const dkey=id+(isMir?':m':'');
     if(lastDown.id===dkey&&now-lastDown.t<420){lastDown={id:null,t:0};lockVB=null;renderAll();startEdit(kind,id);return;}
     lastDown={id:dkey,t:now};
+    /* on a touch screen a finger on a screen that isn't selected yet pans the layout (tap selects it; then drag it) */
+    if(e.pointerType==='touch'&&kind==='screen'&&!wasSel){lockVB=null;renderAll();startPan(e,false);return;}
     if(byKind(kind,id)?.locked){lockVB=null;renderAll();return;}   /* locked: select only */
     const o=isMir?mirrorRect(pipById(id)):byKind(kind,id);
     const followers=[];
@@ -1937,9 +1987,11 @@ svg.addEventListener('pointerdown',e=>{
     renderAll(); return;
   }
   sel=null; lockVB=null; renderAll();
+  if(e.pointerType==='touch') startPan(e,true);   /* a finger on the empty background pans the layout */
 });
 window.addEventListener('pointermove',e=>{
   if(!drag) return;
+  if(drag.type==='pan'){const sc=$('scroll'), dx=e.clientX-drag.cx, dy=e.clientY-drag.cy; if(Math.hypot(dx,dy)>6) drag.moved=true; sc.scrollLeft=drag.sl-dx; sc.scrollTop=drag.st-dy; return;}
   snapBypass=e.ctrlKey||e.metaKey;
   const p=toSvg(e), dx=p.x-drag.start.x, dy=p.y-drag.start.y, T=thr(), L=snapList();
   if(drag.type==='draw'){
@@ -1993,6 +2045,10 @@ window.addEventListener('pointermove',e=>{
 window.addEventListener('pointerup',()=>{
   if(!drag) return;
   const d=drag; drag=null; replaceHint=null; snapBypass=false;
+  if(d.type==='pan'){ /* a double-tap on the empty background fits the whole canvas */
+    if(d.bg&&!d.moved){const now=performance.now(); if(now-bgTapAt<380){bgTapAt=0; fitCanvas();} else bgTapAt=now;}
+    return;
+  }
   if(d.type==='draw'){
     const o=pipById(d.id);
     if(o&&(o.w<30||o.h<30)){const z=defPipSize(pipAR(o));o.w=z.w;o.h=z.h;o.x=round(d.start.x-o.w/2);o.y=round(d.start.y-o.h/2);}
@@ -3397,8 +3453,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.57.html). Bump it with every release.
-const APP_VERSION = '3.57';
+// (pixelplanner-v3.58.html). Bump it with every release.
+const APP_VERSION = '3.58';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
