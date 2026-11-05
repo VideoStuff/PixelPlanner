@@ -692,7 +692,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <h3>Screen Builder</h3>
 <ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
 <h3>Preset Guide</h3>
-<ul><li>Uses the screens from the Screen Builder.</li><li>Build presets of PiPs (picture-in-picture windows) on each screen, with mirroring and aspect ratio lock.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Exports to PowerPoint and Excel.</li></ul>
+<ul><li>Uses the screens from the Screen Builder.</li><li>Build presets of PiPs (picture-in-picture windows) on each screen, with mirroring and aspect ratio lock.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Exports to PowerPoint and Excel.</li></ul>
 <h3>Exports</h3>
 <ul><li>Canvas export PNG at exact pixel size, layout snapshot, layout summary and test patterns.</li><li>PDF spec pack, PowerPoint template, layered PSD and SVG.</li><li>Spec sheet as CSV.</li><li>Switcher planning <code>.xml</code> (screens, layers and auxes).</li><li><strong>Advanced → EDID (experimental):</strong> an EDID <code>.bin</code> for a screen, with connector, refresh rate, CVT blanking and a split across outputs. Check results on your hardware before you rely on them.</li></ul>
 <h2>Using it</h2>
@@ -1057,7 +1057,6 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
       <label class="chk" title="Show where screens overlap each other, and objects that cover a screen, from the Screen Builder"><input type="checkbox" id="showOverlaps" checked> Overlaps</label>
       <label class="chk" title="When you drag a screen, PiPs centred on it (in every preset) move with it"><input type="checkbox" id="follow" checked> PiPs follow screens</label>
       <label class="chk" title="Dropping a PiP onto one of about the same size asks whether to replace it. Untick to replace without asking."><input type="checkbox" id="askReplace" checked> Ask before replacing</label>
-      <label class="chk" title="Show each PiP's name on top of its picture, on the layout and in the PowerPoint and Excel. Untick to see the pictures clearly."><input type="checkbox" id="picNames" checked> Names on pictures</label>
       <div class="grp" style="margin-left:auto">
         <button class="btn sm" id="zOut" aria-label="Zoom out">−</button>
         <span class="count" id="zVal">100%</span>
@@ -1569,7 +1568,7 @@ function renderStage(){
     /* a picture fills the PiP (clipped to it), under a light wash of the PiP's colour */
     const picSvg=(q,k)=>pic?`<clipPath id="pc${p.id}${k}"><rect x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}" rx="${Math.min(6,q.h/10)}"/></clipPath><image href="${pic.url}" x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}" preserveAspectRatio="${PIC_PAR[p.fit]||PIC_PAR.fill}" clip-path="url(#pc${p.id}${k})" pointer-events="none"/>`:'';
     g+=`<g data-kind="pip" data-id="${p.id}">${picSvg(r,'')}${pipShape(p,r,'pip',fill,p.color)}${p.locked?lockBadge(r,scale):''}</g>`;
-    const named=!(pic&&S.hidePicNames);   /* Names on pictures off: a PiP with a picture shows no name */
+    const named=!(pic&&nameOff(p));   /* this PiP type's name is hidden on its picture */
     if(named) labs.push({txt,r});
     const m=mirrorRect(p); /* the mirror copy stacks with its original */
     if(m){g+=`<g data-kind="pip" data-id="${p.id}" data-mirror="1">${picSvg(m,'m')}${pipShape(p,m,'pip',fill,p.color)}${p.locked?lockBadge(m,scale):''}</g>`; if(named) labs.push({txt,r:m});}
@@ -1738,9 +1737,10 @@ function renderInspector(){
         <button class="btn sm ${mir?'':'on'}" data-which="orig">Original</button>
         <button class="btn sm ${mir?'on':''}" data-which="mirror">Mirror copy</button></div>
         ${mir?'<p class="hint">Editing the mirror copy. The original moves and resizes the opposite way.</p>':''}`:''}
-      <label class="lbl" for="iText">Name (shown in the middle)<input id="iText" class="field" value="${esc(p.text)}" placeholder="e.g. Speaker IMAG" list="pipSugList" autocomplete="off"><datalist id="pipSugList">${PIP_SUGS.map(t=>`<option value="${esc(t)}">`).join('')}</datalist>
+      <label class="lbl" for="iText">Name (shown in the middle)<input id="iText" class="field" value="${esc(p.text)}" placeholder="e.g. Speaker IMAG" list="pipSugList" autocomplete="off"><datalist id="pipSugList">${PIP_SUGS.map(t=>`<option value="${esc(t)}">`).join('')}</datalist></label>
       <label class="lbl" for="iPic">Picture<span class="pic-row">${p.img&&IMGS.get(p.img)?`<img src="${IMGS.get(p.img).url}" alt="">`:''}<select id="iPic" class="field"><option value="">None</option>${[...IMGS.values()].map(e=>`<option value="${e.id}"${e.id===p.img?' selected':''}>${esc(e.name)}</option>`).join('')}</select></span></label>
-      ${p.img&&IMGS.get(p.img)?`<label class="lbl" for="iFit">Picture fit<select id="iFit" class="field"><option value="fill"${(p.fit||'fill')==='fill'?' selected':''}>Fill (crop to the PiP)</option><option value="fit"${p.fit==='fit'?' selected':''}>Fit (show all of it)</option><option value="stretch"${p.fit==='stretch'?' selected':''}>Stretch</option></select></label>`:IMGS.size?'':'<p class="hint" style="margin-top:-4px">Add pictures in the Picture library below the layout.</p>'}</label>
+      ${p.img&&IMGS.get(p.img)?`<label class="lbl" for="iFit">Picture fit<select id="iFit" class="field"><option value="fill"${(p.fit||'fill')==='fill'?' selected':''}>Fill (crop to the PiP)</option><option value="fit"${p.fit==='fit'?' selected':''}>Fit (show all of it)</option><option value="stretch"${p.fit==='stretch'?' selected':''}>Stretch</option></select></label>
+      <label class="chk" title="Applies to every PiP with this name, in every preset"><input type="checkbox" id="iPicName"${nameOff(p)?'':' checked'}> Show the name on the picture${(p.text||'').trim()?` <span class="hint">(all ${esc(p.text.trim())} PiPs)</span>`:''}</label>`:IMGS.size?'':'<p class="hint" style="margin-top:-4px">Add pictures in the Picture library below the layout.</p>'}
       <label class="lbl" for="iMirror">Mirror<select id="iMirror" class="field">
         <option value="none">Off</option><option value="h">Left ↔ Right</option><option value="v">Top ↔ Bottom</option><option value="hv">Both</option></select></label>
       <label class="chk" title="Mirror across the centre of the screen this PiP is on, instead of the centre of the whole video wall"><input type="checkbox" id="iMirScr" ${p.mirrorRef==='screen'?'checked':''} ${!p.mirror||p.mirror==='none'?'disabled':''}> Screen mirror${screenUnder(p)?`: across the centre of ${esc(sname(screenUnder(p)))}`:''}</label>
@@ -1810,7 +1810,7 @@ function renderInspector(){
     el.querySelector('h2').insertAdjacentHTML('afterend','<p class="hint lockhint">Locked. It can\'t be moved, resized, renamed, replaced or deleted until you unlock it.</p>');
   }
 }
-function renderAll(){$('askReplace').checked=!S.autoReplace; $('picNames').checked=!S.hidePicNames; renderSide();renderStage();renderInspector();renderPreview();renderLibrary();renderPics();
+function renderAll(){$('askReplace').checked=!S.autoReplace; renderSide();renderStage();renderInspector();renderPreview();renderLibrary();renderPics();
 }
 /* warning before editing screens that came from the imported JSON */
 const warnOK=new Set(); let warnAll=false, warnId=null;
@@ -2357,6 +2357,18 @@ async function addPicFiles(files){
   say(`Added ${added.length===1?added[0].name:added.length+' pictures'} to the picture library.`+(ok?'':' This browser can\'t keep pictures between visits, so save the .json to keep them.'),ok?'ok':'err');
   return added;
 }
+/* Show the name on the picture: set per PiP type, so every PiP with the same name (in every preset) follows it.
+   An unnamed PiP has its own setting. */
+const nameKey=p=>{const t=(p.text||'').trim().toLowerCase(); return t?'n:'+t:'id:'+p.id;};
+const nameOff=p=>!!(S.picNameOff&&S.picNameOff[nameKey(p)]);
+function setNameOff(p,off){
+  const k=nameKey(p); S.picNameOff=S.picNameOff||{};
+  if(off) S.picNameOff[k]=true; else delete S.picNameOff[k];
+  if(!Object.keys(S.picNameOff).length) delete S.picNameOff;
+  renderAll(); touch();
+  const nm=(p.text||'').trim();
+  say(nm?(off?`${nm} PiPs show the picture only, in every preset.`:`${nm} PiPs show their name on the picture again.`):(off?'This PiP shows the picture only.':'This PiP shows its name again.'),'ok');
+}
 function setPipPic(p,id){
   if(!p) return;
   if(p.locked){say('It is locked. Unlock it in the inspector first.');return;}
@@ -2615,6 +2627,8 @@ svg.addEventListener('contextmenu',e=>{
       ...(()=>{const a=preset().pips,k=a.findIndex(p=>p.id===id),front=k===a.length-1,back=k===0;
         return ['-',['Move forward',()=>moveZ(id,'fwd'),'',front],['Move to front',()=>moveZ(id,'front'),'',front],
           ['Move backward',()=>moveZ(id,'back'),'',back],['Move to back',()=>moveZ(id,'backmost'),'',back]];})(),
+      ...(()=>{const q=pipById(id); if(!q||!q.img||!IMGS.has(q.img)) return []; const nm=(q.text||'').trim();
+        return ['-',[nameOff(q)?`Show name on picture${nm?` (all ${nm})`:''}`:`Hide name on picture${nm?` (all ${nm})`:''}`,()=>setNameOff(q,!nameOff(q))]];})(),
       '-',[pipById(id)?.locked?'Unlock this PiP':'Lock this PiP',()=>{const o=pipById(id);if(!o)return;o.locked=!o.locked;if(!o.locked)delete o.locked;renderAll();touch();}],
       ['Delete this PiP',()=>{sel={kind:'pip',id};deleteSel();},'danger',!!pipById(id)?.locked]);
   }else if(kind==='object'){
@@ -2707,6 +2721,7 @@ insp.addEventListener('change',e=>{
   if(e.target.id==='iSzMode'){sizeMode=e.target.value;renderInspector();return;}
   if(e.target.id==='iPic'&&t&&sel&&sel.kind==='pip'){setPipPic(t,e.target.value);return;}
   if(e.target.id==='iFit'&&t&&sel&&sel.kind==='pip'){t.fit=e.target.value;renderAll();touch();return;}
+  if(e.target.id==='iPicName'&&t&&sel&&sel.kind==='pip'){setNameOff(t,!e.target.checked);return;}
   if((e.target.id==='iPosX'||e.target.id==='iPosY')&&t&&sel&&sel.kind==='pip'){
     const r={...selRect()}, s=sizeRef(r), v=parseFloat(e.target.value);
     if(!s||!Number.isFinite(v)){renderInspector();return;}
@@ -2948,7 +2963,7 @@ function makeThumb(P,s){
   const obsHere=allObjects().map(o=>({x:(o.x-s.x)*sc,y:(o.y-s.y)*sc,w:o.w*sc,h:o.h*sc}));
   {g.font=`600 ${nfs}px "Barlow Condensed","Arial Narrow",Arial,sans-serif`; obsHere.push({x:0,y:0,w:Math.min(cw,g.measureText(sname(s).toUpperCase()).width+nfs*1.2),h:nfs*2});}   /* and of the screen's name */
   items.forEach((it,n)=>{
-    if(S.hidePicNames&&it.p.img&&IMGS.has(it.p.img)) return;   /* Names on pictures is off */
+    if(nameOff(it.p)&&it.p.img&&IMGS.has(it.p.img)) return;   /* this PiP type's name is hidden on its picture */
     const sx=Math.max(0,it.q.x), sy=Math.max(0,it.q.y);
     let free=[{x:sx,y:sy,w:Math.min(cw,it.q.x+it.q.w)-sx,h:Math.min(ch,it.q.y+it.q.h)-sy}];
     for(let m=n+1;m<items.length;m++) free=cut(free,items[m].q);
@@ -3166,7 +3181,7 @@ async function buildPptx(){
        so a PiP at the back stays readable. */
     const obs=allObjects();
     pipItems.forEach((it,n)=>{
-      if(S.hidePicNames&&it.p.img&&IMGS.has(it.p.img)) return;   /* Names on pictures is off */
+      if(nameOff(it.p)&&it.p.img&&IMGS.has(it.p.img)) return;   /* this PiP type's name is hidden on its picture */
       let free=[{...it.r}];
       for(let m=n+1;m<pipItems.length;m++) free=subtractRect(free,pipItems[m].r);
       for(const ob of obs) free=subtractRect(free,ob);
@@ -3332,7 +3347,6 @@ $('dlgReplace').addEventListener('cancel',e=>{e.preventDefault(); cancelReplace(
 $('repGo').onclick=()=>{const r=replacePending;replacePending=null;
   if($('repAlways').checked){S.autoReplace=true; $('askReplace').checked=false;}
   $('dlgReplace').close();if(r) doReplace(r.newId,r.targetId);};
-$('picNames').onchange=e=>{if(e.target.checked) delete S.hidePicNames; else S.hidePicNames=true; renderAll(); touch(); say(e.target.checked?'PiP names show on their pictures.':'PiPs with a picture show the picture only.','ok');};
 $('askReplace').onchange=e=>{S.autoReplace=!e.target.checked; touch(); say(e.target.checked?'Dropping a PiP on another one asks before replacing it.':'Dropping a PiP on another one replaces it without asking.','ok');};
 $('warnGo').onclick=()=>{
   if($('warnAll').checked) warnAll=true; else warnOK.add(warnId);
@@ -3383,8 +3397,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.56.html). Bump it with every release.
-const APP_VERSION = '3.56';
+// (pixelplanner-v3.57.html). Bump it with every release.
+const APP_VERSION = '3.57';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
