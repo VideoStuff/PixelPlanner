@@ -1264,8 +1264,11 @@ function defScreenSize(){
 }
 /* default PiP size: as tall as the shortest screen, width from the aspect ratio */
 function defPipSize(ar){
-  const hs=S.screens.map(s=>s.h).filter(h=>h>0), h=hs.length?Math.round(Math.min(...hs)):270;
-  return {w:Math.round(h*ar),h};
+  /* worked out in the shortest screen's own pixels, so a 16:9 PiP on a 1920 × 1080 screen is exactly 1920 × 1080 there */
+  const list=S.screens.filter(s=>s.w>0&&s.h>0); if(!list.length) return {w:Math.round(270*ar),h:270};
+  const s=list.reduce((a,b)=>b.h<a.h?b:a), n=nativeRes(s), kx=s.w/n.w, ky=s.h/n.h;
+  let hp=n.h, wp=hp*ar; if(wp>n.w){wp=n.w; hp=wp/ar;}   /* and no wider than that screen */
+  return {w:wp*kx,h:hp*ky};
 }
 const AR_MAP={'16:9':16/9,'3:1':3};
 const newAR=()=>AR_MAP[$('newAR').value]||16/9;
@@ -2785,9 +2788,11 @@ insp.addEventListener('change',e=>{
   if((e.target.id==='iSzW'||e.target.id==='iSzH')&&t&&sel&&sel.kind==='pip'){
     const r={...selRect()}, s=sizeRef(r), v=parseFloat(e.target.value);
     if(!s||!(v>0)){renderInspector();return;}
-    const n=nativeRes(s), pct=sizeMode==='pct', kx=pct?s.w/100:s.w/n.w, ky=pct?s.h/100:s.h/n.h;
+    const n=nativeRes(s), pct=sizeMode==='pct', kx=s.w/n.w, ky=s.h/n.h, ar=pipAR(t);
     let w=r.w, h=r.h;
-    if(e.target.id==='iSzW'){w=v*kx; if(pipLocked(t)) h=w/pipAR(t);} else {h=v*ky; if(pipLocked(t)) w=h*pipAR(t);}
+    /* worked out in the screen's own pixels, so a locked 16:9 PiP 1920 wide is exactly 1080 high there */
+    if(e.target.id==='iSzW'){const wp=pct?v/100*n.w:v; w=wp*kx; if(pipLocked(t)) h=wp/ar*ky;}
+    else {const hp=pct?v/100*n.h:v; h=hp*ky; if(pipLocked(t)) w=hp*ar*kx;}
     w=Math.max(1,w); h=Math.max(1,h);
     let x=r.x+r.w/2-w/2, y=r.y+r.h/2-h/2;
     if(w<=s.w&&h<=s.h){x=Math.min(Math.max(x,s.x),s.x+s.w-w); y=Math.min(Math.max(y,s.y),s.y+s.h-h);} /* keep it on its screen when it fits */
@@ -3373,11 +3378,17 @@ function applyBuilder(force){
     for(const q of [...S.presets.flatMap(P=>P.pips),...S.objects]){
       const cx=q.x+q.w/2, cy=q.y+q.h/2;
       const os=oldSrc.slice().reverse().find(s=>cx>=s.x&&cx<=s.x+s.w&&cy>=s.y&&cy<=s.y+s.h); if(!os) continue;
-      const ns=merged.find(n=>n.id===os.id); if(ns) moves.push([q,os,ns]);
+      const ns=merged.find(n=>n.id===os.id); if(ns&&(ns.x!==os.x||ns.y!==os.y||ns.w!==os.w||ns.h!==os.h)) moves.push([q,os,ns]);   /* only screens that changed */
     }
     for(const [q,os,ns] of moves){
-      const kx=ns.w/os.w, ky=ns.h/os.h;
-      q.x=round(ns.x+(q.x-os.x)*kx); q.y=round(ns.y+(q.y-os.y)*ky); q.w=Math.max(1,round(q.w*kx)); q.h=Math.max(1,round(q.h*ky));
+      /* In the screen's own pixels a PiP keeps its size (so 1920 × 1080 stays 1920 × 1080 when an LED wall gains
+         columns). A PiP against an edge stays against it; anything else keeps its centre at the same share of the screen. */
+      const on=os.res||{w:os.w,h:os.h}, nn=ns.res||{w:ns.w,h:ns.h};
+      const okx=os.w/on.w, oky=os.h/on.h, nkx=ns.w/nn.w, nky=ns.h/nn.h;
+      const place=(off,len,oldLen,newLen)=>{const gap=oldLen-off-len;
+        return Math.abs(off)<=1?off:Math.abs(gap)<=1?newLen-gap-len:(off+len/2)/oldLen*newLen-len/2;};
+      const wp=q.w/okx, hp=q.h/oky, xp=place((q.x-os.x)/okx,wp,on.w,nn.w), yp=place((q.y-os.y)/oky,hp,on.h,nn.h);
+      q.x=ns.x+xp*nkx; q.y=ns.y+yp*nky; q.w=Math.max(1,wp*nkx); q.h=Math.max(1,hp*nky);
     }
   }
   S.screens=[...merged,...customs]; S.imported=JSON.parse(JSON.stringify(merged)); S.srcSig=sig; S.srcLayout=b.layout.layoutId;
@@ -3484,8 +3495,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.63.html). Bump it with every release.
-const APP_VERSION = '3.63';
+// (pixelplanner-v3.64.html). Bump it with every release.
+const APP_VERSION = '3.64';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
