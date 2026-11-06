@@ -1029,7 +1029,7 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
         <label class="lbl" for="nsW">Resolution width<input id="nsW" class="field num" type="number" min="16" max="16384" step="1" inputmode="numeric"></label>
         <label class="lbl" for="nsH">Resolution height<input id="nsH" class="field num" type="number" min="16" max="16384" step="1" inputmode="numeric"></label>
       </div>
-      <p class="hint" id="nsHint">Leave blank to match the first video-wall screen. The resolution sets the screen's shape on the layout and is the reference for PiP estimates; resizing the screen later doesn't change it.</p>
+      <p class="hint" id="nsHint">Leave blank for 1920 × 1080. The resolution sets the screen's shape on the layout and is the reference for PiP estimates; resizing the screen later doesn't change it.</p>
       <button class="btn" id="nsAdd">Add screen</button>
     </section>
     <section class="panel">
@@ -1255,8 +1255,8 @@ function reorderFront(fromD,toD){
   const P=preset(), disp=P.pips.slice().reverse(), [it]=disp.splice(fromD,1);
   disp.splice(toD,0,it); P.pips=disp.reverse(); renderAll(); touch();
 }
-/* resolution for a new screen: what was typed in Add a screen, otherwise the first video-wall screen's original resolution */
-function baseScreenRes(){const f=S.screens.find(s=>s.kind==='source')||S.screens[0];return f?nativeRes(f):{w:1920,h:1080};}
+/* resolution for a new screen: what was typed in Add a screen, otherwise 1920 × 1080 */
+function baseScreenRes(){return {w:1920,h:1080};}
 function defScreenSize(){
   const b=baseScreenRes(), ok=v=>Number.isFinite(v)&&v>=16&&v<=16384;
   const w=Math.round(parseFloat($('nsW').value)), h=Math.round(parseFloat($('nsH').value));
@@ -3450,8 +3450,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.60.html). Bump it with every release.
-const APP_VERSION = '3.60';
+// (pixelplanner-v3.61.html). Bump it with every release.
+const APP_VERSION = '3.61';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
