@@ -3343,6 +3343,14 @@ function enterLayout(id){
   if(S.layouts&&!Object.keys(S.layouts).length) delete S.layouts;
   S.srcLayout=id; sel=null; lockVB=null;
 }
+/* When the Screen Builder moves to another layout, the Preset Guide follows it the next time it opens.
+   (Picking a layout here still works; it holds until the Screen Builder's layout changes again.) */
+function followBuilder(){
+  const c=PP.canvases.find(c=>c&&c.current&&Array.isArray(c.screens)&&c.screens.length); if(!c||!c.layoutId) return false;
+  const prev=S.builderCur; S.builderCur=c.layoutId;
+  if(prev&&prev!==c.layoutId&&c.layoutId!==S.srcLayout){commitEdit(); enterLayout(c.layoutId); return true;}
+  return false;
+}
 /* every preset of every layout (for the picture library and the PiP library) */
 const allPresets=()=>[...S.presets,...Object.values(S.layouts||{}).flatMap(l=>Array.isArray(l.presets)?l.presets:[])];
 /* Bring the Screen Builder's screens in. Only runs when they changed since last time (or when forced), so screens moved
@@ -3381,7 +3389,7 @@ function applyBuilder(force){
 $('btnRefresh').onclick=()=>{try{parent.postMessage({type:'pp-refresh'},'*');}catch(e){}};
 $('laySel').onchange=e=>{
   commitEdit(); hideCtx(); const fresh=!(S.layouts&&S.layouts[e.target.value]);
-  enterLayout(e.target.value); applyBuilder(fresh||!S.screens.length); renderAll(); touch(); fitCanvas();
+  enterLayout(e.target.value); applyBuilder(true); renderAll(); touch(); fitCanvas();   /* always the layout's latest screens */
   say(fresh?'This layout has its own presets. Changes here don\'t affect other layouts.':'Showing this layout\'s own presets.','ok');
 };
 function setTheme(t){ if(t==='dark'||t==='light') document.documentElement.setAttribute('data-theme',t); else document.documentElement.removeAttribute('data-theme'); }
@@ -3391,7 +3399,8 @@ window.addEventListener('message',e=>{
   if(m.type==='pp-screens'){
     PP.canvases=Array.isArray(m.canvases)?m.canvases:[]; PP.name=m.name||'';
     const nameChanged=PP.name&&S.name!==PP.name; if(nameChanged) S.name=PP.name;
-    if(applyBuilder(!!m.force)){commitEdit(); renderAll(); touch(); fitCanvas();}
+    const followed=followBuilder();
+    if(applyBuilder(!!m.force||followed)||followed){commitEdit(); renderAll(); touch(); fitCanvas(); if(followed) say(`Showing ${(PP.canvases.find(c=>c.layoutId===S.srcLayout)||{}).layout||'this layout'}, the layout open in the Screen Builder.`,'ok');}
     else if(nameChanged) touch();
     if(m.force) say(PP.canvases.some(c=>c&&c.screens&&c.screens.length)?'Screens refreshed from the Screen Builder.':'There are no finished screens in the Screen Builder yet.',PP.canvases.length?'ok':'err');
   }else if(m.type==='pp-pg-load'){
@@ -3410,7 +3419,7 @@ window.__pg={get state(){return S;},buildWorkbook,buildModel,buildPptx,parseScre
 
 /* ---------- boot ---------- */
 S=load();
-applyBuilder(!(PP.init.state&&validState(PP.init.state)));
+applyBuilder(followBuilder()||!(PP.init.state&&validState(PP.init.state)));
 base=JSON.stringify(S);
 persist();
 $('warnCancel').onclick=()=>$('dlgWarn').close();
@@ -3475,8 +3484,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.62.html). Bump it with every release.
-const APP_VERSION = '3.62';
+// (pixelplanner-v3.63.html). Bump it with every release.
+const APP_VERSION = '3.63';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
