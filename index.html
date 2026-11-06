@@ -686,8 +686,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <!-- README:START -->
 <h1>PixelPlanner</h1>
 <p>Plan multiscreen video layouts for live events: LED walls, projection screens and monitors. PixelPlanner works out each screen's pixels, builds the content canvas, and exports the guides and templates your content, playback and switcher teams need.</p>
-<p><strong>Open the app:</strong> <a href="https://videostuff.github.io/PixelPlanner/" target="_blank" rel="noopener">https://videostuff.github.io/PixelPlanner/</a></p>
-<p>It is a single web page (<code>index.html</code>). Nothing to install: open it in a current Chrome, Edge, Firefox or Safari. Your work is saved in your browser and can be saved to and opened from a <code>.json</code> file.</p>
+<p>Your work is saved in your browser and can be saved to and opened from a <code>.json</code> file.</p>
 <h2>What it does</h2>
 <h3>Screen Builder</h3>
 <ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
@@ -696,10 +695,8 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <h3>Exports</h3>
 <ul><li>Canvas export PNG at exact pixel size, layout snapshot, layout summary and test patterns.</li><li>PDF spec pack, PowerPoint template, layered PSD and SVG.</li><li>Spec sheet as CSV.</li><li>Switcher planning <code>.xml</code> (screens, layers and auxes).</li><li><strong>Advanced → EDID (experimental):</strong> an EDID <code>.bin</code> for a screen, with connector, refresh rate, CVT blanking and a split across outputs. Check results on your hardware before you rely on them.</li></ul>
 <h2>Using it</h2>
-<ol><li>Open the app link above.</li><li>Add your screens on the left, or choose <strong>Options → Load example</strong> to see one set up.</li><li>Arrange them on the layout, then switch to <strong>Preset Guide</strong> to plan PiPs.</li><li>Use the <strong>Export</strong> tab under the layout for files, and <strong>Options → Save .json</strong> to keep your work.</li></ol>
+<ol><li>Add your screens on the left, or choose <strong>Options → Load example</strong> to see one set up.</li><li>Arrange them on the layout, then switch to <strong>Preset Guide</strong> to plan PiPs.</li><li>Use the <strong>Export</strong> tab under the layout for files, and <strong>Options → Save .json</strong> to keep your work.</li></ol>
 <p><strong>Options → Reset app</strong> clears everything PixelPlanner has saved in this browser.</p>
-<h2>Hosting</h2>
-<p>The repository serves <code>index.html</code> with GitHub Pages (Settings → Pages → deploy from branch <code>main</code>, folder <code>/ (root)</code>). To run it elsewhere, put <code>index.html</code> on any web server or open the file directly.</p>
 <!-- README:END -->
     </div>
   </div>
@@ -3453,8 +3450,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.58.html). Bump it with every release.
-const APP_VERSION = '3.58';
+// (pixelplanner-v3.59.html). Bump it with every release.
+const APP_VERSION = '3.59';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
