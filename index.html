@@ -691,7 +691,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <h3>Screen Builder</h3>
 <ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
 <h3>Preset Guide</h3>
-<ul><li>Uses the screens from the Screen Builder.</li><li>Build presets of PiPs (picture-in-picture windows) on each screen, with mirroring and aspect ratio lock.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li>Exports to PowerPoint and Excel.</li></ul>
+<ul><li>Uses the screens from the Screen Builder.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li>Exports to PowerPoint and Excel.</li></ul>
 <h3>Exports</h3>
 <ul><li>Canvas export PNG at exact pixel size, layout snapshot, layout summary and test patterns.</li><li>PDF spec pack, PowerPoint template, layered PSD and SVG.</li><li>Spec sheet as CSV.</li><li>Switcher planning <code>.xml</code> (screens, layers and auxes).</li><li><strong>Advanced → EDID (experimental):</strong> an EDID <code>.bin</code> for a screen, with connector, refresh rate, CVT blanking and a split across outputs. Check results on your hardware before you rely on them.</li></ul>
 <h2>Using it</h2>
@@ -3450,8 +3450,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.59.html). Bump it with every release.
-const APP_VERSION = '3.59';
+// (pixelplanner-v3.60.html). Bump it with every release.
+const APP_VERSION = '3.60';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
