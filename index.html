@@ -691,7 +691,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <h3>Screen Builder</h3>
 <ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
 <h3>Preset Guide</h3>
-<ul><li>Uses the screens from the Screen Builder.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li>Exports to PowerPoint and Excel.</li></ul>
+<ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li>Exports to PowerPoint and Excel.</li></ul>
 <h3>Exports</h3>
 <ul><li>Canvas export PNG at exact pixel size, layout snapshot, layout summary and test patterns.</li><li>PDF spec pack, PowerPoint template, layered PSD and SVG.</li><li>Spec sheet as CSV.</li><li>Switcher planning <code>.xml</code> (screens, layers and auxes).</li><li><strong>Advanced → EDID (experimental):</strong> an EDID <code>.bin</code> for a screen, with connector, refresh rate, CVT blanking and a split across outputs. Check results on your hardware before you rely on them.</li></ul>
 <h2>Using it</h2>
@@ -1071,7 +1071,7 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
     <section class="panel">
       <h2>PiP library <span class="count" id="libCount"></span></h2>
       <div class="lib" id="library" role="list"></div>
-      <p class="hint" id="libHint">Drag a PiP onto the layout to add it to this preset. Every named PiP from any preset is listed here, at its own aspect ratio. Click one to drop it in the middle of the first screen.</p>
+      <p class="hint" id="libHint">Drag a PiP onto the layout to add it to this preset. Every named PiP from any preset, in any layout, is listed here at its own aspect ratio. Click one to drop it in the middle of the first screen.</p>
     </section>
     <section class="panel" id="picPanel">
       <h2>Picture library <span class="count" id="picCount"></span></h2>
@@ -1111,7 +1111,7 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
 <dialog id="dlgResetAll">
   <div class="dlg">
     <h2 style="font-size:20px;color:var(--ink);display:block;text-transform:none;letter-spacing:.01em">Start the presets over?</h2>
-    <p style="margin:0">This removes every preset, PiP, added screen, object and note in the Preset Guide, and puts the screens back to match the Screen Builder. Save the .json first if you want to keep it. Undo can bring it back until you reload.</p>
+    <p style="margin:0">This removes every preset, PiP, added screen and object for this layout, and puts its screens back to match the Screen Builder. Other layouts' presets aren't touched. Save the .json first if you want to keep it. Undo can bring it back until you reload.</p>
     <div class="row" style="justify-content:flex-end">
       <button class="btn" id="resetCancel">Cancel</button>
       <button class="btn primary" id="resetGo">Reset presets</button>
@@ -2387,7 +2387,7 @@ function picLoad(r){
 }
 function picsSet(list){ for(const e of IMGS.values()) if(e.url&&e.url.startsWith('blob:')) URL.revokeObjectURL(e.url); IMGS.clear(); (list||[]).forEach(picLoad); }
 function postPics(){ try{parent.postMessage({type:'pp-pg-images',images:[...IMGS.values()].map(picRec)},'*');}catch(e){} }
-const picUses=id=>{let n=0; for(const P of S.presets) for(const p of P.pips) if(p.img===id) n++; return n;};
+const picUses=id=>{let n=0; for(const P of allPresets()) for(const p of P.pips) if(p.img===id) n++; return n;};
 /* a picture file, shrunk to at most PIC_MAX px a side: JPEG, or PNG when it has see-through parts */
 async function shrinkPic(f){
   const src=URL.createObjectURL(f), img=new Image(); img.src=src;
@@ -2431,7 +2431,7 @@ function setPipPic(p,id){
 }
 async function removePic(id){
   const e=IMGS.get(id); if(!e) return;
-  for(const P of S.presets) for(const p of P.pips) if(p.img===id){delete p.img; delete p.fit;}
+  for(const P of allPresets()) for(const p of P.pips) if(p.img===id){delete p.img; delete p.fit;}
   if(e.url&&e.url.startsWith('blob:')) URL.revokeObjectURL(e.url); IMGS.delete(id);
   await picTx('readwrite',st=>st.delete(id)); postPics(); renderAll(); touch(); say(`Removed ${e.name} from the picture library.`,'ok');
 }
@@ -2518,7 +2518,7 @@ const ratioOf=p=>{const r=(pipLocked(p)&&p.ar>0)?p.ar:p.w/p.h; for(const k of [1
 const ratioLabel=r=>Math.abs(r/(16/9)-1)<0.01?'16:9':Math.abs(r/3-1)<0.01?'3:1':Math.abs(r-1)<0.01?'1:1':Math.abs(r/(4/3)-1)<0.01?'4:3':r.toFixed(2)+':1';
 function libraryEntries(){
   const map=new Map();
-  S.presets.forEach(P=>P.pips.forEach(p=>{
+  allPresets().forEach(P=>P.pips.forEach(p=>{
     const name=(p.text||'').trim(); if(!name) return;
     const ratio=ratioOf(p), key=name.toLowerCase()+'|'+ratio.toFixed(2);
     /* the entry shows the colour most recently picked for a PiP of this name (the current preset wins a tie) */
@@ -3327,12 +3327,31 @@ function renderSrcLine(b){
   ls.innerHTML=opts.map(c=>`<option value="${esc(c.layoutId)}">${esc(c.layout||'Layout')} · ${c.screens.length} screen${c.screens.length===1?'':'s'}</option>`).join('');
   if(b) ls.value=b.layout.layoutId;
 }
+/* Each Screen Builder layout has its own Preset Guide: its presets and PiPs, the screens and objects added here and
+   any changes to its screens. The open layout lives in S itself; the others wait in S.layouts until chosen.
+   The show name, Excel notes, picture library and settings are shared by every layout. */
+const LAY_KEYS=['presets','cur','screens','imported','srcSig','bObjects','objects'];
+function enterLayout(id){
+  if(!id||id===S.srcLayout) return;
+  if(S.srcLayout){ S.layouts=S.layouts||{}; const keep={}; for(const k of LAY_KEYS) if(S[k]!==undefined) keep[k]=JSON.parse(JSON.stringify(S[k])); S.layouts[S.srcLayout]=keep; }
+  const d=S.layouts&&S.layouts[id];
+  for(const k of LAY_KEYS) delete S[k];
+  if(d){ Object.assign(S,JSON.parse(JSON.stringify(d))); delete S.layouts[id]; }
+  else{ const P={id:uid(),name:'Preset 1',auto:true,pips:[]}; Object.assign(S,{presets:[P],cur:P.id,screens:[],imported:[],objects:[]}); }
+  rectsOnly(S); if(!S.presets.length) S.presets=[{id:uid(),name:'Preset 1',auto:true,pips:[]}];
+  if(!S.presets.find(p=>p.id===S.cur)) S.cur=S.presets[0].id;
+  if(S.layouts&&!Object.keys(S.layouts).length) delete S.layouts;
+  S.srcLayout=id; sel=null; lockVB=null;
+}
+/* every preset of every layout (for the picture library and the PiP library) */
+const allPresets=()=>[...S.presets,...Object.values(S.layouts||{}).flatMap(l=>Array.isArray(l.presets)?l.presets:[])];
 /* Bring the Screen Builder's screens in. Only runs when they changed since last time (or when forced), so screens moved
    here stay put until the Screen Builder changes. Each screen keeps its id and lock, matched by its Screen Builder id,
    and PiPs and objects centred on a screen keep their place on it when it moves or changes size. */
 function applyBuilder(force){
-  const b=builderScreens(); renderSrcLine(b);
+  let b=builderScreens(); renderSrcLine(b);
   if(!b) return false;
+  if(S.srcLayout&&b.layout.layoutId&&b.layout.layoutId!==S.srcLayout){ enterLayout(b.layout.layoutId); force=force||!S.screens.length; }
   const sig=JSON.stringify([b.screens.map(s=>[s.ppId,s.srcName,s.x,s.y,s.w,s.h,s.res||null,s.covers||null]),b.objects]);
   if(!force&&S.srcSig===sig&&S.screens.some(s=>s.kind==='source')) return false;
   const oldSrc=S.screens.filter(s=>s.kind==='source'), customs=S.screens.filter(s=>s.kind==='custom');
@@ -3360,7 +3379,11 @@ function applyBuilder(force){
   return true;
 }
 $('btnRefresh').onclick=()=>{try{parent.postMessage({type:'pp-refresh'},'*');}catch(e){}};
-$('laySel').onchange=e=>{S.srcLayout=e.target.value; commitEdit(); applyBuilder(true); renderAll(); touch(); fitCanvas();};
+$('laySel').onchange=e=>{
+  commitEdit(); hideCtx(); const fresh=!(S.layouts&&S.layouts[e.target.value]);
+  enterLayout(e.target.value); applyBuilder(fresh||!S.screens.length); renderAll(); touch(); fitCanvas();
+  say(fresh?'This layout has its own presets. Changes here don\'t affect other layouts.':'Showing this layout\'s own presets.','ok');
+};
 function setTheme(t){ if(t==='dark'||t==='light') document.documentElement.setAttribute('data-theme',t); else document.documentElement.removeAttribute('data-theme'); }
 window.addEventListener('message',e=>{
   if(e.source!==parent) return;
@@ -3393,7 +3416,9 @@ persist();
 $('warnCancel').onclick=()=>$('dlgWarn').close();
 $('btnResetAll').onclick=()=>{$('dlgResetAll').showModal();$('resetCancel').focus();};
 $('resetCancel').onclick=()=>$('dlgResetAll').close();
-$('resetGo').onclick=()=>{$('dlgResetAll').close(); commitEdit(true); S=defaultState(); applyBuilder(true); sel=null; lockVB=null; tool='select'; renderAll(); fitCanvas(); lastPush=0; touch(); /* always its own undo step */ say('Presets started over. Undo brings your previous work back.','ok');};
+$('resetGo').onclick=()=>{$('dlgResetAll').close(); commitEdit(true);
+  const keep={layouts:S.layouts,srcLayout:S.srcLayout,notes:S.notes,picNameOff:S.picNameOff,autoReplace:S.autoReplace,useLabels:S.useLabels};   /* only this layout starts over */
+  S=Object.assign(defaultState(),JSON.parse(JSON.stringify(keep))); for(const k in S) if(S[k]===undefined) delete S[k]; applyBuilder(true); sel=null; lockVB=null; tool='select'; renderAll(); fitCanvas(); lastPush=0; touch(); /* always its own undo step */ say('Presets started over. Undo brings your previous work back.','ok');};
 $('repKeep').onclick=()=>{replacePending=null;$('dlgReplace').close();};
 $('repCancel').onclick=cancelReplace;
 $('dlgReplace').addEventListener('cancel',e=>{e.preventDefault(); cancelReplace();});   /* Escape cancels the drop */
@@ -3450,8 +3475,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.61.html). Bump it with every release.
-const APP_VERSION = '3.61';
+// (pixelplanner-v3.62.html). Bump it with every release.
+const APP_VERSION = '3.62';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
