@@ -711,7 +711,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <h3>Screen Builder</h3>
 <ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
 <h3>Preset Guide</h3>
-<ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock.</li><li>Quick layouts: right-click a screen and choose <strong>Create… → Quick layout</strong> to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.</li><li>Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.</li><li>Each preset in the list shows a small picture of it; <strong>Page Up / Page Down</strong> step through presets.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li>Exports to PowerPoint and Excel.</li></ul>
+<ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock.</li><li>Quick layouts: right-click a screen and choose <strong>Create… → Quick layout</strong> to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.</li><li>Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.</li><li><strong>Page Up / Page Down</strong> step through presets.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li>Exports to PowerPoint and Excel.</li></ul>
 <h3>Exports</h3>
 <ul><li>Canvas export PNG at exact pixel size, layout snapshot, layout summary and test patterns.</li><li>PDF spec pack, PowerPoint template, layered PSD and SVG.</li><li>Spec sheet as CSV.</li><li>Switcher planning <code>.xml</code> (screens, layers and auxes).</li><li><strong>Advanced → EDID (experimental):</strong> an EDID <code>.bin</code> for a screen, with connector, refresh rate, CVT blanking and a split across outputs. Check results on your hardware before you rely on them.</li></ul>
 <h2>Using it</h2>
@@ -878,7 +878,6 @@ h2{font-family:var(--f-display);font-size:15px;font-weight:600;letter-spacing:.0
 .item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;border:1px solid transparent;cursor:pointer;background:transparent;text-align:left;width:100%}
 .item:hover{background:var(--panel-2)}
 .item.active{background:var(--panel-2);border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
-.item .pthumb{flex:none;border-radius:3px;background:#0d1015}
 .item .pnum{min-width:2.2em;text-align:center;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 5px;font-size:12px}
 .item.active .pnum{color:var(--accent);border-color:var(--accent)}
 .item .inline-edit{padding:2px 6px;min-width:0;font:inherit}
@@ -1660,20 +1659,10 @@ function screensLine(p,r){
   const list=screensFor(r||p).map(x=>sname(x.s));
   return list.length?list.join(', '):'(not on a screen)';
 }
-/* a small picture of a preset in the list: its screens, with its PiPs in their colours (and pictures' wash) */
-function presetThumb(P){
-  const rs=S.screens.filter(s=>s.w>0&&s.h>0); if(!rs.length) return '';
-  const x0=Math.min(...rs.map(s=>s.x)), y0=Math.min(...rs.map(s=>s.y)), x1=Math.max(...rs.map(s=>s.x+s.w)), y1=Math.max(...rs.map(s=>s.y+s.h));
-  const w=x1-x0||1, h=y1-y0||1, W=64, H=Math.max(10,Math.min(36,Math.round(W*h/w))), sw=Math.max(w,h)/90;
-  let o=`<svg class="pthumb" viewBox="${x0} ${y0} ${w} ${h}" width="${W}" height="${H}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">`;
-  for(const s of rs) o+=`<rect x="${s.x}" y="${s.y}" width="${s.w}" height="${s.h}" fill="#1b212b" stroke="#5b6a84" stroke-width="${sw}"/>`;
-  for(const q of P.pips) for(const r of [q,mirrorRect(q)]) if(r) o+=`<rect x="${r.x}" y="${r.y}" width="${r.w}" height="${r.h}" fill="${q.color}" fill-opacity="${q.img&&IMGS.has(q.img)?.55:.85}"/>`;
-  return o+'</svg>';
-}
 function renderSide(){
   $('presetCount').textContent=S.presets.length;
   syncAutoNames();
-  $('presetList').innerHTML=S.presets.map((p,i)=>`<div class="item ${p.id===S.cur?'active':''}" role="button" tabindex="0" data-preset="${p.id}" title="Drag to change the order. Alt + arrow keys move it too."><span class="pgrip" aria-hidden="true">⠿</span><span class="pnum mono" title="Preset number. Double-click to edit.">${esc(presetNum(p,i))}</span>${presetThumb(p)}<span class="nm" title="Double-click to rename">${esc(p.name||'Untitled')}</span><span class="count">${p.pips.length} PiP${p.pips.length===1?'':'s'}</span></div>`).join('');
+  $('presetList').innerHTML=S.presets.map((p,i)=>`<div class="item ${p.id===S.cur?'active':''}" role="button" tabindex="0" data-preset="${p.id}" title="Drag to change the order. Alt + arrow keys move it too."><span class="pgrip" aria-hidden="true">⠿</span><span class="pnum mono" title="Preset number. Double-click to edit.">${esc(presetNum(p,i))}</span><span class="nm" title="Double-click to rename">${esc(p.name||'Untitled')}</span><span class="count">${p.pips.length} PiP${p.pips.length===1?'':'s'}</span></div>`).join('');
   syncAutoNames();
   $('pName').value=preset().name;
   {const b=baseScreenRes(); $('nsW').placeholder=b.w; $('nsH').placeholder=b.h;}
@@ -3653,8 +3642,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.66.html). Bump it with every release.
-const APP_VERSION = '3.66';
+// (pixelplanner-v3.67.html). Bump it with every release.
+const APP_VERSION = '3.67';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
