@@ -19,6 +19,9 @@ It is a single web page (`index.html`). Nothing to install: open it in a current
 ### Preset Guide
 - Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.
 - Build presets of PiPs on each screen, with mirroring and aspect ratio lock.
+- Quick layouts: right-click a screen and choose **Create… → Quick layout** to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.
+- Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.
+- Each preset in the list shows a small picture of it; **Page Up / Page Down** step through presets.
 - Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.
 - **Picture library**: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's `.json`, and shown in the PowerPoint and Excel exports.
 - Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.
@@ -37,6 +40,8 @@ It is a single web page (`index.html`). Nothing to install: open it in a current
 2. Add your screens on the left, or choose **Options → Load example** to see one set up.
 3. Arrange them on the layout, then switch to **Preset Guide** to plan PiPs.
 4. Use the **Export** tab under the layout for files, and **Options → Save .json** to keep your work.
+
+Press **?** (or **Options → Keyboard shortcuts**) for every shortcut, and use **Options → Layout text size** to make the labels on both layouts smaller or larger.
 
 **Options → Reset app** clears everything PixelPlanner has saved in this browser.
 

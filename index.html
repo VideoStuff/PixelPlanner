@@ -53,6 +53,11 @@ header.top{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 20px;paddin
 .optchk[aria-pressed="true"]::before{background:var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/12px no-repeat;border-color:var(--accent)}
 .optchk kbd{margin-left:auto;font:600 11px var(--f-mono);color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 5px}
 .optitem.danger{color:var(--danger)}
+.opt-ts{display:flex;align-items:center;gap:10px;padding:6px 8px;font:500 14px var(--f-body)}
+.opt-ts .seg-ts{margin-left:auto;display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.opt-ts button{border:0;background:none;padding:4px 9px;font:600 12px var(--f-body);color:var(--ink);cursor:pointer}
+.opt-ts button+button{border-left:1px solid var(--line)}
+.opt-ts button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
 a.optitem{text-decoration:none}
 .optsep{height:1px;background:var(--line);margin:4px 2px}
 
@@ -348,6 +353,10 @@ td.acc{color:var(--accent)}
 .tp-stage{background:repeating-conic-gradient(var(--field) 0 25%, var(--panel) 0 50%) 0 0/16px 16px;border-radius:6px;padding:10px;display:flex;justify-content:center;align-items:center;min-height:200px}
 .ed-box{width:min(940px,100%)}
 .rd-box{width:min(760px,100%)}
+.keys-body table{border-collapse:collapse;width:100%;margin:4px 0 14px}
+.keys-body td{padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top;font-size:14px}
+.keys-body td:first-child{white-space:nowrap;width:1%;padding-right:18px}
+.keys-body kbd{font:600 12px var(--f-mono);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:1px 6px;background:var(--field);color:var(--ink)}
 .rd-body{overflow:auto;padding:6px 22px 22px;font-size:15px;line-height:1.55;min-height:0}
 .rd-body h1{font:700 26px var(--f-display);margin:12px 0 6px}
 .rd-body h2{font:700 19px var(--f-display);margin:20px 0 6px;padding-top:12px;border-top:1px solid var(--line)}
@@ -465,11 +474,15 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
           <button class="optchk" type="button" id="rulerBtn" aria-pressed="false" title="Rulers along the top and left of the layout. They start at the layout's top-left, or at the ground when the ground line is on. (R)">Rulers <kbd>R</kbd></button>
           <button class="optchk" type="button" id="objCenterBtn" aria-pressed="false" title="When screens are added, moved or resized, objects move with the centre of the canvas, so anything centred stays centred">Lock objects to canvas center</button>
         </div>
+        <div class="optsep" role="separator"></div>
+        <div class="opt-ts" role="group" aria-label="Layout text size" title="Size of the labels on the Screen Builder and Preset Guide layouts"><span>Layout text size</span><span class="seg-ts">
+          <button type="button" data-ts="0.75" title="Small">S</button><button type="button" data-ts="1" title="Normal">M</button><button type="button" data-ts="1.3" title="Large">L</button><button type="button" data-ts="1.6" title="Extra large">XL</button></span></div>
         <div class="optsep builder-only" role="separator"></div>
         <button class="optitem builder-only" id="btnExample" type="button">Load example</button>
         <button class="optitem danger" id="btnResetApp" type="button" title="Erase everything PixelPlanner has saved in this browser and start fresh">Reset app</button>
         <div class="optsep" role="separator"></div>
         <button class="optitem" id="btnReadme" type="button" aria-haspopup="dialog" title="What PixelPlanner does and how to use it">Help &amp; README</button>
+        <button class="optitem" id="btnKeys" type="button" aria-haspopup="dialog">Keyboard shortcuts <kbd style="margin-left:auto">?</kbd></button>
       </div>
     </div>
     <input type="file" id="fileIn" accept=".json,application/json" hidden>
@@ -673,6 +686,13 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
     </section>
   </div>
 </main>
+<div id="keys" class="tp-back" hidden>
+  <div class="tp-box rd-box" role="dialog" aria-modal="true" aria-labelledby="keysTitle">
+    <div class="ov-head"><h3 id="keysTitle">Keyboard shortcuts</h3><button class="btn primary" type="button" id="keysClose">Close</button></div>
+    <div class="rd-body keys-body" id="keysBody" tabindex="0"></div>
+  </div>
+</div>
+
 <div id="readme" class="tp-back" hidden>
   <div class="tp-box rd-box" role="dialog" aria-modal="true" aria-labelledby="readmeTitle">
     <div class="ov-head">
@@ -691,11 +711,12 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <h3>Screen Builder</h3>
 <ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
 <h3>Preset Guide</h3>
-<ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li>Exports to PowerPoint and Excel.</li></ul>
+<ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock.</li><li>Quick layouts: right-click a screen and choose <strong>Create… → Quick layout</strong> to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.</li><li>Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.</li><li>Each preset in the list shows a small picture of it; <strong>Page Up / Page Down</strong> step through presets.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li>Exports to PowerPoint and Excel.</li></ul>
 <h3>Exports</h3>
 <ul><li>Canvas export PNG at exact pixel size, layout snapshot, layout summary and test patterns.</li><li>PDF spec pack, PowerPoint template, layered PSD and SVG.</li><li>Spec sheet as CSV.</li><li>Switcher planning <code>.xml</code> (screens, layers and auxes).</li><li><strong>Advanced → EDID (experimental):</strong> an EDID <code>.bin</code> for a screen, with connector, refresh rate, CVT blanking and a split across outputs. Check results on your hardware before you rely on them.</li></ul>
 <h2>Using it</h2>
 <ol><li>Add your screens on the left, or choose <strong>Options → Load example</strong> to see one set up.</li><li>Arrange them on the layout, then switch to <strong>Preset Guide</strong> to plan PiPs.</li><li>Use the <strong>Export</strong> tab under the layout for files, and <strong>Options → Save .json</strong> to keep your work.</li></ol>
+<p>Press <strong>?</strong> (or <strong>Options → Keyboard shortcuts</strong>) for every shortcut, and use <strong>Options → Layout text size</strong> to make the labels on both layouts smaller or larger.</p>
 <p><strong>Options → Reset app</strong> clears everything PixelPlanner has saved in this browser.</p>
 <!-- README:END -->
     </div>
@@ -857,6 +878,7 @@ h2{font-family:var(--f-display);font-size:15px;font-weight:600;letter-spacing:.0
 .item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;border:1px solid transparent;cursor:pointer;background:transparent;text-align:left;width:100%}
 .item:hover{background:var(--panel-2)}
 .item.active{background:var(--panel-2);border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+.item .pthumb{flex:none;border-radius:3px;background:#0d1015}
 .item .pnum{min-width:2.2em;text-align:center;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 5px;font-size:12px}
 .item.active .pnum{color:var(--accent);border-color:var(--accent)}
 .item .inline-edit{padding:2px 6px;min-width:0;font:inherit}
@@ -870,6 +892,9 @@ label.lbl{font-size:12px;color:var(--muted);display:flex;flex-direction:column;g
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 
 .tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.center.full{position:fixed;inset:0;z-index:40;background:var(--bg);padding:10px;display:flex;flex-direction:column;gap:8px;margin:0}
+.center.full>:not(.tools):not(#scroll){display:none!important}
+.center.full .stage-scroll{flex:1;height:auto;min-height:0}
 .tools .grp{display:flex;gap:4px;align-items:center}
 .chk{display:flex;align-items:center;gap:6px;font-size:13px}
 .stage-scroll{background:var(--stage);border:1px solid var(--line);border-radius:8px;overflow:auto;height:68vh;min-height:260px}
@@ -940,6 +965,9 @@ h2 .lockbtn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-co
 .scr-axis{stroke:#7fd1ff;opacity:.9}
 .axis-t{fill:var(--axis);font-family:var(--f-mono);opacity:.8;pointer-events:none}
 .pip{stroke-width:3;vector-effect:non-scaling-stroke;cursor:move}
+.snapg{stroke:#ff3d8b;stroke-width:1.5;stroke-dasharray:8 5;vector-effect:non-scaling-stroke;pointer-events:none}
+.msel{fill:none;stroke:#fff;stroke-width:2;stroke-dasharray:7 4;vector-effect:non-scaling-stroke;pointer-events:none}
+.grp-row{gap:6px;flex-wrap:wrap}
 .pip-t{fill:#fff;font-family:var(--f-display);font-weight:600;text-anchor:middle;dominant-baseline:central;pointer-events:none;paint-order:stroke;stroke:rgba(0,0,0,.55);stroke-width:4px;stroke-linejoin:round}
 .ghost{fill-opacity:.12;stroke-dasharray:8 6;stroke-width:2.5;vector-effect:non-scaling-stroke;cursor:move}
 .ghost-t{opacity:.7}
@@ -1060,6 +1088,7 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
         <span class="count" id="zVal">100%</span>
         <button class="btn sm" id="zIn" aria-label="Zoom in">+</button>
         <button class="btn sm" id="zFit">Fit</button>
+        <button class="btn sm" id="pgFull" aria-pressed="false" title="Full screen layout (F)">Full screen</button>
       </div>
     </div>
     <div class="stage-scroll" id="scroll">
@@ -1174,6 +1203,7 @@ const $=id=>document.getElementById(id);
 const COLORS=['#e5484d','#f5a524','#30a46c','#3e8ef7','#a259ff','#12b5cb'];
 /* Handed over by PixelPlanner: the saved preset guide, every layout's pixel canvas and the guide name. */
 const PP={init:window.__PP_INIT||{},canvases:[],name:''};
+let TS=+(PP.init.textScale)||1;   /* layout text size, set in Options on the Screen Builder page */
 PP.canvases=PP.init.canvases||[]; PP.name=PP.init.name||'';
 const SAMPLE_JSON=JSON.stringify({screens:[
   {name:'Stage Left',label:'SL',x:0,y:0,width:1920,height:1080},
@@ -1185,6 +1215,7 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 const round=v=>Math.round(v);
 
 /* ---------- state ---------- */
+const multi=new Set();   /* PiPs picked together (Shift- or Ctrl-click); sel is the one picked last */
 let S=null, sel=null /* {kind:'pip'|'screen', id} */, tool='select', zoom=1, sFit=null, prevVB=null;
 let lockVB=null, curVB={x:0,y:0,w:1,h:1}, drag=null, lastDown={id:null,t:0}, editor=null, downloads=null;
 
@@ -1453,7 +1484,7 @@ function placePipLabels(items){
     const {txt,r}=items[n]; if(!txt) continue;
     let free=[{...r}]; for(let m=n+1;m<items.length;m++) free=subtractRect(free,items[m].r);
     free=free.filter(f=>f.w>1&&f.h>1).sort((a,b)=>b.w*b.h-a.w*a.h);
-    const s0=fitText(txt,r.w,r.h), min=Math.min(s0,Math.max(6,s0*0.25)), sizes=[];
+    const s0=fitText(txt,r.w,r.h)*TS, min=Math.min(s0,Math.max(6,s0*0.25)), sizes=[];   /* TS: Options → Text size; still kept inside the PiP below */
     for(let fs=s0;fs>=min;fs*=0.85) sizes.push(fs);
     if(sizes[sizes.length-1]>min) sizes.push(min);
     const spots=f=>{const cx=f.x+f.w/2,cy=f.y+f.h/2;return [[cx,cy],[cx,f.y+f.h*0.25],[cx,f.y+f.h*0.75],[f.x+f.w*0.25,cy],[f.x+f.w*0.75,cy]];};
@@ -1500,7 +1531,7 @@ function overlaysSVG(scale,vb){
   /* label inside the area if it fits (or turned on its side), otherwise just below or above the screens involved,
      clear of other labels and inside the view, with a dashed line back to the area */
   const label=(r,t1,t2,cls,top,bot)=>{
-    const fs=12*ut, fs2=11*ut, tw=Math.max(t1.length*fs,t2.length*fs2)*0.62+fs*1.2, th=fs*1.5+fs2*1.5, gap=6*ut;
+    const fs=12*ut*TS, fs2=11*ut*TS, tw=Math.max(t1.length*fs,t2.length*fs2)*0.62+fs*1.2, th=fs*1.5+fs2*1.5, gap=6*ut;
     const cx=r.x+r.w/2, cy=r.y+r.h/2, spots=[{x:cx,y:cy,rot:false,in:true},{x:cx,y:cy,rot:true,in:true}];
     for(let k=0;k<8;k++) spots.push({x:cx,y:bot+gap+th/2+k*(th+gap)},{x:cx,y:top-gap-th/2-k*(th+gap)});
     const box=p=>p.rot?{x:p.x-th/2,y:p.y-tw/2,w:th,h:tw}:{x:p.x-tw/2,y:p.y-th/2,w:tw,h:th};
@@ -1547,7 +1578,7 @@ function renderStage(){
   const scale=(inner.clientWidth||1)/vb.w;
   const c=center(), P=preset();
   let g='';
-  const axFs=14/scale;
+  const axFs=14/scale*TS;
   g+=`<line class="axis" x1="${c.x}" y1="${vb.y}" x2="${c.x}" y2="${vb.y+vb.h}"/><line class="axis" x1="${vb.x}" y1="${c.y}" x2="${vb.x+vb.w}" y2="${c.y}"/>`;
   g+=`<text class="axis-t" x="${c.x+axFs*.6}" y="${vb.y+axFs*1.4}" font-size="${axFs}">CENTER · MIRROR AXIS</text>`;
   {const sp=sel&&sel.kind==='pip'&&pipById(sel.id), ms=sp&&sp.mirror&&sp.mirror!=='none'&&mirrorScreen(sp);
@@ -1555,7 +1586,7 @@ function renderStage(){
      if(sp.mirror!=='v') g+=`<line class="axis scr-axis" x1="${mx}" y1="${ms.y}" x2="${mx}" y2="${ms.y+ms.h}"/>`;
      if(sp.mirror!=='h') g+=`<line class="axis scr-axis" x1="${ms.x}" y1="${my}" x2="${ms.x+ms.w}" y2="${my}"/>`;}}
   for(const s of S.screens){
-    const nm=sname(s), fs=Math.max(24,s.h*0.085), mod=screenMod(s);
+    const nm=sname(s), fs=Math.max(24,s.h*0.085)*TS, mod=screenMod(s);
     const isSel=sel&&sel.kind==='screen'&&sel.id===s.id;
     g+=`<g data-kind="screen" data-id="${s.id}"><rect class="scr ${s.kind==='custom'?'custom':''} ${isSel?'sel':''}" x="${s.x}" y="${s.y}" width="${s.w}" height="${s.h}"/>
       <text class="scr-name" x="${s.x+fs*.6}" y="${s.y+fs*1.5}" font-size="${fs}">${esc(nm)}</text>
@@ -1574,11 +1605,19 @@ function renderStage(){
     const m=mirrorRect(p); /* the mirror copy stacks with its original */
     if(m){g+=`<g data-kind="pip" data-id="${p.id}" data-mirror="1">${picSvg(m,'m')}${pipShape(p,m,'pip',fill,p.color)}${p.locked?lockBadge(m,scale):''}</g>`; if(named) labs.push({txt,r:m});}
   });
+  /* snap guides: a line across the view for each edge or centre the dragged item snapped to (and still sits on) */
+  if(drag&&snapGuides.length){const t=drag.proxy||selTarget();
+    if(t){const on=(g)=>{const a=g.axis==='x'?[t.x,t.x+t.w/2,t.x+t.w]:[t.y,t.y+t.h/2,t.y+t.h]; return a.some(v=>Math.abs(v-g.at)<0.75);};
+      const seen=new Set();
+      for(const gd of snapGuides){const k=gd.axis+Math.round(gd.at); if(seen.has(k)||!on(gd)) continue; seen.add(k);
+        g+=gd.axis==='x'?`<line class="snapg" x1="${gd.at}" y1="${vb.y}" x2="${gd.at}" y2="${vb.y+vb.h}"/>`:`<line class="snapg" x1="${vb.x}" y1="${gd.at}" x2="${vb.x+vb.w}" y2="${gd.at}"/>`;}}}
+  /* PiPs picked together: a dashed outline round each */
+  if(multi.size>1) for(const q of P.pips) if(multi.has(q.id)) g+=`<rect class="msel" x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}"/>`;
   g+=placePipLabels(labs).map(l=>`<text class="pip-t" x="${l.x}" y="${l.y}" font-size="${l.fs}" style="pointer-events:none">${esc(l.txt)}</text>`).join('');
   /* objects you added: above every screen and PiP; a locked one is click-through (pick it from the Objects list) */
   for(const o of S.objects){
     g+=`<g data-kind="object" data-id="${o.id}" ${o.locked?'style="pointer-events:none"':''}><rect class="obj" x="${o.x}" y="${o.y}" width="${o.w}" height="${o.h}" fill="${o.color}"/>
-      <text class="pip-t" x="${o.x+o.w/2}" y="${o.y+o.h/2}" font-size="${fitText(o.name||'',o.w,o.h)}" style="pointer-events:none">${esc(o.name||'')}</text>${o.locked?lockBadge(o,scale):''}</g>`;
+      <text class="pip-t" x="${o.x+o.w/2}" y="${o.y+o.h/2}" font-size="${Math.min(fitText(o.name||'',o.w,o.h)*TS,o.h*0.6)}" style="pointer-events:none">${esc(o.name||'')}</text>${o.locked?lockBadge(o,scale):''}</g>`;
   }
   g+=ovl.objects;   /* objects from the imported JSON sit above every screen and PiP */
   g+=ovl.labels;
@@ -1621,10 +1660,20 @@ function screensLine(p,r){
   const list=screensFor(r||p).map(x=>sname(x.s));
   return list.length?list.join(', '):'(not on a screen)';
 }
+/* a small picture of a preset in the list: its screens, with its PiPs in their colours (and pictures' wash) */
+function presetThumb(P){
+  const rs=S.screens.filter(s=>s.w>0&&s.h>0); if(!rs.length) return '';
+  const x0=Math.min(...rs.map(s=>s.x)), y0=Math.min(...rs.map(s=>s.y)), x1=Math.max(...rs.map(s=>s.x+s.w)), y1=Math.max(...rs.map(s=>s.y+s.h));
+  const w=x1-x0||1, h=y1-y0||1, W=64, H=Math.max(10,Math.min(36,Math.round(W*h/w))), sw=Math.max(w,h)/90;
+  let o=`<svg class="pthumb" viewBox="${x0} ${y0} ${w} ${h}" width="${W}" height="${H}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">`;
+  for(const s of rs) o+=`<rect x="${s.x}" y="${s.y}" width="${s.w}" height="${s.h}" fill="#1b212b" stroke="#5b6a84" stroke-width="${sw}"/>`;
+  for(const q of P.pips) for(const r of [q,mirrorRect(q)]) if(r) o+=`<rect x="${r.x}" y="${r.y}" width="${r.w}" height="${r.h}" fill="${q.color}" fill-opacity="${q.img&&IMGS.has(q.img)?.55:.85}"/>`;
+  return o+'</svg>';
+}
 function renderSide(){
   $('presetCount').textContent=S.presets.length;
   syncAutoNames();
-  $('presetList').innerHTML=S.presets.map((p,i)=>`<div class="item ${p.id===S.cur?'active':''}" role="button" tabindex="0" data-preset="${p.id}" title="Drag to change the order. Alt + arrow keys move it too."><span class="pgrip" aria-hidden="true">⠿</span><span class="pnum mono" title="Preset number. Double-click to edit.">${esc(presetNum(p,i))}</span><span class="nm" title="Double-click to rename">${esc(p.name||'Untitled')}</span><span class="count">${p.pips.length} PiP${p.pips.length===1?'':'s'}</span></div>`).join('');
+  $('presetList').innerHTML=S.presets.map((p,i)=>`<div class="item ${p.id===S.cur?'active':''}" role="button" tabindex="0" data-preset="${p.id}" title="Drag to change the order. Alt + arrow keys move it too."><span class="pgrip" aria-hidden="true">⠿</span><span class="pnum mono" title="Preset number. Double-click to edit.">${esc(presetNum(p,i))}</span>${presetThumb(p)}<span class="nm" title="Double-click to rename">${esc(p.name||'Untitled')}</span><span class="count">${p.pips.length} PiP${p.pips.length===1?'':'s'}</span></div>`).join('');
   syncAutoNames();
   $('pName').value=preset().name;
   {const b=baseScreenRes(); $('nsW').placeholder=b.w; $('nsH').placeholder=b.h;}
@@ -1728,6 +1777,23 @@ const LOCK_ICON=on=>`<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden
 const lockBtn=o=>`<button class="lockbtn" id="lockToggle" aria-pressed="${o.locked?'true':'false'}" title="${o.locked?'Locked: click to unlock':'Lock it so it cannot be moved, resized or replaced'}">${LOCK_ICON(!!o.locked)}<span>${o.locked?'Locked':'Lock'}</span></button>`;
 function renderInspector(){
   const el=$('inspector');
+  for(const id of [...multi]) if(!pipById(id)) multi.delete(id);   /* only PiPs in this preset */
+  if(multi.size<2) multi.clear();
+  if(multi.size>1){
+    const n=multi.size, prim=sel&&pipById(sel.id), B=(a,t,tip,dis)=>`<button class="btn sm" data-grp="${a}" title="${tip}"${dis?' disabled':''}>${t}</button>`;
+    el.innerHTML=`<h2>${n} PiPs selected</h2>
+      <p class="hint" style="margin-top:-4px">Shift- or Ctrl-click a PiP to add or remove it. Drag one to move them all; arrow keys nudge them, Delete removes them.</p>
+      <span class="count">Align</span>
+      <div class="row grp-row">${B('left','Left','Line up their left edges')}${B('hcenter','Centre','Line up their centres side to side')}${B('right','Right','Line up their right edges')}</div>
+      <div class="row grp-row">${B('top','Top','Line up their top edges')}${B('vcenter','Middle','Line up their centres top to bottom')}${B('bottom','Bottom','Line up their bottom edges')}</div>
+      <span class="count">Distribute</span>
+      <div class="row grp-row">${B('hspace','Space side to side','Even gaps between them, left to right',n<3)}${B('vspace','Space top to bottom','Even gaps between them, top to bottom',n<3)}</div>
+      ${n<3?'<p class="hint" style="margin-top:-4px">Spacing needs three or more PiPs.</p>':''}
+      <span class="count">Match ${prim?esc(pname(prim,preset().pips.indexOf(prim))):'the last one picked'}</span>
+      <div class="row grp-row">${B('width','Width','Same width as the PiP picked last')}${B('height','Height','Same height as the PiP picked last')}${B('size','Size','Same width and height as the PiP picked last')}</div>
+      <div class="row"><button class="btn sm danger" id="grpDel">Delete ${n} PiPs</button><button class="btn sm" id="grpClear">Clear selection</button></div>`;
+    return;
+  }
   if(sel&&sel.kind==='pip'){
     const P=preset(), i=P.pips.findIndex(p=>p.id===sel.id), p=P.pips[i];
     if(!p){sel=null;return renderInspector();}
@@ -1887,7 +1953,7 @@ function snapList(){
   }
   /* a PiP also snaps to the edges and centres of the other PiPs in this preset, and their mirror copies */
   if(sel&&(sel.kind==='pip'||sel.kind==='object')) for(const q of preset().pips){
-    if(sel.kind==='pip'&&q.id===sel.id) continue;
+    if(sel.kind==='pip'&&(q.id===sel.id||multi.has(q.id))) continue;
     for(const r of [q,mirrorRect(q)]) if(r){xs.push(r.x,r.x+r.w/2,r.x+r.w);ys.push(r.y,r.y+r.h/2,r.y+r.h);}
   }
   return {xs,ys};
@@ -1895,9 +1961,11 @@ function snapList(){
 /* holding Ctrl (Cmd on a Mac) while dragging turns snapping off for that drag */
 let snapBypass=false;
 const snapNow=()=>snapOn()&&!snapBypass;
-function snapEdges(v,offs,list,thr){
-  let best=0,bd=thr+1e-9;
-  for(const o of offs)for(const c of list){const d=c-(v+o); if(Math.abs(d)<bd){bd=Math.abs(d);best=d;}}
+let snapGuides=[];   /* what the item being dragged snapped to: {axis:'x'|'y', at}, drawn as lines while dragging */
+function snapEdges(v,offs,list,thr,axis){
+  let best=0,bd=thr+1e-9,hit=null;
+  for(const o of offs)for(const c of list){const d=c-(v+o); if(Math.abs(d)<bd){bd=Math.abs(d);best=d;hit=c;}}
+  if(hit!==null&&axis) snapGuides.push({axis,at:hit});
   return v+best;
 }
 const snapOn=()=>$('snap').checked;
@@ -1966,6 +2034,15 @@ svg.addEventListener('pointerdown',e=>{
   if(kind==='handle'){
     const o=selRect(); drag={type:'resize',h:t.dataset.h,start:p,orig:{x:o.x,y:o.y,w:o.w,h:o.h},proxy:selMirror()?{x:o.x,y:o.y,w:o.w,h:o.h}:null}; return;
   }
+  if(kind==='pip'&&(e.shiftKey||e.ctrlKey||e.metaKey)){
+    /* Shift- or Ctrl/Cmd-click: add this PiP to the selection, or take it out */
+    const id=t.dataset.id; if(!multi.size&&sel&&sel.kind==='pip') multi.add(sel.id);
+    if(multi.has(id)){multi.delete(id); const last=[...multi].pop(); sel=last?{kind:'pip',id:last}:null;}
+    else{multi.add(id); sel={kind:'pip',id};}
+    if(multi.size<2) multi.clear();
+    lockVB=null; renderAll(); return;
+  }
+  if(!(kind==='pip'&&multi.has(t.dataset.id))) multi.clear();   /* a plain click on anything else starts a new selection */
   if(kind==='pip'||kind==='screen'||kind==='object'){
     const id=t.dataset.id, now=performance.now(), isMir=kind==='pip'&&t.dataset.mirror==='1';
     const wasSel=!!sel&&sel.kind===kind&&sel.id===id;
@@ -1984,16 +2061,17 @@ svg.addEventListener('pointerdown',e=>{
         if(cx>=o.x&&cx<=o.x+o.w&&cy>=o.y&&cy<=o.y+o.h) followers.push({q,x:q.x,y:q.y});
       }
     }
+    if(kind==='pip'&&multi.size>1) for(const q of preset().pips) if(multi.has(q.id)&&q.id!==id&&!q.locked) followers.push({q,x:q.x,y:q.y});   /* the rest of the group comes along */
     drag={type:'move',start:p,sx:e.clientX,sy:e.clientY,orig:{x:o.x,y:o.y,w:o.w,h:o.h},movable:true,followers,proxy:isMir?{x:o.x,y:o.y,w:o.w,h:o.h}:null};
     renderAll(); return;
   }
-  sel=null; lockVB=null; renderAll();
+  sel=null; multi.clear(); lockVB=null; renderAll();
   if(e.pointerType==='touch') startPan(e,true);   /* a finger on the empty background pans the layout */
 });
 window.addEventListener('pointermove',e=>{
   if(!drag) return;
   if(drag.type==='pan'){const sc=$('scroll'), dx=e.clientX-drag.cx, dy=e.clientY-drag.cy; if(Math.hypot(dx,dy)>6) drag.moved=true; sc.scrollLeft=drag.sl-dx; sc.scrollTop=drag.st-dy; return;}
-  snapBypass=e.ctrlKey||e.metaKey;
+  snapBypass=e.ctrlKey||e.metaKey; snapGuides=[];
   const p=toSvg(e), dx=p.x-drag.start.x, dy=p.y-drag.start.y, T=thr(), L=snapList();
   if(drag.type==='draw'){
     const o=pipById(drag.id); if(!o) return;
@@ -2013,18 +2091,18 @@ window.addEventListener('pointermove',e=>{
     /* a tap is not a drag: nothing moves (or snaps) until the pointer has travelled a few pixels */
     if(!drag.live){ if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)<5) return; drag.live=true; }
     let x=drag.orig.x+dx,y=drag.orig.y+dy;
-    if(snapNow()){x=snapEdges(x,[0,t.w/2,t.w],L.xs,T);y=snapEdges(y,[0,t.h/2,t.h],L.ys,T);}
+    if(snapNow()){x=snapEdges(x,[0,t.w/2,t.w],L.xs,T,'x');y=snapEdges(y,[0,t.h/2,t.h],L.ys,T,'y');}
     if(sel.kind!=='screen'){x=Math.max(curVB.x,Math.min(curVB.x+curVB.w-t.w,x));y=Math.max(curVB.y,Math.min(curVB.y+curVB.h-t.h,y));}
     t.x=round(x);t.y=round(y);
     if(sel.kind==='pip'&&!drag.proxy) replaceHint=(findReplaceTarget(t,t.id)||{}).id||null;
-    if(sel.kind==='screen'&&drag.followers) for(const f of drag.followers){f.q.x=f.x+(t.x-drag.orig.x);f.q.y=f.y+(t.y-drag.orig.y);}
+    if(drag.followers&&drag.followers.length) for(const f of drag.followers){f.q.x=f.x+(t.x-drag.orig.x);f.q.y=f.y+(t.y-drag.orig.y);}
   }else if(drag.type==='resize'){
     const o=drag.orig, h=drag.h, MIN=24;
     let x0=o.x,y0=o.y,x1=o.x+o.w,y1=o.y+o.h;
-    if(h.includes('w')) x0=snapNow()?snapEdges(o.x+dx,[0],L.xs,T):o.x+dx;
-    if(h.includes('e')) x1=snapNow()?snapEdges(o.x+o.w+dx,[0],L.xs,T):o.x+o.w+dx;
-    if(h.includes('n')) y0=snapNow()?snapEdges(o.y+dy,[0],L.ys,T):o.y+dy;
-    if(h.includes('s')) y1=snapNow()?snapEdges(o.y+o.h+dy,[0],L.ys,T):o.y+o.h+dy;
+    if(h.includes('w')) x0=snapNow()?snapEdges(o.x+dx,[0],L.xs,T,'x'):o.x+dx;
+    if(h.includes('e')) x1=snapNow()?snapEdges(o.x+o.w+dx,[0],L.xs,T,'x'):o.x+o.w+dx;
+    if(h.includes('n')) y0=snapNow()?snapEdges(o.y+dy,[0],L.ys,T,'y'):o.y+dy;
+    if(h.includes('s')) y1=snapNow()?snapEdges(o.y+o.h+dy,[0],L.ys,T,'y'):o.y+o.h+dy;
     if(x1-x0<MIN){ if(h.includes('w')) x0=x1-MIN; else x1=x0+MIN; }
     if(y1-y0<MIN){ if(h.includes('n')) y0=y1-MIN; else y1=y0+MIN; }
     if((sel.kind==='screen'&&screenLocked(selTarget()))||(sel.kind==='pip'&&pipLocked(selTarget()))){
@@ -2045,7 +2123,7 @@ window.addEventListener('pointermove',e=>{
 });
 window.addEventListener('pointerup',()=>{
   if(!drag) return;
-  const d=drag; drag=null; replaceHint=null; snapBypass=false;
+  const d=drag; drag=null; replaceHint=null; snapBypass=false; snapGuides=[];
   if(d.type==='pan'){ /* a double-tap on the empty background fits the whole canvas */
     if(d.bg&&!d.moved){const now=performance.now(); if(now-bgTapAt<380){bgTapAt=0; fitCanvas();} else bgTapAt=now;}
     return;
@@ -2189,8 +2267,29 @@ window.addEventListener('keydown',e=>{
   if((e.ctrlKey||e.metaKey)&&(e.key==='y'||e.key==='Y')){e.preventDefault();redo();return;}
   if((e.ctrlKey||e.metaKey)&&(e.key==='c'||e.key==='C')){if(copySel()) e.preventDefault();return;}
   if((e.ctrlKey||e.metaKey)&&(e.key==='v'||e.key==='V')){if(clip){e.preventDefault();pasteClip();}return;}
-  if(e.key==='Escape'){tool='select';sel=null;renderAll();return;}
+  if(e.key==='Escape'){ if(!sel&&!multi.size&&$('scroll').closest('.center').classList.contains('full')){setPgFull(false);return;} tool='select';sel=null;multi.clear();renderAll();return;}
+  if(!e.ctrlKey&&!e.metaKey&&!e.altKey){
+    if(e.key==='?'){e.preventDefault(); try{parent.postMessage({type:'pp-keys'},'*');}catch(err){} return;}
+    if(e.key==='f'||e.key==='F'){e.preventDefault(); setPgFull(!$('scroll').closest('.center').classList.contains('full')); return;}
+    if(e.key==='0'){e.preventDefault(); fitCanvas(); return;}
+    if(e.key==='+'||e.key==='='){e.preventDefault(); zoomAtCentre(1.25); return;}
+    if(e.key==='-'||e.key==='_'){e.preventDefault(); zoomAtCentre(1/1.25); return;}
+  }
+  if(e.key==='PageDown'||e.key==='PageUp'){   /* next or previous preset */
+    e.preventDefault(); const i=S.presets.findIndex(p=>p.id===S.cur), j=i+(e.key==='PageDown'?1:-1);
+    if(j<0||j>=S.presets.length){say(j<0?'This is the first preset.':'This is the last preset.');return;}
+    commitEdit(); S.cur=S.presets[j].id; sel=null; multi.clear(); renderAll(); touch();
+    const row=document.querySelector(`[data-preset="${S.cur}"]`); if(row) row.scrollIntoView({block:'nearest'});
+    say(`${presetNum(S.presets[j],j)} · ${S.presets[j].name||'Untitled'}`,'ok'); return;
+  }
   if(!sel) return;
+  if(multi.size>1){
+    const grp=preset().pips.filter(q=>multi.has(q.id)&&!q.locked);
+    if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();deleteGroup();return;}
+    const st=e.shiftKey?10:1, k={ArrowLeft:[-st,0],ArrowRight:[st,0],ArrowUp:[0,-st],ArrowDown:[0,st]}[e.key];
+    if(k){e.preventDefault();grp.forEach(q=>{q.x+=k[0];q.y+=k[1];});renderAll();touch();}
+    return;
+  }
   if(selTarget()?.locked&&(e.key==='Delete'||e.key==='Backspace'||e.key.startsWith('Arrow'))){e.preventDefault();say('It is locked. Unlock it in the inspector first.');return;}
   if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();deleteSel();return;}
   const t=selTarget(); if(!t) return;
@@ -2198,7 +2297,30 @@ window.addEventListener('keydown',e=>{
   const st=e.shiftKey?10:1, k={ArrowLeft:[-st,0],ArrowRight:[st,0],ArrowUp:[0,-st],ArrowDown:[0,st]}[e.key];
   if(k){e.preventDefault();const r=selRect();applyRect({x:r.x+k[0],y:r.y+k[1],w:r.w,h:r.h});renderAll();touch();}
 });
+function deleteGroup(){
+  const P=preset(), n=P.pips.filter(q=>multi.has(q.id)&&!q.locked).length;
+  P.pips=P.pips.filter(q=>!(multi.has(q.id)&&!q.locked)); multi.clear(); sel=null; renderAll(); touch(); say(`Deleted ${n} PiP${n===1?'':'s'}.`,'ok');
+}
+/* line up, space out or size a group of PiPs (the one picked last is the size to match) */
+function groupDo(act){
+  const P=preset(), grp=P.pips.filter(q=>multi.has(q.id)&&!q.locked), prim=sel&&pipById(sel.id); if(grp.length<2) return;
+  const x0=Math.min(...grp.map(q=>q.x)), x1=Math.max(...grp.map(q=>q.x+q.w)), y0=Math.min(...grp.map(q=>q.y)), y1=Math.max(...grp.map(q=>q.y+q.h));
+  const spread=(axis)=>{const a=axis==='x', L=a?'x':'y', D=a?'w':'h', lo=a?x0:y0, hi=a?x1:y1, list=grp.slice().sort((p,q)=>(p[L]+p[D]/2)-(q[L]+q[D]/2));
+    const gap=(hi-lo-list.reduce((t,q)=>t+q[D],0))/(list.length-1); let at=lo; for(const q of list){q[L]=at; at+=q[D]+gap;}};
+  for(const q of grp){
+    if(act==='left') q.x=x0; else if(act==='hcenter') q.x=(x0+x1)/2-q.w/2; else if(act==='right') q.x=x1-q.w;
+    else if(act==='top') q.y=y0; else if(act==='vcenter') q.y=(y0+y1)/2-q.h/2; else if(act==='bottom') q.y=y1-q.h;
+    else if(prim&&q!==prim){
+      if(act==='width'){q.w=prim.w; if(pipLocked(q)) q.h=q.w/pipAR(q);}
+      else if(act==='height'){q.h=prim.h; if(pipLocked(q)) q.w=q.h*pipAR(q);}
+      else if(act==='size'){q.w=prim.w; q.h=prim.h; q.ar=prim.ar; if(prim.lockAR===false) q.lockAR=false; else delete q.lockAR;}
+    }
+  }
+  if(act==='hspace') spread('x'); if(act==='vspace') spread('y');
+  renderAll(); touch();
+}
 function deleteSel(){
+  if(multi.size>1){deleteGroup();return;}
   if(!sel||selTarget()?.locked) return;
   if(sel.kind==='pip'){const P=preset();P.pips=P.pips.filter(p=>p.id!==sel.id);}
   else if(sel.kind==='object'){S.objects=S.objects.filter(o=>o.id!==sel.id);}
@@ -2230,6 +2352,12 @@ function centreOn(r){
   sc.scrollTop=Math.max(0,(r.y+r.h/2-vb.y)*s-sc.clientHeight/2);
 }
 let autoFit=true;   /* true until you zoom or focus yourself: a change in the viewer's size then fits the layout again */
+/* full screen: the toolbar and the layout fill the window */
+function setPgFull(on){
+  const c=$('scroll').closest('.center'); c.classList.toggle('full',on); $('pgFull').setAttribute('aria-pressed',on);
+  $('pgFull').textContent=on?'Exit full screen':'Full screen'; lockVB=null; requestAnimationFrame(()=>fitCanvas());
+}
+$('pgFull').onclick=()=>setPgFull(!$('scroll').closest('.center').classList.contains('full'));
 function fitCanvas(){
   const k=computeFitScale(); autoFit=true;
   if(!k){ if(sFit==null) renderStage(); return; }   /* fitted as soon as the viewer gets a size */
@@ -2661,6 +2789,28 @@ function addScreenAt(pt,name){
   const s={id:uid(),kind:'custom',name:name||('Screen '+(S.screens.length+1)),srcName:null,x,y,w,h,home:{x,y,w,h},res:{w,h}};
   S.screens.push(s); sel={kind:'screen',id:s.id}; tool='select'; renderAll(); touch(); startEdit('screen',s.id);
 }
+/* Quick layouts: PiPs that fill a screen in a common arrangement, cut on whole pixels of that screen.
+   Each cell is [left, top, width, height] as shares of the screen. */
+const QUICK=[
+  ['Full screen',[[0,0,1,1]]],
+  ['2 side by side',[[0,0,1/2,1],[1/2,0,1/2,1]]],
+  ['3 side by side',[[0,0,1/3,1],[1/3,0,1/3,1],[2/3,0,1/3,1]]],
+  ['2 stacked',[[0,0,1,1/2],[0,1/2,1,1/2]]],
+  ['2 × 2 grid',[[0,0,.5,.5],[.5,0,.5,.5],[0,.5,.5,.5],[.5,.5,.5,.5]]],
+  ['3 × 3 grid',[0,1,2].flatMap(r=>[0,1,2].map(c=>[c/3,r/3,1/3,1/3]))],
+  ['1 large + 2 small',[[0,0,2/3,1],[2/3,0,1/3,1/2],[2/3,1/2,1/3,1/2]]],
+  ['Full screen + corner inset',[[0,0,1,1],[.7,.7,.25,.25]]],
+];
+function quickLayout(s,nm,cells){
+  commitEdit(); const P=preset(), n=nativeRes(s), kx=s.w/n.w, ky=s.h/n.h, made=[];
+  for(const [fx,fy,fw,fh] of cells){
+    const x0=Math.round(fx*n.w), y0=Math.round(fy*n.h), x1=Math.round((fx+fw)*n.w), y1=Math.round((fy+fh)*n.h), wp=x1-x0, hp=y1-y0;
+    const p={id:uid(),text:'',x:s.x+x0*kx,y:s.y+y0*ky,w:wp*kx,h:hp*ky,ar:(wp*kx)/(hp*ky),shape:'rect',color:COLORS[(P.pips.length)%COLORS.length],mirror:'none'};
+    P.pips.push(p); made.push(p);
+  }
+  sel={kind:'pip',id:made[0].id}; multi.clear(); made.forEach(p=>multi.add(p.id)); renderAll(); touch();
+  say(`${nm} on ${sname(s)}: ${made.length} PiP${made.length===1?'':'s'} added. Double-click one to name it.`,'ok');
+}
 function hideCtx(){ctx.hidden=true;ctx.innerHTML='';}
 function showCtx(cx,cy,items){
   ctx.innerHTML=items.map((it,i)=>it==='-'?'<hr>':`<button role="menuitem" data-i="${i}" class="${it[2]||''}" ${it[3]?'disabled':''}>${esc(it[0])}</button>`).join('');
@@ -2674,7 +2824,10 @@ svg.addEventListener('contextmenu',e=>{
   e.preventDefault(); commitEdit(); lockVB=null;
   const pt=toSvg(e), t=e.target.closest('[data-kind]'), kind=t&&t.dataset.kind, id=t&&t.dataset.id;
   /* Create… opens a second list, in the same spot, with everything that can be made here */
-  const create=[['‹ Back',()=>showCtx(e.clientX,e.clientY,items)],'-',['PiP',()=>addPipAt(pt)],['Screen',()=>addScreenAt(pt)],
+  const under=S.screens.slice().reverse().find(s=>pt.x>=s.x&&pt.x<=s.x+s.w&&pt.y>=s.y&&pt.y<=s.y+s.h);
+  const quick=under?[['‹ Back',()=>showCtx(e.clientX,e.clientY,create)],'-',...QUICK.map(([nm,cells])=>[nm,()=>quickLayout(under,nm,cells)])]:null;
+  const create=[['‹ Back',()=>showCtx(e.clientX,e.clientY,items)],'-',['PiP',()=>addPipAt(pt)],
+    ...(quick?[[`Quick layout on ${sname(under)}…`,()=>showCtx(e.clientX,e.clientY,quick)]]:[]),'-',['Screen',()=>addScreenAt(pt)],
     ['Delay screen',()=>addScreenAt(pt,'Delay')],['Confidence screen',()=>addScreenAt(pt,'Confidence')]];
   const items=[['Create…',()=>showCtx(e.clientX,e.clientY,create)]];
   if(clip) items.push(['Paste '+(clip.kind==='pip'?'PiP':clip.kind==='object'?'object':'screen')+' here',()=>pasteClip(pt)]);
@@ -2809,6 +2962,9 @@ insp.addEventListener('change',e=>{
   if(e.target.id==='iMirror'&&t){t.mirror=e.target.value;if(t.mirror==='none'&&sel) sel.mirror=false;renderAll();touch();}
 });
 insp.addEventListener('click',e=>{
+  const gb=e.target.closest('[data-grp]'); if(gb){groupDo(gb.dataset.grp);return;}
+  if(e.target.id==='grpDel'){deleteGroup();return;}
+  if(e.target.id==='grpClear'){multi.clear();renderAll();return;}
   const t=selTarget();
   if(e.target.closest('#lockToggle')&&t){t.locked=!t.locked;if(!t.locked) delete t.locked;renderAll();touch();say(t.locked?'Locked.':'Unlocked.','ok');return;}
   const oc=e.target.closest('[data-ocolor]'); if(oc&&t&&sel.kind==='object'){t.color=oc.dataset.ocolor;renderAll();touch();return;}
@@ -3423,6 +3579,7 @@ window.addEventListener('message',e=>{
     applyBuilder(!validState(m.state)); sel=null; tool='select'; lockVB=null;
     hist=[]; redoStack=[]; base=JSON.stringify(S); lastPush=0; syncUndo(); persist(); renderAll(); fitCanvas();
   }else if(m.type==='pp-summary-req'){ postState();
+  }else if(m.type==='pp-textsize'){ TS=+m.v||1; renderStage();
   }else if(m.type==='pp-shown'){ if(!sFit||!contentVisible()) fitCanvas(); else renderStage(); }
   else if(m.type==='pp-theme') setTheme(m.theme);
 });
@@ -3496,8 +3653,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.65.html). Bump it with every release.
-const APP_VERSION = '3.65';
+// (pixelplanner-v3.66.html). Bump it with every release.
+const APP_VERSION = '3.66';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
@@ -5091,7 +5248,7 @@ function renderStage(){
   const [vx, vy, vw, vh] = view, u = vw / 100;
   // Text unit: tied to the drawing, so labels shrink as you zoom out and grow as you zoom in
   // (growth capped at 1.4× so close-ups stay tidy).
-  const ut = Math.min(fitWidth() / 100, u * 1.4);
+  const ut = Math.min(fitWidth() / 100, u * 1.4) * textScale(); // Options → Text size
   placed = [];
   svg.setAttribute('viewBox', `${vx} ${vy} ${vw} ${vh}`);
   const step = niceStep(vw);
@@ -6318,6 +6475,40 @@ optBtn.addEventListener('click', () => setOpt(optMenu.hidden));
 document.addEventListener('pointerdown', e => { if (!optMenu.hidden && !e.target.closest('.optwrap')) setOpt(false); }, true);
 optMenu.addEventListener('keydown', e => { if (e.key === 'Escape'){ e.stopPropagation(); setOpt(false); optBtn.focus(); } });
 optMenu.addEventListener('click', e => { if (e.target.closest('.optitem')) setOpt(false); }); // Load example and Reset app open their own dialogs
+/* Layout text size: one setting for the labels on both layouts (Screen Builder and Preset Guide). */
+const textScale = () => { let v = 1; try { v = parseFloat(localStorage.getItem('pp-textsize')); } catch (e) {} return [0.75, 1, 1.3, 1.6].includes(v) ? v : 1; };
+function syncTS(){ const v = textScale(); document.querySelectorAll('[data-ts]').forEach(b => b.setAttribute('aria-pressed', parseFloat(b.dataset.ts) === v)); }
+document.querySelector('.seg-ts').addEventListener('click', e => {
+  const b = e.target.closest('[data-ts]'); if (!b) return;
+  try { localStorage.setItem('pp-textsize', b.dataset.ts); } catch (e) {} syncTS(); renderStage(); pgPost({type: 'pp-textsize', v: textScale()});
+});
+syncTS();
+/* Keyboard shortcuts: both layouts, the one you're in first. Ctrl is Cmd on a Mac. */
+const KEYS = {
+  builder: ['Screen Builder layout', [
+    ['R', 'Rulers on or off'], ['M', 'Measure tool on or off'], ['F', 'Full screen layout on or off'], ['+ / −', 'Zoom in or out'], ['0', 'Fit the view'],
+    ['Arrow keys', 'Nudge the selected screen, object or note 1 in (1 cm in meters)'], ['Shift + arrow keys', 'Nudge 1 ft (10 cm in meters)'],
+    ['Delete', 'Delete what is selected'], ['Ctrl + C / Ctrl + V', 'Copy and paste screens or objects'], ['Ctrl + Z', 'Undo'], ['Ctrl + Shift + Z or Ctrl + Y', 'Redo'],
+    ['Shift-click or Ctrl-click', 'Add to the selection, or take out'], ['Shift-drag on the background', 'Select everything in a box'], ['Shift while dragging', 'Keep the movement straight'],
+    ['Double-click', 'Edit a screen, object or note'], ['Enter / Backspace / Esc', 'While drawing a shape: finish it, remove the last corner, cancel'], ['Esc', 'Close the menu or editor, stop measuring, clear the selection, leave full screen'], ['?', 'This list']]],
+  presets: ['Preset Guide layout', [
+    ['F', 'Full screen layout on or off'], ['+ / −', 'Zoom in or out'], ['0', 'Fit the canvas'], ['Page Down / Page Up', 'Next or previous preset'],
+    ['Arrow keys', 'Nudge the selected PiP or screen 1 px'], ['Shift + arrow keys', 'Nudge 10 px'], ['Delete', 'Delete what is selected'],
+    ['Ctrl + C / Ctrl + V', 'Copy and paste'], ['Ctrl + Z', 'Undo'], ['Ctrl + Shift + Z or Ctrl + Y', 'Redo'],
+    ['Shift-click or Ctrl-click', 'Pick several PiPs, to move, line up, space out or match them'], ['Ctrl while dragging', 'Place freely, without snapping'],
+    ['Double-click', 'Rename a PiP or screen'], ['Right-click or press and hold', 'Menu: create PiPs and quick layouts, layer order, lock'], ['Esc', 'Clear the selection, leave full screen'], ['?', 'This list']]],
+};
+function openKeys(){
+  const first = document.body.classList.contains('tab-presets') ? 'presets' : 'builder', order = first === 'presets' ? ['presets', 'builder'] : ['builder', 'presets'];
+  const k = t => t.split(/( \/ | or |, | \+ )/).map(x => / \/ | or |, | \+ /.test(x) ? esc(x) : `<kbd>${esc(x)}</kbd>`).join('');
+  $('#keysBody').innerHTML = order.map(id => `<h2>${KEYS[id][0]}</h2><table>${KEYS[id][1].map(([a, b]) => `<tr><td>${/^(Arrow|Shift-|Shift while|Shift-drag|Double|Right|Ctrl while|Enter \/)/.test(a) ? esc(a) : k(a)}</td><td>${esc(b)}</td></tr>`).join('')}</table>`).join('') + '<p class="hint">On a Mac, use Cmd for Ctrl.</p>';
+  $('#keys').hidden = false; $('#keysClose').focus({preventScroll: true});
+}
+$('#btnKeys').addEventListener('click', openKeys);
+$('#keysClose').addEventListener('click', () => { $('#keys').hidden = true; });
+$('#keys').addEventListener('click', e => { if (e.target.id === 'keys') $('#keys').hidden = true; });
+$('#keys').addEventListener('keydown', e => { if (e.key === 'Escape'){ e.stopPropagation(); $('#keys').hidden = true; } });
+document.addEventListener('keydown', e => { if (e.key === '?' && !/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) && !e.target.isContentEditable){ e.preventDefault(); openKeys(); } });
 /* Help & README: a copy of the GitHub README, built into the app */
 function setReadme(open){ $('#readme').hidden = !open; if (open) $('#readmeClose').focus({preventScroll: true}); else optBtn.focus({preventScroll: true}); }
 $('#btnReadme').addEventListener('click', () => setReadme(true));
@@ -8556,7 +8747,7 @@ function pgSetState(st, images){ // a guide was opened: its presets (or none) an
   pgPost(Object.assign({type: 'pp-pg-load', state: pgState}, images ? {images} : {}));
 }
 function pgBuild(){
-  const init = JSON.stringify({state: pgState, canvases: pgCanvases(), name: S.name, theme: pgTheme(), images: PICS.mem}).replace(/</g, '\\u003c');
+  const init = JSON.stringify({state: pgState, canvases: pgCanvases(), name: S.name, theme: pgTheme(), images: PICS.mem, textScale: textScale()}).replace(/</g, '\\u003c');
   const head = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
     + '<style>body{margin:0}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>'
     + '<script>window.__PP_INIT=' + init + '<\/script>';
@@ -8574,6 +8765,7 @@ window.addEventListener('message', e => {
   pgFrame.started = true; const fail = $('#pgWrap .pg-fail'); if (fail) fail.remove();
   if (m.type === 'pp-refresh'){ pgPost({type: 'pp-screens', canvases: pgCanvases(), name: S.name, force: true}); return; }
   if (m.type === 'pp-pg-images'){ PICS.mem = PICS.clean(m.images); return; }
+  if (m.type === 'pp-keys'){ openKeys(); return; }
   if (m.type === 'pp-pg-state'){ pgState = m.state; store(PG_KEY, JSON.stringify(pgState)); if (m.summary){ pgSummary = m.summary; const w = pgWaiters.splice(0); w.forEach(f => f()); } }
   else if (m.type === 'pp-save' && typeof m.filename === 'string'){
     const d = m.data, mime = /\.xlsx$/i.test(m.filename) ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : /\.pptx$/i.test(m.filename) ? 'application/vnd.openxmlformats-officedocument.presentationml.presentation' : 'application/octet-stream';
