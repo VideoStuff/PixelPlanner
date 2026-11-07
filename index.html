@@ -770,6 +770,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
         <label class="f" id="tpBgWrap">Background<select id="tpBg"><option value="#000000">Black</option><option value="#202020">Dark gray</option><option value="#808080">50% gray</option></select></label>
         <div class="tp-checks">
           <label><input type="checkbox" id="tpLabels"> Name and resolution</label>
+          <label class="f" id="tpLabelBgWrap">Name and resolution style<select id="tpLabelBg"><option value="box">On a black box</option><option value="outline">Outlined text, no box</option></select></label>
           <label id="tpCirclesWrap"><input type="checkbox" id="tpCircles"> Center circles and lines</label>
           <div class="tp-border" id="tpBorderWrap"><label><input type="checkbox" id="tpBorder"> Edge border</label><label class="tp-px"><input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="tpBorderPx" min="1" max="500" step="1" aria-label="Edge border width in pixels"> px wide</label></div>
           <label><input type="checkbox" id="tpDiag"> Diagonals</label>
@@ -3495,8 +3496,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.64.html). Bump it with every release.
-const APP_VERSION = '3.64';
+// (pixelplanner-v3.65.html). Bump it with every release.
+const APP_VERSION = '3.65';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
@@ -8152,17 +8153,18 @@ const lumaOf = h => { const [r, g, b] = hexRGB(h); return (0.2126 * r + 0.7152 *
 // Test pattern text with hard edges: drawn on a scratch canvas, then every pixel is made either fully the text
 // color or fully clear, so no in-between shades appear on the wall. Uses the context's current font, align and baseline.
 const pixelScratch = document.createElement('canvas');
-function pixelText(ctx, t, x, y, color){
+function pixelText(ctx, t, x, y, color, stroke){ // stroke: draw the text this many px thicker (an outline), same hard edges
   t = String(t); if (!t) return;
   const m = ctx.measureText(t), f = {left: 0, start: 0, center: 0.5, right: 1, end: 1}[ctx.textAlign] ?? 0;
   const dy = baselineShift(ctx, t) || 0;
-  const size = parseFloat((ctx.font.match(/(\d*\.?\d+)px/) || [0, 16])[1]), pad = Math.ceil(size * 0.4) + 2;
+  const size = parseFloat((ctx.font.match(/(\d*\.?\d+)px/) || [0, 16])[1]), pad = Math.ceil(size * 0.4) + 2 + Math.ceil(stroke || 0);
   const asc = Math.ceil(Math.max(m.actualBoundingBoxAscent || 0, size)) + pad, desc = Math.ceil(Math.max(m.actualBoundingBoxDescent || 0, size * 0.3)) + pad;
   const W = Math.ceil(m.width) + pad * 2, H = asc + desc, x0 = Math.round(x - m.width * f), yb = Math.round(y + dy);
   const c = pixelScratch, g = c.getContext('2d', {willReadFrequently: true});
   if (c.width < W || c.height < H){ c.width = Math.max(c.width, W); c.height = Math.max(c.height, H); }
   g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, W, H);
   g.font = ctx.font; g.textAlign = 'left'; g.textBaseline = 'alphabetic'; g.fillStyle = color; g.fillText(t, pad, asc);
+  if (stroke){ g.lineJoin = 'round'; g.lineWidth = stroke * 2; g.strokeStyle = color; g.strokeText(t, pad, asc); }
   const img = g.getImageData(0, 0, W, H), d = img.data, n = parseInt(color.slice(1), 16), R = n >> 16 & 255, G = n >> 8 & 255, B = n & 255;
   for (let i = 0; i < d.length; i += 4){ if (d[i + 3] >= 128){ d[i] = R; d[i + 1] = G; d[i + 2] = B; d[i + 3] = 255; } else d[i + 3] = 0; }
   g.putImageData(img, 0, 0);
@@ -8269,23 +8271,32 @@ function drawTPRegion(ctx, r, o){
     band(0, '#FFFFFF'); band(n, '#FF0000');
   }
   if (o.labels){
-    const d = dims(s), t1 = s.label || 'Untitled', t2 = `${w} × ${h} px`, t3 = fmtLen2(d.w, d.h);
-    const fs = Math.max(10, Math.min(m * 0.085, w * 0.8 / (Math.max(t1.length, 6) * 0.5), 160)), fs2 = Math.max(9, fs * 0.5);
-    ctx.font = `600 ${fs2}px ${MONO}`;
-    const tw = Math.max(ctx.measureText(t2).width, ctx.measureText(t3).width);
-    ctx.font = `700 ${fs}px ${DISP}`;
-    const pw = Math.min(w * 0.9, Math.max(ctx.measureText(t1).width, tw) + fs), ph = fs * 1.2 + fs2 * 2.9;
-    const px = x + w / 2, py = y + h * (o.pat === 'composite' ? 0.30 : 0.5);
+    const d = dims(s), t1 = s.label || 'Untitled', t2 = `${w} × ${h} px`, t3 = fmtLen2(d.w, d.h), outline = o.labelbg === 'outline';
+    // Measure the real text and shrink it until all three lines (and the box around them) fit on the screen.
+    let fs = Math.max(10, Math.min(m * 0.085, 160)), fs2, pad, pw, ph;
+    for (let i = 0; i < 40; i++){
+      fs2 = Math.max(8, fs * 0.5); pad = fs * 0.45;
+      ctx.font = `700 ${fs}px ${DISP}`; const a = ctx.measureText(t1).width;
+      ctx.font = `600 ${fs2}px ${MONO}`; const b = Math.max(ctx.measureText(t2).width, ctx.measureText(t3).width);
+      pw = Math.max(a, b) + pad * 2; ph = pad * 2 + fs * 1.15 + fs2 * 2.9;
+      if ((pw <= w * 0.92 && ph <= h * 0.92) || fs <= 8) break;
+      fs *= 0.9;
+    }
+    const px = x + w / 2, py = y + h * (o.pat === 'composite' ? 0.30 : 0.5), top = py - ph / 2;
+    const y1 = top + pad + fs * 0.575, y2 = top + pad + fs * 1.15 + fs2 * 0.725, y3 = y2 + fs2 * 1.45;
     // On the LED cabinet grid the box is solid black and square, so every pixel is either a cabinet color or black.
     const led = s.mode === 'led';
-    ctx.fillStyle = led ? '#000000' : 'rgba(0,0,0,.78)'; ctx.beginPath();
-    if (led) ctx.rect(Math.round(px - pw / 2), Math.round(py - ph / 2), Math.round(pw), Math.round(ph));
-    else if (ctx.roundRect) ctx.roundRect(px - pw / 2, py - ph / 2, pw, ph, Math.min(16, ph * .15)); else ctx.rect(px - pw / 2, py - ph / 2, pw, ph);
-    ctx.fill();
+    if (!outline){
+      ctx.fillStyle = led ? '#000000' : 'rgba(0,0,0,.78)'; ctx.beginPath();
+      if (led) ctx.rect(Math.round(px - pw / 2), Math.round(top), Math.round(pw), Math.round(ph));
+      else if (ctx.roundRect) ctx.roundRect(px - pw / 2, top, pw, ph, Math.min(16, ph * .15)); else ctx.rect(px - pw / 2, top, pw, ph);
+      ctx.fill();
+    }
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    pixelText(ctx, t1, px, py - ph / 2 + fs * 0.7, '#FFFFFF');
-    ctx.font = `600 ${fs2}px ${MONO}`; pixelText(ctx, t2, px, py - ph / 2 + fs * 1.2 + fs2 * 0.9, '#FFFFFF');
-    pixelText(ctx, t3, px, py - ph / 2 + fs * 1.2 + fs2 * 3.0, '#D9DEE5');
+    // Outlined text: a solid black outline under each line, drawn with hard edges like the text itself.
+    const line = (t, yy, color, size) => { if (outline) pixelText(ctx, t, px, yy, '#000000', Math.max(2, Math.round(size * 0.16))); pixelText(ctx, t, px, yy, color); };
+    ctx.font = `700 ${fs}px ${DISP}`; line(t1, y1, '#FFFFFF', fs);
+    ctx.font = `600 ${fs2}px ${MONO}`; line(t2, y2, '#FFFFFF', fs2); line(t3, y3, '#D9DEE5', fs2);
   }
   ctx.restore();
 }
@@ -8309,6 +8320,7 @@ function renderTP(){
   $('#tpLedWrap').hidden = o.pat !== 'led';
   $('#tpLedABWrap').hidden = o.ledpal !== 'twotone';
   $('#tpCirclesWrap').hidden = !(o.pat === 'grid' || o.pat === 'composite');
+  $('#tpLabelBgWrap').hidden = !o.labels;
   $('#tpSafeWrap').hidden = ledOnly;   // safe areas are for video framing, not LED cabinet checks
   $('#tpBorderWrap').hidden = ledOnly; // LED walls don't use the edge border
   $('#tpBorderPx').disabled = !S.tp.border;
@@ -8342,6 +8354,7 @@ function syncTPControls(){
   const o = S.tp;
   $('#tpPat').value = o.pat; $('#tpGrid').value = o.grid; $('#tpBg').value = o.bg; $('#tpSolid').value = o.solid.toLowerCase();
   for (const k of ['labels', 'circles', 'border', 'diag', 'safe', 'lednums']) $('#tp' + k[0].toUpperCase() + k.slice(1)).checked = !!o[k];
+  $('#tpLabelBg').value = o.labelbg === 'outline' ? 'outline' : 'box';
   $('#tpLedPal').value = o.ledpal; $('#tpLedA').value = o.ledA.toLowerCase(); $('#tpLedB').value = o.ledB.toLowerCase();
   $('#tpBorderPx').value = o.borderpx;
 }
@@ -8363,6 +8376,7 @@ $('#tp').addEventListener('input', e => {
   else if (id === 'tpLedPal') o.ledpal = e.target.value;
   else if (id === 'tpLedA') o.ledA = e.target.value.toUpperCase();
   else if (id === 'tpLedB') o.ledB = e.target.value.toUpperCase();
+  else if (id === 'tpLabelBg') o.labelbg = e.target.value;
   else if (id === 'tpBorderPx'){ const n = Math.round(+e.target.value); e.target.classList.toggle('bad', !(n >= 1 && n <= 500)); if (!(n >= 1 && n <= 500)) return; o.borderpx = n; }
   else if (id.startsWith('tp') && e.target.type === 'checkbox'){ const k = id.slice(2).toLowerCase(); if (k in o) o[k] = e.target.checked; }
   save(); renderTP();
