@@ -414,7 +414,7 @@ td.acc{color:var(--accent)}
 @media (max-width:700px){ /* the layout toolbar becomes one swipeable row, so the canvas gets the screen */
   .stage-bar .tools{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:2px}
   .stage-bar .tools::-webkit-scrollbar{display:none}
-  .stage-bar .tgrp{flex:none;flex-wrap:nowrap}
+  .stage-bar .tgrp{flex:none;flex-wrap:nowrap;max-width:none} /* each group as wide as its buttons; the bar scrolls sideways */
   .tgrp.tview{margin-left:0}
 }
 .apptabs button{padding:7px 16px;font-size:14px}
@@ -3642,8 +3642,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.67.html). Bump it with every release.
-const APP_VERSION = '3.67';
+// (pixelplanner-v3.68.html). Bump it with every release.
+const APP_VERSION = '3.68';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
