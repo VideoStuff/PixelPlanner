@@ -212,6 +212,9 @@ details.more .row{margin-top:8px}
 .ts{display:none}
 /* the toolbar fits in two rows at most: View can join Edit's row (tb-swap), and a compact form drops the group
    names, tightens the buttons and uses short words (fitToolbar picks what's needed) */
+.stage-bar .tools.tb-scroll{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin;-webkit-overflow-scrolling:touch;padding-bottom:4px}
+.stage-bar .tools.tb-scroll .tgrp{flex:none;flex-wrap:nowrap;max-width:none}
+.stage-bar .tools.tb-scroll .tview{margin-left:0}
 .tools.tb-swap .tview{order:1}
 .tools.tb-swap .tarr{order:2}
 .tools.compact .tlbl{display:none}
@@ -3652,8 +3655,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.69.html). Bump it with every release.
-const APP_VERSION = '3.69';
+// (pixelplanner-v3.70.html). Bump it with every release.
+const APP_VERSION = '3.70';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
@@ -6084,11 +6087,12 @@ $('#zoomOut').addEventListener('click', () => zoomCenter(0.8));
 
 /* ---------- full screen layout ---------- */
 const stageWrap = svg.closest('.stage-wrap');
-/* Keep the layout toolbar to two rows: try it as is, then with View beside Edit, then compact, then both. */
+/* Keep the layout toolbar to two rows: try it as is, then with View beside Edit; if it still needs three,
+   it becomes one row that scrolls sideways (full wording kept). */
 function fitToolbar(){
   const t = document.querySelector('.stage-bar .tools'); if (!t || !t.offsetParent) return;
-  const opts = [[], ['tb-swap'], ['compact'], ['tb-swap', 'compact']], rows = () => new Set([...t.querySelectorAll(':scope > .tgrp')].map(g => g.offsetTop)).size;
-  for (const o of opts){ t.classList.remove('tb-swap', 'compact'); o.forEach(c => t.classList.add(c)); if (getComputedStyle(t).flexWrap === 'nowrap' || rows() <= 2) return; }
+  const rows = () => new Set([...t.querySelectorAll(':scope > .tgrp')].map(g => g.offsetTop)).size;
+  for (const o of [[], ['tb-swap'], ['tb-scroll']]){ t.classList.remove('tb-swap', 'tb-scroll', 'compact'); o.forEach(c => t.classList.add(c)); if (getComputedStyle(t).flexWrap === 'nowrap' || rows() <= 2) return; }
 }
 if (window.ResizeObserver) new ResizeObserver(() => requestAnimationFrame(fitToolbar)).observe(document.querySelector('.stage-bar'));
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitToolbar);
