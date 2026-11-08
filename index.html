@@ -209,6 +209,16 @@ details.more .row{margin-top:8px}
 /* Toolbar groups: Edit, Arrange, Show, then View on the right. */
 .tgrp{display:inline-flex;flex-wrap:wrap;max-width:100%;align-items:center;gap:5px;padding:4px 6px;border:1px solid var(--stage-grid);border-radius:8px;background:rgba(255,255,255,.025)}
 .tgrp.tview{margin-left:auto}
+.ts{display:none}
+/* the toolbar fits in two rows at most: View can join Edit's row (tb-swap), and a compact form drops the group
+   names, tightens the buttons and uses short words (fitToolbar picks what's needed) */
+.tools.tb-swap .tview{order:1}
+.tools.tb-swap .tarr{order:2}
+.tools.compact .tlbl{display:none}
+.tools.compact .tl{display:none}
+.tools.compact .ts{display:inline}
+.tools.compact .tgrp{gap:4px;padding:3px 5px}
+.tools.compact .sbtn{padding-left:7px;padding-right:7px}
 .tlbl{font-family:var(--f-display);font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--stage-muted);margin:0 3px 0 2px}
 .tsep{width:1px;align-self:stretch;background:var(--stage-grid);margin:2px 3px}
 .sbtn{white-space:nowrap;border:1px solid var(--stage-grid);background:transparent;color:var(--stage-ink);border-radius:5px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer}
@@ -560,17 +570,17 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
         <div class="tools">
           <div class="tgrp" role="group" aria-label="Edit">
             <span class="tlbl" aria-hidden="true">Edit</span>
-            <button class="sbtn" type="button" id="undoBtn" title="Undo (Ctrl+Z)" aria-label="Undo" disabled>↶ Undo</button>
-            <button class="sbtn" type="button" id="redoBtn" title="Redo (Ctrl+Shift+Z)" aria-label="Redo" disabled>↷ Redo</button>
+            <button class="sbtn" type="button" id="undoBtn" title="Undo (Ctrl+Z)" aria-label="Undo" disabled><span class="tl">↶ Undo</span><span class="ts">↶</span></button>
+            <button class="sbtn" type="button" id="redoBtn" title="Redo (Ctrl+Shift+Z)" aria-label="Redo" disabled><span class="tl">↷ Redo</span><span class="ts">↷</span></button>
             <button class="sbtn" type="button" id="noteBtn" title="Add a text note to the layout. Drag it to move; double-click to edit.">+ Note</button>
             <button class="sbtn" type="button" id="measBtn" aria-pressed="false" title="Measure between any two points. Drag on the layout; ends snap to screen and object edges. Hold Shift for straight lines. (M)">Measure</button>
           </div>
-          <div class="tgrp" role="group" aria-label="Arrange">
+          <div class="tgrp tarr" role="group" aria-label="Arrange">
             <span class="tlbl" aria-hidden="true">Arrange</span>
-            <button class="sbtn" type="button" id="snapBtn" aria-pressed="true" title="Snap screens and objects to each other's edges while dragging">Snap edges</button>
-            <label class="gapctl" title="Gap between screens. Used when arranging, snapping and adding screens.">Spacing <input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="gapIn" min="0" step="any" aria-label="Spacing between screens"> <span id="gapUnit"></span></label>
+            <button class="sbtn" type="button" id="snapBtn" aria-pressed="true" title="Snap screens and objects to each other's edges while dragging"><span class="tl">Snap edges</span><span class="ts">Snap</span></button>
+            <label class="gapctl" title="Gap between screens. Used when arranging, snapping and adding screens."><span class="tl">Spacing</span><span class="ts">Gap</span> <input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="gapIn" min="0" step="any" aria-label="Spacing between screens"> <span id="gapUnit"></span></label>
             <span class="tsep" aria-hidden="true"></span>
-            <span class="alignlbl" id="alignLbl">Row align</span>
+            <span class="alignlbl" id="alignLbl"><span class="tl">Row align</span><span class="ts">Align</span></span>
             <span class="alignctl" role="group" aria-labelledby="alignLbl">
               <button class="sbtn" type="button" data-align="top" title="Line screens up in a row along their top edges">Top</button>
               <button class="sbtn" type="button" data-align="middle" title="Line screens up in a row through their centres">Middle</button>
@@ -584,9 +594,9 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
               <span id="zoomPct" class="zpct" aria-live="polite">100%</span>
               <button class="sbtn" type="button" id="zoomIn" aria-label="Zoom in" title="Zoom in (+)">+</button>
             </span>
-            <button class="sbtn" type="button" id="fitBtn" title="Fit everything in view (0)">Fit view</button>
-            <button class="sbtn" type="button" id="viewPngBtn" aria-haspopup="dialog" title="Save a layout snapshot PNG, with every screen and object and the content canvas width and height">Save PNG</button>
-            <button class="sbtn" type="button" id="fsBtn" aria-pressed="false" title="Full screen layout (F)">Full screen</button>
+            <button class="sbtn" type="button" id="fitBtn" title="Fit everything in view (0)"><span class="tl">Fit view</span><span class="ts">Fit</span></button>
+            <button class="sbtn" type="button" id="viewPngBtn" aria-haspopup="dialog" title="Save a layout snapshot PNG, with every screen and object and the content canvas width and height"><span class="tl">Save PNG</span><span class="ts">PNG</span></button>
+            <button class="sbtn" type="button" id="fsBtn" aria-pressed="false" title="Full screen layout (F)"><span class="tl">Full screen</span><span class="ts">Full</span></button>
           </div>
         </div>
       </div>
@@ -3642,8 +3652,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.68.html). Bump it with every release.
-const APP_VERSION = '3.68';
+// (pixelplanner-v3.69.html). Bump it with every release.
+const APP_VERSION = '3.69';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
@@ -6074,9 +6084,17 @@ $('#zoomOut').addEventListener('click', () => zoomCenter(0.8));
 
 /* ---------- full screen layout ---------- */
 const stageWrap = svg.closest('.stage-wrap');
+/* Keep the layout toolbar to two rows: try it as is, then with View beside Edit, then compact, then both. */
+function fitToolbar(){
+  const t = document.querySelector('.stage-bar .tools'); if (!t || !t.offsetParent) return;
+  const opts = [[], ['tb-swap'], ['compact'], ['tb-swap', 'compact']], rows = () => new Set([...t.querySelectorAll(':scope > .tgrp')].map(g => g.offsetTop)).size;
+  for (const o of opts){ t.classList.remove('tb-swap', 'compact'); o.forEach(c => t.classList.add(c)); if (getComputedStyle(t).flexWrap === 'nowrap' || rows() <= 2) return; }
+}
+if (window.ResizeObserver) new ResizeObserver(() => requestAnimationFrame(fitToolbar)).observe(document.querySelector('.stage-bar'));
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitToolbar);
 function setFull(on){
   stageWrap.classList.toggle('max', on);
-  $('#fsBtn').setAttribute('aria-pressed', on); $('#fsBtn').textContent = on ? 'Exit full screen' : 'Full screen';
+  $('#fsBtn').setAttribute('aria-pressed', on); $('#fsBtn').innerHTML = on ? '<span class="tl">Exit full screen</span><span class="ts">Exit</span>' : '<span class="tl">Full screen</span><span class="ts">Full</span>';
   document.body.style.overflow = on ? 'hidden' : '';
   // Real fullscreen where the browser allows it; the window-filling layout works either way.
   try {
