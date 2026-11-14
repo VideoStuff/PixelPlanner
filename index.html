@@ -762,7 +762,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <p>Your work is saved in your browser and can be saved to and opened from a <code>.json</code> file.</p>
 <h2>What it does</h2>
 <h3>Screen Builder</h3>
-<ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>Curved and reshaped projection screens</strong>: in a screen's <strong>Shape</strong> section, bow each end out (+) or in (−) by typing an amount or using its slider (from fully in to fully out: half the end's length, so ±7.5 ft on a 15 ft high screen), and move any corner by an exact amount. Or turn on <strong>Corner handles</strong> (also in the screen's right-click menu) and drag the corners on the layout, to the nearest inch. The width, height and pixels you type are the flat face; PixelPlanner works out the projector raster (the upright box around the shape, at the face's pixel density) and uses it for the canvas and every export, with the part off the screen face shaded.</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li><strong>Options → Clear layout…</strong> (or right-click the layout or its tab) removes every screen, object and note from the open layout after you confirm, so you can build it again from the first screen. A layout can have no screens.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
+<ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>LED wall cutouts</strong>: remove cabinets in a wall's <strong>Cutouts</strong> map (or right-click a cabinet). They become holes, as if the cabinets weren't there: a screen placed behind the wall (lower in the Screens list) shows through them on the layout, in every export and in the Preset Guide, and PiPs in the hole count on the screen behind.</li><li><strong>Curved and reshaped projection screens</strong>: in a screen's <strong>Shape</strong> section, bow each end out (+) or in (−) by typing an amount or using its slider (from fully in to fully out: half the end's length, so ±7.5 ft on a 15 ft high screen), and move any corner by an exact amount. Or turn on <strong>Corner handles</strong> (also in the screen's right-click menu) and drag the corners on the layout, to the nearest inch. The width, height and pixels you type are the flat face; PixelPlanner works out the projector raster (the upright box around the shape, at the face's pixel density) and uses it for the canvas and every export, with the part off the screen face shaded.</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li><strong>Options → Clear layout…</strong> (or right-click the layout or its tab) removes every screen, object and note from the open layout after you confirm, so you can build it again from the first screen. A layout can have no screens.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
 <h3>Preset Guide</h3>
 <ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock. <strong>+ New</strong> and <strong>Duplicate</strong> ask for the preset's name; leave it blank for "Preset" and its number.</li><li>Quick layouts: right-click a screen and choose <strong>Create… → Quick layout</strong> to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.</li><li>Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.</li><li><strong>Page Up / Page Down</strong> step through presets.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li>Exports to PowerPoint and Excel.</li></ul>
 <h3>Exports</h3>
@@ -1381,7 +1381,7 @@ function center(){
    instead of the centre of the video wall. */
 function screenUnder(p){
   const cx=p.x+p.w/2, cy=p.y+p.h/2;
-  return S.screens.slice().reverse().find(s=>cx>=s.x&&cx<=s.x+s.w&&cy>=s.y&&cy<=s.y+s.h)||null;
+  return S.screens.slice().reverse().find(s=>inScreen(s,cx,cy))||null;
 }
 const mirrorScreen=p=>p&&p.mirrorRef==='screen'?screenUnder(p):null;
 function mirrorCentre(p){const s=mirrorScreen(p); return s?{x:s.x+s.w/2,y:s.y+s.h/2}:center();}
@@ -1429,13 +1429,18 @@ function subtractRect(rects,b){
   }
   return out;
 }
+/* An LED wall's removed cabinets are holes (s.holes, as 0–1 shares of the screen): nothing of that screen is there,
+   so a screen behind shows through and PiPs there count on the screen behind. */
+const holesOf=s=>(s.holes||[]).map(h=>({x:s.x+h.x*s.w,y:s.y+h.y*s.h,w:h.w*s.w,h:h.h*s.h}));
+const inScreen=(s,x,y)=>x>=s.x&&x<=s.x+s.w&&y>=s.y&&y<=s.y+s.h&&!holesOf(s).some(h=>x>h.x&&x<h.x+h.w&&y>h.y&&y<h.y+h.h);
+function solidOf(s){let r=[{x:s.x,y:s.y,w:s.w,h:s.h}]; for(const h of holesOf(s)) r=subtractRect(r,h); return r;}
 /* Which screens a PiP is on, for the documentation (summary, Excel, estimates). Where screens overlap, the part of a
    PiP in the overlap counts only on the screen in front (later in S.screens), so it is never listed on both. */
 function screensFor(r){
   const out=[];
   S.screens.forEach((s,k)=>{
-    let rest=[intersect(r,s)].filter(Boolean); if(!rest.length) return;
-    for(let m=k+1;m<S.screens.length&&rest.length;m++) rest=subtractRect(rest,S.screens[m]);
+    let rest=solidOf(s).map(q=>intersect(r,q)).filter(Boolean); if(!rest.length) return;   /* not in this wall's own cutouts */
+    for(let m=k+1;m<S.screens.length&&rest.length;m++) for(const q of solidOf(S.screens[m])) rest=subtractRect(rest,q);   /* a hole in the front wall covers nothing */
     rest=rest.filter(q=>q.w>1&&q.h>1); if(!rest.length) return;
     const x0=Math.min(...rest.map(q=>q.x)), y0=Math.min(...rest.map(q=>q.y)), x1=Math.max(...rest.map(q=>q.x+q.w)), y1=Math.max(...rest.map(q=>q.y+q.h));
     out.push({s,i:{x:x0,y:y0,w:x1-x0,h:y1-y0}});
@@ -1505,7 +1510,8 @@ function parseScreens(data,field,useLabels){
   const found=[]; findArrays(data,'',found);
   if(!found.length) throw new Error(NO_SCREENS+describe(data));
   found.sort((a,b)=>b.items.length-a.items.length);
-  const items=found[0].items;
+  /* a top-level "screens" list wins; otherwise the longest list (so a wall's cutouts are never taken for the screens) */
+  const items=(found.find(f=>f.path==='screens')||found[0]).items;
   const gs=items.map(geo), anyPos=gs.some(g=>g.x!==undefined||g.y!==undefined);
   let cursor=0;
   const raw=gs.map((g,i)=>{
@@ -1521,6 +1527,8 @@ function parseScreens(data,field,useLabels){
     /* Multiscreen Guide Builder files also give each screen's native resolution, and any object covering it */
     const nw=parseFloat(f.nativeWidth), nh=parseFloat(f.nativeHeight);
     if(nw>0&&nh>0&&(round(nw)!==sc.w||round(nh)!==sc.h)) sc.res={w:round(nw),h:round(nh)};
+    if(Array.isArray(items[i].removedCabinets)&&sc.w>0&&sc.h>0) sc.holes=items[i].removedCabinets.filter(c=>c&&c.width>0&&c.height>0)
+      .map(c=>({x:(round(c.x-mx)-sc.x)/sc.w,y:(round(c.y-my)-sc.y)/sc.h,w:round(c.width)/sc.w,h:round(c.height)/sc.h}));   /* LED wall cutouts, as shares of the screen */
     if(items[i].shape&&Array.isArray(items[i].shape.outline)&&items[i].shape.outline.length>2) sc.outline=items[i].shape.outline.slice(0,400).map(p=>[Math.min(1,Math.max(0,+p[0]||0)),Math.min(1,Math.max(0,+p[1]||0))]);   /* curved or angled screen face, 0–1 of the box */
     if(Array.isArray(items[i].coveredBy)) sc.covers=items[i].coveredBy.filter(c=>c&&c.width>0&&c.height>0)
       .map(c=>({name:String(c.object||'Object'),x:round(c.x-mx)-sc.x,y:round(c.y-my)-sc.y,w:round(c.width),h:round(c.height)}));   /* relative to the screen */
@@ -1574,7 +1582,12 @@ function lockBadge(r,scale){
 function computeOverlaps(){
   const out=[], L=S.screens;
   for(let i=0;i<L.length;i++) for(let j=i+1;j<L.length;j++){
-    const back=L[i], front=L[j], r=intersect(back,front); if(!r) continue;
+    const back=L[i], front=L[j]; let r=intersect(back,front); if(!r) continue;
+    if(front.holes&&front.holes.length){   /* only the front wall's remaining cabinets cover the screen behind */
+      const ps=solidOf(front).map(q=>intersect(r,q)).filter(Boolean); if(!ps.length) continue;
+      const x0=Math.min(...ps.map(q=>q.x)), y0=Math.min(...ps.map(q=>q.y)), x1=Math.max(...ps.map(q=>q.x+q.w)), y1=Math.max(...ps.map(q=>q.y+q.h));
+      r={x:x0,y:y0,w:x1-x0,h:y1-y0};
+    }
     const fx=r.w/Math.min(back.w,front.w), fy=r.h/Math.min(back.h,front.h), dir=fy<fx-1e-6?'v':'h';
     out.push({back,front,r,dir,amt:round(dir==='h'?r.w:r.h)});
   }
@@ -1653,7 +1666,10 @@ function renderStage(){
   for(const s of S.screens){
     const nm=sname(s), fs=Math.max(24,s.h*0.085)*TS, mod=screenMod(s);
     const isSel=sel&&sel.kind==='screen'&&sel.id===s.id;
-    g+=`<g data-kind="screen" data-id="${s.id}"><rect class="scr ${s.kind==='custom'?'custom':''} ${isSel?'sel':''}" x="${s.x}" y="${s.y}" width="${s.w}" height="${s.h}"/>${s.outline?faceSVG(s):''}
+    const hs=holesOf(s), body=hs.length   /* cutouts are holes: the screen behind shows through them */
+      ?`<path class="scr" style="stroke:none" fill-rule="evenodd" d="M${s.x} ${s.y}h${s.w}v${s.h}h${-s.w}Z${hs.map(h=>`M${h.x} ${h.y}h${h.w}v${h.h}h${-h.w}Z`).join('')}"/><rect class="scr ${isSel?'sel':''}" style="fill:none" x="${s.x}" y="${s.y}" width="${s.w}" height="${s.h}"/>`
+      :`<rect class="scr ${s.kind==='custom'?'custom':''} ${isSel?'sel':''}" x="${s.x}" y="${s.y}" width="${s.w}" height="${s.h}"/>`;
+    g+=`<g data-kind="screen" data-id="${s.id}">${body}${s.outline?faceSVG(s):''}
       <text class="scr-name" x="${s.x+fs*.6}" y="${s.y+fs*1.5}" font-size="${fs}">${esc(nm)}</text>
       <text class="scr-dim ${mod?'mod':''}" x="${s.x+fs*.6}" y="${s.y+fs*2.7}" font-size="${fs*.6}">${[s.kind==='custom'?'custom':'',mod?mod+' here':''].filter(Boolean).join(' · ')}</text>${s.locked?lockBadge(s,scale):''}</g>`;
   }
@@ -2743,7 +2759,7 @@ function libRect(e,pt){
 /* a library PiP dragged over a screen with the same aspect ratio fills that screen (when Snap is on) */
 function libSnap(e,pt){
   if(!snapNow()) return null;
-  const s=S.screens.slice().reverse().find(s=>pt.x>=s.x&&pt.x<=s.x+s.w&&pt.y>=s.y&&pt.y<=s.y+s.h);
+  const s=S.screens.slice().reverse().find(s=>inScreen(s,pt.x,pt.y));
   return s&&Math.abs((s.w/s.h)/e.ratio-1)<0.02?{x:s.x,y:s.y,w:s.w,h:s.h}:null;
 }
 function addFromLibrary(e,pt,rect){
@@ -2886,7 +2902,7 @@ svg.addEventListener('contextmenu',e=>{
   e.preventDefault(); commitEdit(); lockVB=null;
   const pt=toSvg(e), t=e.target.closest('[data-kind]'), kind=t&&t.dataset.kind, id=t&&t.dataset.id;
   /* Create… opens a second list, in the same spot, with everything that can be made here */
-  const under=S.screens.slice().reverse().find(s=>pt.x>=s.x&&pt.x<=s.x+s.w&&pt.y>=s.y&&pt.y<=s.y+s.h);
+  const under=S.screens.slice().reverse().find(s=>inScreen(s,pt.x,pt.y));
   const quick=under?[['‹ Back',()=>showCtx(e.clientX,e.clientY,create)],'-',...QUICK.map(([nm,cells])=>[nm,()=>quickLayout(under,nm,cells)])]:null;
   const create=[['‹ Back',()=>showCtx(e.clientX,e.clientY,items)],'-',['PiP',()=>addPipAt(pt)],
     ...(quick?[[`Quick layout on ${sname(under)}…`,()=>showCtx(e.clientX,e.clientY,quick)]]:[]),'-',['Screen',()=>addScreenAt(pt)],
@@ -2918,7 +2934,7 @@ svg.addEventListener('contextmenu',e=>{
       ['Remove this screen',()=>{sel={kind:'screen',id};deleteSel();},'danger',!!scrById(id)?.locked]);
   }
   /* view options */
-  const scrHere=kind==='screen'?scrById(id):S.screens.slice().reverse().find(s=>pt.x>=s.x&&pt.x<=s.x+s.w&&pt.y>=s.y&&pt.y<=s.y+s.h);
+  const scrHere=kind==='screen'?scrById(id):S.screens.slice().reverse().find(s=>inScreen(s,pt.x,pt.y));
   items.push('-');
   if(kind==='pip'){
     /* a PiP: focus on it, or on any screen it sits on */
@@ -3210,9 +3226,9 @@ function makeThumb(P,s){
     }
   });
   /* the part of this screen that a screen in front covers is not this screen's, so PiPs are not drawn there */
-  const blocked=[];
-  for(let m=S.screens.indexOf(s)+1;m<S.screens.length;m++){
-    const o=intersect(s,S.screens[m]); if(o) blocked.push({x:(o.x-s.x)*sc,y:(o.y-s.y)*sc,w:o.w*sc,h:o.h*sc});
+  const blocked=holesOf(s).map(o=>({x:(o.x-s.x)*sc,y:(o.y-s.y)*sc,w:o.w*sc,h:o.h*sc}));   /* its own cutouts too */
+  for(let m=S.screens.indexOf(s)+1;m<S.screens.length;m++) for(const q of solidOf(S.screens[m])){
+    const o=intersect(s,q); if(o) blocked.push({x:(o.x-s.x)*sc,y:(o.y-s.y)*sc,w:o.w*sc,h:o.h*sc});
   }
   g.save(); g.beginPath(); g.rect(0,0,cw,ch); for(const b of blocked) g.rect(b.x,b.y,b.w,b.h); g.clip('evenodd');
   for(const {p,q} of items){
@@ -3585,7 +3601,7 @@ function applyBuilder(force){
   let b=builderScreens(); renderSrcLine(b);
   if(!b) return false;
   if(S.srcLayout&&b.layout.layoutId&&b.layout.layoutId!==S.srcLayout){ enterLayout(b.layout.layoutId); force=force||!S.screens.length; }
-  const sig=JSON.stringify([b.screens.map(s=>[s.ppId,s.srcName,s.x,s.y,s.w,s.h,s.res||null,s.covers||null,s.outline||null]),b.objects]);
+  const sig=JSON.stringify([b.screens.map(s=>[s.ppId,s.srcName,s.x,s.y,s.w,s.h,s.res||null,s.covers||null,s.outline||null,s.holes||null]),b.objects]);
   if(!force&&S.srcSig===sig&&S.screens.some(s=>s.kind==='source')) return false;
   const oldSrc=S.screens.filter(s=>s.kind==='source'), customs=S.screens.filter(s=>s.kind==='custom');
   const merged=b.screens.map(ns=>{
@@ -3597,7 +3613,7 @@ function applyBuilder(force){
     const moves=[];
     for(const q of [...S.presets.flatMap(P=>P.pips),...S.objects]){
       const cx=q.x+q.w/2, cy=q.y+q.h/2;
-      const os=oldSrc.slice().reverse().find(s=>cx>=s.x&&cx<=s.x+s.w&&cy>=s.y&&cy<=s.y+s.h); if(!os) continue;
+      const os=oldSrc.slice().reverse().find(s=>inScreen(s,cx,cy)); if(!os) continue;
       const ns=merged.find(n=>n.id===os.id); if(ns&&(ns.x!==os.x||ns.y!==os.y||ns.w!==os.w||ns.h!==os.h)) moves.push([q,os,ns]);   /* only screens that changed */
     }
     for(const [q,os,ns] of moves){
@@ -3766,8 +3782,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.82.html). Bump it with every release.
-const APP_VERSION = '3.82';
+// (pixelplanner-v3.83.html). Bump it with every release.
+const APP_VERSION = '3.83';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
@@ -3950,10 +3966,43 @@ function offCells(s){
   const g = ledGrid(s);
   return s.led.off.map(k => { const [c, r] = k.split(',').map(Number); return {c, r, fx0: g.xs[c], fx1: g.xs[c + 1], fy0: g.ys[r], fy1: g.ys[r + 1]}; }).filter(o => o.fx1 != null && o.fy1 != null);
 }
+// Removed cabinets are real holes: nothing of the wall is there, so a screen behind it shows through.
+// cutRect takes rectangle b out of each rectangle in a list, leaving the pieces.
+function cutRect(rects, b){
+  const out = [];
+  for (const a of rects){
+    const x0 = Math.max(a.x, b.x), y0 = Math.max(a.y, b.y), x1 = Math.min(a.x + a.w, b.x + b.w), y1 = Math.min(a.y + a.h, b.y + b.h);
+    if (x1 - x0 <= 1e-6 || y1 - y0 <= 1e-6){ out.push(a); continue; }
+    if (y0 > a.y) out.push({x: a.x, y: a.y, w: a.w, h: y0 - a.y});
+    if (y1 < a.y + a.h) out.push({x: a.x, y: y1, w: a.w, h: a.y + a.h - y1});
+    if (x0 > a.x) out.push({x: a.x, y: y0, w: x0 - a.x, h: y1 - y0});
+    if (x1 < a.x + a.w) out.push({x: x1, y: y0, w: a.x + a.w - x1, h: y1 - y0});
+  }
+  return out;
+}
+const holeRects = s => { const d = dims(s); return offCells(s).map(o => ({x: s.x + d.w * o.fx0, y: s.y + d.h * o.fy0, w: d.w * (o.fx1 - o.fx0), h: d.h * (o.fy1 - o.fy0), c: o.c, r: o.r})); };
+// The parts of a screen that are really there: its box less any removed cabinets.
+function solidParts(s){ const d = dims(s); let r = [{x: s.x, y: s.y, w: d.w, h: d.h}]; for (const h of holeRects(s)) r = cutRect(r, h); return r; }
+// On a canvas: clip so nothing is drawn in a wall's holes (whatever is behind stays visible there).
+function clipHoles(ctx, it){
+  const cells = offCells(it.s); if (!cells.length) return;
+  ctx.beginPath(); ctx.rect(-1e6, -1e6, 2e6, 2e6);
+  for (const o of cells){ const x0 = Math.round(it.x + o.fx0 * it.w), x1 = Math.round(it.x + o.fx1 * it.w), y0 = Math.round(it.y + o.fy0 * it.h), y1 = Math.round(it.y + o.fy1 * it.h); ctx.rect(x0, y0, x1 - x0, y1 - y0); }
+  ctx.clip('evenodd');
+}
 function setOff(s, c, r, off){
   const set = offKeys(s), k = c + ',' + r;
   if (off) set.add(k); else set.delete(k);
   if (set.size) s.led.off = [...set]; else delete s.led.off;
+}
+// Right-click in a wall's hole lands on what is behind it, so the menu there offers to put that cabinet back.
+function holeMenu(p, skip){
+  for (const w of zOrder(live()).reverse()){
+    if (w === skip || w.mode !== 'led' || !offCount(w)) continue;
+    const cell = cellAt(w, p); if (!cell || !offKeys(w).has(cell.c + ',' + cell.r)) continue;
+    return [{sep: true}, {label: `Put back cabinet ${cell.c + 1},${cell.r + 1} in ${w.label || 'the LED wall'}`, run: () => { setOff(w, cell.c, cell.r, false); afterCut(w, true); }}];
+  }
+  return [];
 }
 // Which cabinet a layout point falls in, or null.
 function cellAt(s, p){
@@ -4316,9 +4365,14 @@ function computeOverlaps(){
   const list = zOrder(live()), out = [];
   for (let i = 0; i < list.length; i++) for (let j = i + 1; j < list.length; j++){
     const back = list[i], front = list[j], a = dims(back), b = dims(front);
-    const x0 = Math.max(back.x, front.x), x1 = Math.min(back.x + a.w, front.x + b.w);
-    const y0 = Math.max(back.y, front.y), y1 = Math.min(back.y + a.h, front.y + b.h);
+    let x0 = Math.max(back.x, front.x), x1 = Math.min(back.x + a.w, front.x + b.w);
+    let y0 = Math.max(back.y, front.y), y1 = Math.min(back.y + a.h, front.y + b.h);
     if (x1 - x0 < 0.5 || y1 - y0 < 0.5) continue;
+    if (offCount(front)){ // a cutout in the front wall doesn't cover anything: only its remaining cabinets count
+      const ps = solidParts(front).map(q => ({x0: Math.max(q.x, x0), y0: Math.max(q.y, y0), x1: Math.min(q.x + q.w, x1), y1: Math.min(q.y + q.h, y1)})).filter(q => q.x1 - q.x0 >= 0.5 && q.y1 - q.y0 >= 0.5);
+      if (!ps.length) continue;
+      x0 = Math.min(...ps.map(q => q.x0)); x1 = Math.max(...ps.map(q => q.x1)); y0 = Math.min(...ps.map(q => q.y0)); y1 = Math.max(...ps.map(q => q.y1));
+    }
     // Measure across the direction the screens are offset in. Side by side, one screen's height sits inside the
     // other's (its vertical share is 100%), so the overlap is a width, however wide it gets; and the reverse for stacked.
     const fx = (x1 - x0) / Math.min(a.w, b.w), fy = (y1 - y0) / Math.min(a.h, b.h);
@@ -5603,21 +5657,29 @@ function renderStage(){
         sm.xs.map(f => `<line x1="${s.x + d.w * f}" y1="${s.y}" x2="${s.x + d.w * f}" y2="${s.y + d.h}"/>`).join('') +
         sm.ys.map(f => `<line x1="${s.x}" y1="${s.y + d.h * f}" x2="${s.x + d.w}" y2="${s.y + d.h * f}"/>`).join('') + '</g>';
     }
-    // Removed cabinets: see-through holes with a dashed outline.
-    let holes = '';
-    for (const o of offCells(s)){
-      const x = s.x + d.w * o.fx0, y = s.y + d.h * o.fy0, w = d.w * (o.fx1 - o.fx0), h = d.h * (o.fy1 - o.fy0);
-      holes += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="var(--stage)" stroke="${s.color}" stroke-opacity=".55" stroke-width="${u * .08}" stroke-dasharray="${u * .4} ${u * .3}"/><path d="M${x} ${y}L${x + w} ${y + h}M${x + w} ${y}L${x} ${y + h}" stroke="${s.color}" stroke-opacity=".3" stroke-width="${u * .06}"/>`;
+    // Removed cabinets are real holes in the wall: nothing is drawn there (a screen behind shows through), just a faint
+    // dashed outline so you can see where the cabinets were.
+    let holes = '', cutD = '';
+    for (const h of holeRects(s)){
+      holes += `<rect x="${h.x}" y="${h.y}" width="${h.w}" height="${h.h}" fill="none" stroke="${s.color}" stroke-opacity=".45" stroke-width="${u * .08}" stroke-dasharray="${u * .4} ${u * .3}" pointer-events="none"/>`;
+      cutD += `M${h.x} ${h.y}h${h.w}v${h.h}h${-h.w}Z`;
+    }
+    if (cutD){ // the wall's outline with the holes taken out; seams are kept off the holes too
+      cutD = `M${s.x} ${s.y}h${d.w}v${d.h}h${-d.w}Z` + cutD;
+      seams = `<clipPath id="cut-${s.id}"><path d="${cutD}" clip-rule="evenodd"/></clipPath><g clip-path="url(#cut-${s.id})">${seams}</g>`;
     }
     // Shaped screen: the projector's raster box drawn faint and dashed, the screen face itself solid.
     const body = s.shape
       ? `<rect x="${s.x}" y="${s.y}" width="${d.w}" height="${d.h}" fill="${s.color}" fill-opacity=".05" stroke="${s.color}" stroke-opacity=".6" stroke-width="${u * .1}" stroke-dasharray="${u * .7} ${u * .45}"/>
       <path d="${shapePath(s, s.x, s.y, d.w, d.h)}" fill="var(--stage)"/><path d="${shapePath(s, s.x, s.y, d.w, d.h)}" fill="${s.color}" fill-opacity="${sel ? .24 : .14}" stroke="${s.color}" stroke-width="${u * (sel ? .4 : .22)}" stroke-linejoin="round"/>`
+      : cutD ? `<path d="${cutD}" fill-rule="evenodd" fill="var(--stage)"/>
+      <path d="${cutD}" fill-rule="evenodd" fill="${s.color}" fill-opacity="${sel ? .24 : .14}"/>
+      <rect x="${s.x}" y="${s.y}" width="${d.w}" height="${d.h}" fill="none" stroke="${s.color}" stroke-width="${u * (sel ? .4 : .22)}"/>`
       : `<rect x="${s.x}" y="${s.y}" width="${d.w}" height="${d.h}" fill="var(--stage)"/>
       <rect x="${s.x}" y="${s.y}" width="${d.w}" height="${d.h}" fill="${s.color}" fill-opacity="${sel ? .24 : .14}" stroke="${s.color}" stroke-width="${u * (sel ? .4 : .22)}"/>`;
     out += `<g class="scr" data-sid="${s.id}">${supportSVG(s, d, u)}
       ${body}${seams}${holes}
-      ${t}</g>`;
+      <g pointer-events="none">${t}</g></g>`; // labels let clicks through, so a screen behind a wall's cutout can be picked
     if (sel || multi.has(s.id)) onTop += `<rect x="${s.x - u * .7}" y="${s.y - u * .7}" width="${d.w + u * 1.4}" height="${d.h + u * 1.4}" fill="none" stroke="${sel ? 'var(--stage-ink)' : 'var(--accent)'}" stroke-width="${u * .12}" stroke-dasharray="${u * .8} ${u * .5}" pointer-events="none"/>`;
     if (s.locked) onTop += lockSVG(s.x + d.w - ut * 1.3, s.y - ut * 2.4, ut * 0.11);
     if (sel || S.allDims) onTop += dimLines(s, d, c, ut, u);
@@ -6575,6 +6637,7 @@ svg.addEventListener('contextmenu', e => {
         return [{label: isOff ? `Put back ${nm}` : `Remove ${nm}`, run: () => { setOff(s, cell.c, cell.r, !isOff); afterCut(s, true); }},
           ...(offCount(s) ? [{label: 'Restore all cabinets', run: () => { delete s.led.off; afterCut(s, true); }}] : [])];
       })(),
+      ...holeMenu(p, s), // this screen shows through another wall's cutout
       ...(s.mode !== 'led' && ready(s) ? [{label: cornerEd === s.id ? 'Hide corner handles' : 'Show corner handles', run: () => { cornerEd = cornerEd === s.id ? null : s.id; if (cornerEd){ shapeOpen.add(s.id); selectScreen(s.id); } refreshAll(); }},
         ...(s.shape ? [{label: 'Make flat', run: () => cardAct(s.id, 'flat')}] : [])] : []),
       {label: 'Duplicate', run: () => cardAct(s.id, 'dup')},
@@ -6603,6 +6666,7 @@ svg.addEventListener('contextmenu', e => {
             ...RAMP_SIDES.map(([sh, side, rises]) => ({label: `${side} (${rises})`, run: () => placeObj(objName(pr.label), pr.w, pr.h, sh)}))])}
         : {label: pr.name, run: () => placeObj(objName(pr.label), pr.w, pr.h, pr.shape)})];
     const items = [
+      ...holeMenu(p).slice(1),
       {label: 'Add screen here…', run: () => openCtx(e, types)},
       {label: 'Add object here…', run: () => openCtx(e, otypes)},
       {label: 'Add note here…', run: () => addNote({x: p.x + noteTextSize() * 8, y: p.y + noteTextSize()})},
@@ -7212,24 +7276,10 @@ function drawShapeMask(ctx, it, bw, st){
   ctx.strokeStyle = rgba(s.color, .6); ctx.lineWidth = Math.max(1, bw / 2); ctx.setLineDash([Math.max(4, w / 80), Math.max(3, w / 120)]);
   ctx.strokeRect(x + ctx.lineWidth / 2, y + ctx.lineWidth / 2, w - ctx.lineWidth, h - ctx.lineWidth); ctx.restore();
 }
-function drawHoles(ctx, it, fill, hatch, edge){
-  const {x, y, w, h, s} = it, cells = offCells(s); if (!cells.length) return;
-  ctx.save();
-  for (const o of cells){
-    const x0 = Math.round(x + o.fx0 * w), x1 = Math.round(x + o.fx1 * w), y0 = Math.round(y + o.fy0 * h), y1 = Math.round(y + o.fy1 * h), cw = x1 - x0, ch = y1 - y0;
-    ctx.fillStyle = fill; ctx.fillRect(x0, y0, cw, ch);
-    ctx.save(); ctx.beginPath(); ctx.rect(x0, y0, cw, ch); ctx.clip();
-    const st = Math.max(6, Math.min(cw, ch) / 8); ctx.strokeStyle = hatch; ctx.lineWidth = Math.max(1, st / 6); ctx.beginPath();
-    for (let k = -ch; k < cw; k += st){ ctx.moveTo(x0 + k, y0 + ch); ctx.lineTo(x0 + k + ch, y0); }
-    ctx.stroke(); ctx.restore();
-    ctx.strokeStyle = edge; ctx.lineWidth = 1; ctx.setLineDash([Math.max(3, cw / 20), Math.max(2, cw / 30)]); ctx.strokeRect(x0 + .5, y0 + .5, cw - 1, ch - 1); ctx.setLineDash([]);
-  }
-  ctx.restore();
-}
 // opts.part: 'base' draws the screen without any text, 'text' draws only its text; unset draws both.
 function drawScreen(ctx, it, opts, physLabel){
   const {x, y, w, h, s} = it, m = Math.min(w, h), bw = Math.max(2, Math.round(m / 250));
-  ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+  ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip(); clipHoles(ctx, it); // nothing is drawn where cabinets were removed
   if (opts.part !== 'text'){
   ctx.fillStyle = '#000'; ctx.fillRect(x, y, w, h);
   ctx.fillStyle = rgba(s.color, .16); ctx.fillRect(x, y, w, h);
@@ -7266,7 +7316,6 @@ function drawScreen(ctx, it, opts, physLabel){
     // Small dot marks the exact centre.
     ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.beginPath(); ctx.arc(cx, cy, Math.max(2, lw * 1.5), 0, Math.PI * 2); ctx.fill();
   }
-  drawHoles(ctx, it, '#000000', '#2A2A2A', rgba(s.color, .6));
   if (s.shape) drawShapeMask(ctx, it, bw);
   else { ctx.strokeStyle = s.color; ctx.lineWidth = bw; ctx.strokeRect(x + bw / 2, y + bw / 2, w - bw, h - bw); }
   }
@@ -7632,10 +7681,6 @@ function buildSVG(){
       const sm = ledSeams(s);
       b += `<g stroke="${s.color}" stroke-opacity=".55" stroke-width="1">` + sm.xs.map(f => `<line x1="${X(Math.round(x + w * f) + .5)}" y1="${y}" x2="${X(Math.round(x + w * f) + .5)}" y2="${y + h}"/>`).join('') + sm.ys.map(f => `<line x1="${x}" y1="${X(Math.round(y + h * f) + .5)}" x2="${x + w}" y2="${X(Math.round(y + h * f) + .5)}"/>`).join('') + '</g>';
     }
-    for (const c of offCells(s)){
-      const x0 = Math.round(x + c.fx0 * w), y0 = Math.round(y + c.fy0 * h), cw = Math.round(x + c.fx1 * w) - x0, ch = Math.round(y + c.fy1 * h) - y0;
-      b += `<g data-cutout="${c.c + 1},${c.r + 1}"><rect x="${x0}" y="${y0}" width="${cw}" height="${ch}" fill="#000"/><path d="M${x0} ${y0}L${x0 + cw} ${y0 + ch}M${x0 + cw} ${y0}L${x0} ${y0 + ch}" stroke="${s.color}" stroke-opacity=".5" stroke-width="1"/></g>`;
-    }
     if (o.cross){ const r = h / 2 - 1; b += `<circle cx="${X(x + w / 2)}" cy="${X(y + h / 2)}" r="${X(r)}" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="${Math.max(1, Math.round(m / 400))}"/>`; }
     if (s.shape){ const sp = shapePath(s, x, y, w, h);
       b += `<path data-off-screen="raster outside the screen face" d="M${x} ${y}H${x + w}V${y + h}H${x}Z${sp}" fill="#000" fill-rule="evenodd"/><path d="${sp}" fill="none" stroke="${s.color}" stroke-width="${bw}" stroke-linejoin="round"/><rect x="${X(x + bw / 4)}" y="${X(y + bw / 4)}" width="${X(w - bw / 2)}" height="${X(h - bw / 2)}" fill="none" stroke="${s.color}" stroke-opacity=".6" stroke-width="${X(Math.max(1, bw / 2))}" stroke-dasharray="${X(Math.max(4, w / 80))} ${X(Math.max(3, w / 120))}"/>`; }
@@ -7650,6 +7695,11 @@ function buildSVG(){
     }
     if (o.native) b += `<text x="${X(x + w / 2)}" y="${X(y + h / 2 + fs2 * (o.labels ? 4 : 1.2))}" text-anchor="middle" font-family="${MONO}" font-size="${X(fs2)}" fill="#FFD98A">native ${s.rw} × ${s.rh} px</text>`;
     let id = slug(label), k = 2; while (used.has(id)) id = slug(label) + '-' + k++; used.add(id);
+    const cells = offCells(s);
+    if (cells.length){ // removed cabinets are holes: the layer draws nothing there, so the screen behind shows through
+      const hd = cells.map(c => { const x0 = Math.round(x + c.fx0 * w), y0 = Math.round(y + c.fy0 * h), cw = Math.round(x + c.fx1 * w) - x0, ch = Math.round(y + c.fy1 * h) - y0; return `M${x0} ${y0}h${cw}v${ch}h${-cw}Z`; }).join('');
+      b = `<defs><clipPath id="${id}-cut"><path d="M${x} ${y}h${w}v${h}h${-w}Z${hd}" clip-rule="evenodd"/></clipPath></defs><g clip-path="url(#${id}-cut)">${b}</g>`;
+    }
     out += layer(id, label, b);
   }
   if (o.gaps && L.items.length > 1){
@@ -8341,6 +8391,7 @@ function layoutDrawingCanvas(){
   const ref = refScreen();
   for (const it of items){
     const {s, d, x, y, w, h} = it;
+    ctx.save(); clipHoles(ctx, it); // a wall's removed cabinets are holes: what is behind shows through
     ctx.fillStyle = '#FFFFFF'; ctx.fillRect(x, y, w, h); // opaque, so a screen in front hides the one behind
     ctx.fillStyle = rgba(s.color, .18); ctx.fillRect(x, y, w, h);
     if (S.exp.seams && s.mode === 'led'){
@@ -8349,7 +8400,6 @@ function layoutDrawingCanvas(){
       for (const f of sm.ys){ ctx.moveTo(x, y + h * f); ctx.lineTo(x + w, y + h * f); }
       ctx.stroke();
     }
-    drawHoles(ctx, it, '#FFFFFF', '#DADFE6', MUTED);
     if (s.shape) drawShapeMask(ctx, it, 3, {fill: '#FFFFFF', hatch: '#E3E7EC'});
     else {
       ctx.fillStyle = s.color; ctx.fillRect(x, y, w, Math.max(6, Math.min(14, h * 0.04)));
@@ -8360,6 +8410,7 @@ function layoutDrawingCanvas(){
       const gf = Math.min(sh * 0.6, 26), gt = 'Ground support ' + fmtLen(GSUP);
       if (gf >= 12){ ctx.font = `500 ${gf}px ${MONO}`; if (ctx.measureText(gt).width < w * 0.9){ ctx.fillStyle = INK; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(gt, x + w / 2, y + h + sh / 2); } }
     }
+    ctx.restore();
     // Text block, shrunk to fit inside the screen
     const label = s.label || 'Untitled', c = content(s);
     const lines = s.shape ? [`face ${fmtLen2(s.shape.pw, s.shape.ph)}`, `${s.rw} × ${s.rh} px raster`] : [fmtLen2(d.w, d.h), `${s.rw} × ${s.rh} px`];
@@ -8579,6 +8630,7 @@ function layoutViewCanvas(){
   const items = [];
   for (const s of zOrder(S.screens)){
     const d = dims(s), x = X(s.x), y = Y(s.y), w = d.w * sc, h = d.h * sc, bw = Math.max(3, Math.min(8, Math.min(w, h) / 60));
+    const cut = ready(s) && offCount(s); if (cut){ ctx.save(); clipHoles(ctx, {s, x, y, w, h}); } // holes show what is behind
     ctx.fillStyle = BG; ctx.fillRect(x, y, w, h);
     if (!ready(s)){
       ctx.strokeStyle = s.color; ctx.lineWidth = bw; ctx.setLineDash([bw * 5, bw * 3]); ctx.strokeRect(x, y, w, h); ctx.setLineDash([]);
@@ -8599,9 +8651,9 @@ function layoutViewCanvas(){
       for (const f of sm.ys){ ctx.moveTo(x, y + h * f); ctx.lineTo(x + w, y + h * f); }
       ctx.stroke();
     }
-    drawHoles(ctx, it, BG, '#2A303A', rgba(s.color, .6));
     if (s.shape) drawShapeMask(ctx, it, bw, {fill: BG, hatch: '#2A303A'});
     else { ctx.strokeStyle = s.color; ctx.lineWidth = bw; ctx.strokeRect(x + bw / 2, y + bw / 2, w - bw, h - bw); }
+    if (cut) ctx.restore();
     // Name, then native pixels, physical size and content (canvas) pixels
     const c = content(s), label = s.label || 'Untitled';
     const lines = s.shape ? [[`${s.rw} × ${s.rh} px raster`, MUTED], [`face ${fmtLen2(s.shape.pw, s.shape.ph)}`, MUTED]] : [[`${s.rw} × ${s.rh} px native`, MUTED], [fmtLen2(d.w, d.h), MUTED]];
@@ -8792,7 +8844,7 @@ function tpFace(ctx, r){
 function drawTPRegion(ctx, r, o){
   const {x, y, w, h, s} = r, m = Math.min(w, h);
   const DISP = '"Barlow Semi Condensed", "Arial Narrow", sans-serif', MONO = '"JetBrains Mono", Consolas, monospace';
-  ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+  ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip(); if (s) clipHoles(ctx, r);
   ctx.fillStyle = o.pat === 'solid' ? o.solid : o.bg; ctx.fillRect(x, y, w, h);
   const grid = () => {
     // Lines sit on whole pixels counted from the canvas origin, so they line up across screens.
