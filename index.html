@@ -768,9 +768,9 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <h3>Exports</h3>
 <ul><li>Canvas export PNG at exact pixel size, layout snapshot, layout summary and test patterns.</li><li>PDF spec pack, PowerPoint template, layered PSD and SVG.</li><li>Spec sheet as CSV.</li><li>Switcher planning <code>.xml</code> (screens, layers and auxes).</li><li><strong>Advanced → EDID (experimental):</strong> an EDID <code>.bin</code> for a screen, with connector, refresh rate, CVT blanking and a split across outputs. Check results on your hardware before you rely on them.</li></ul>
 <h2>Using it</h2>
-<ol><li>Add your screens on the left, or choose <strong>Options → Load example</strong> to see one set up.</li><li>Arrange them on the layout, then switch to <strong>Preset Guide</strong> to plan PiPs.</li><li>Use the <strong>Export</strong> tab under the layout for files, and <strong>Options → Save .json</strong> to keep your work.</li></ol>
+<ol><li>You start with a blank layout. The first time, a welcome box offers to load an example layout instead (it's also in <strong>Options → Load example</strong>). Add your screens on the left.</li><li>Arrange them on the layout, then switch to <strong>Preset Guide</strong> to plan PiPs.</li><li>Use the <strong>Export</strong> tab under the layout for files, and <strong>Options → Save .json</strong> to keep your work.</li></ol>
 <p>Hover over (or tap) a circled <strong>i</strong> to see what a section does. Press <strong>?</strong> (or <strong>Options → Keyboard shortcuts</strong>) for every shortcut, and use <strong>Options → Layout text size</strong> to make the labels on both layouts smaller or larger.</p>
-<p><strong>Options → Reset app</strong> clears everything PixelPlanner has saved in this browser.</p>
+<p><strong>Options → Reset app</strong> clears everything PixelPlanner has saved in this browser and starts again with a blank layout and the welcome box.</p>
 <!-- README:END -->
     </div>
   </div>
@@ -3738,6 +3738,17 @@ picTx('readonly',st=>st.getAll()).then(list=>{
     </div>
   </div>
 </div>
+<div id="welcomeDlg" class="cdlg-back" hidden>
+  <div class="cdlg" role="dialog" aria-modal="true" aria-labelledby="wlcTitle" aria-describedby="wlcText">
+    <h3 id="wlcTitle">Welcome to PixelPlanner</h3>
+    <p id="wlcText">You're starting with a blank layout: add your first screen on the left. Or load an example layout with an LED wall and two projection screens to see how it works.</p>
+    <div class="cdlg-actions">
+      <span style="flex:1"></span>
+      <button class="btn" type="button" id="wlcExample">Load example</button>
+      <button class="btn primary" type="button" id="wlcBlank">Start blank</button>
+    </div>
+  </div>
+</div>
 <div id="confirmDlg" class="cdlg-back" hidden>
   <div class="cdlg" role="alertdialog" aria-modal="true" aria-labelledby="cdlgTitle" aria-describedby="cdlgText">
     <h3 id="cdlgTitle">Replace your layout with the example?</h3>
@@ -3755,8 +3766,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.78.html). Bump it with every release.
-const APP_VERSION = '3.78';
+// (pixelplanner-v3.79.html). Bump it with every release.
+const APP_VERSION = '3.79';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
@@ -4081,9 +4092,15 @@ try {
     if (old){ S = sanitize(JSON.parse(old)); if (S){ S.unit = 'ft'; S.screens.forEach(s => { const d = dims(s); s.pw = d.w; s.ph = d.h; s.mode = 'dims'; }); } }
   }
 } catch(e) { S = null; }
-// A fresh start (first open, or after Reset app): the example, with the ground line on and the LED wall on its
-// ground support. New LED walls you add still start without a support.
+// A fresh start (first open, or after Reset app): an empty layout with the ground line on, ready for the first
+// screen. A welcome box offers the example instead.
+let firstOpen = false;
 function freshStart(){
+  S = Object.assign(example(), {name: 'Untitled guide', screens: [], sel: null, match: {on: true, ref: null, round: 2}, ground: {on: true, placed: true, y: 0}});
+  firstOpen = true;
+}
+// The example as the welcome box loads it: the ground line on and the LED wall on its ground support.
+function exampleOnGround(){
   S = example();
   for (const s of S.screens) if (s.mode === 'led') s.support = true;
   S.ground.on = true; placeGround();
@@ -7106,7 +7123,7 @@ $('#fileIn').addEventListener('change', async e => {
       pgSetState(raw); setSection('presets'); toast('Opened the presets from ' + f.name); return;
     }
     const n = sanitize(raw); if (!n) throw 0; S = n; view = null; refreshAll();
-    const pics = PICS.clean(raw.presetGuideImages); await PICS.replace(pics); pgSetState(raw.presetGuide, pics); /* the guide's own pictures replace the library */ if (document.body.classList.contains('tab-presets')) pgPost({type: 'pp-screens', canvases: pgCanvases(), name: S.name}); toast('Opened ' + f.name); }
+    const pics = PICS.clean(raw.presetGuideImages); await PICS.replace(pics); pgSetState(raw.presetGuide, pics); /* the guide's own pictures replace the library */ if (document.body.classList.contains('tab-presets')) pgPost({type: 'pp-screens', canvases: pgCanvases(), name: S.name}); if (!wlc.hidden) closeWelcome(); /* an opened guide answers the welcome box */ toast('Opened ' + f.name); }
   catch(err){ toast('That file is not a guide saved from this tool.'); }
 });
 // Loading the example wipes the current guide, so ask first (the viewer blocks the browser's own confirm()).
@@ -7136,9 +7153,17 @@ $('#rdlgOk').addEventListener('click', async () => {
   rdlg.hidden = true; toast('PixelPlanner was reset. Reloading…');
   setTimeout(() => { try { location.reload(); } catch (e) {} }, 400);
   // If this view can't reload itself, start fresh in place.
-  setTimeout(() => { freshStart(); view = null; pgState = null; if (pgFrame){ pgFrame.remove(); pgFrame = null; } setSection('builder'); window.__ppResetting = false; refreshAll(); toast('PixelPlanner was reset.'); }, 2500);
+  setTimeout(() => { freshStart(); view = null; pgState = null; if (pgFrame){ pgFrame.remove(); pgFrame = null; } setSection('builder'); window.__ppResetting = false; refreshAll(); toast('PixelPlanner was reset.'); openWelcome(); }, 2500);
 });
 cdlg.addEventListener('click', e => { if (e.target === cdlg) closeConfirm(); });
+// First open (and after Reset app): offer the example instead of the blank layout.
+const wlc = $('#welcomeDlg');
+function openWelcome(){ wlc.hidden = false; $('#wlcBlank').focus({preventScroll:true}); }
+const closeWelcome = () => { wlc.hidden = true; firstOpen = false; };
+$('#wlcBlank').addEventListener('click', () => { closeWelcome(); toast('Add your first screen with Add screen.'); });
+$('#wlcExample').addEventListener('click', () => { closeWelcome(); exampleOnGround(); view = null; refreshAll(); save(); toast('Example loaded'); });
+wlc.addEventListener('keydown', e => { if (e.key === 'Escape'){ e.stopPropagation(); closeWelcome(); } });
+wlc.addEventListener('click', e => { if (e.target === wlc) closeWelcome(); });
 // Clear layout: empties the open layout (screens, objects, notes) after asking. Other layouts and the settings stay; Undo brings it back.
 const clrDlg = $('#clearDlg');
 function askClearLayout(){
@@ -9175,6 +9200,7 @@ document.querySelector('.apptabs').addEventListener('keydown', e => {
 });
 requestAnimationFrame(() => { fitView(); renderStage(); });
 if (store('pp-tab') === 'presets') setSection('presets');
+if (firstOpen){ save(); openWelcome(); } // first open: the blank layout is saved, and the example is offered
 // Started: take the start-up notice away, unless an error was already reported in it.
 { const bm = $('#bootMsg'); if (bm && !$('#bootErr').textContent) bm.remove(); else if (bm) bm.firstElementChild.textContent = 'PixelPlanner hit an error while starting.'; }
 })();

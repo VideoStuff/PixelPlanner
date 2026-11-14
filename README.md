@@ -39,13 +39,13 @@ It is a single web page (`index.html`). Nothing to install: open it in a current
 ## Using it
 
 1. Open the app link above.
-2. Add your screens on the left, or choose **Options → Load example** to see one set up.
+2. You start with a blank layout. The first time, a welcome box offers to load an example layout instead (it's also in **Options → Load example**). Add your screens on the left.
 3. Arrange them on the layout, then switch to **Preset Guide** to plan PiPs.
 4. Use the **Export** tab under the layout for files, and **Options → Save .json** to keep your work.
 
 Hover over (or tap) a circled **i** to see what a section does. Press **?** (or **Options → Keyboard shortcuts**) for every shortcut, and use **Options → Layout text size** to make the labels on both layouts smaller or larger.
 
-**Options → Reset app** clears everything PixelPlanner has saved in this browser.
+**Options → Reset app** clears everything PixelPlanner has saved in this browser and starts again with a blank layout and the welcome box.
 
 ## Hosting
 
