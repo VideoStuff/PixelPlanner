@@ -178,6 +178,9 @@ details.more summary{cursor:pointer;font-size:12px;color:var(--muted);font-weigh
 details.more summary::before{content:"▸ ";}
 details.more[open] summary::before{content:"▾ ";}
 details.more .row{margin-top:8px}
+.corners{display:grid;gap:6px;margin-top:10px}
+.crow{display:grid;grid-template-columns:minmax(0,92px) minmax(0,1fr) minmax(0,1fr);gap:6px;align-items:end}
+.crow>span{font-size:12px;font-weight:600;color:var(--muted);padding-bottom:8px}
 .cutmap{display:block;width:100%;margin-top:8px;border-radius:4px;cursor:crosshair;touch-action:none}
 .chkrow{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;color:var(--ink)}
 .chkrow input{margin:0}
@@ -291,6 +294,7 @@ details.more .row{margin-top:8px}
 #stage:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 #stage .scr,#stage .obj,#stage .note{cursor:grab}
 #stage .nres{cursor:ew-resize}
+#stage .chandle{cursor:move}
 .f textarea{font-family:var(--f-body);resize:vertical;min-height:90px;line-height:1.4}
 .ncard{display:grid;gap:10px;padding:4px}
 .f input[type=range]{padding:0;border:0;background:transparent;accent-color:var(--accent)}
@@ -722,7 +726,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <p>Your work is saved in your browser and can be saved to and opened from a <code>.json</code> file.</p>
 <h2>What it does</h2>
 <h3>Screen Builder</h3>
-<ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>Curved and angled projection screens</strong>: in a screen's <strong>Shape</strong> section, bow each end out (+) or in (−) and set an angle. The width, height and pixels you type are the flat face; PixelPlanner works out the projector raster (the upright box around the shape, at the face's pixel density) and uses it for the canvas and every export, with the part off the screen face shaded.</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
+<ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>Curved and reshaped projection screens</strong>: in a screen's <strong>Shape</strong> section, bow each end out (+) or in (−), and move any corner by an exact amount. Or turn on <strong>Corner handles</strong> (also in the screen's right-click menu) and drag the corners on the layout, to the nearest inch. The width, height and pixels you type are the flat face; PixelPlanner works out the projector raster (the upright box around the shape, at the face's pixel density) and uses it for the canvas and every export, with the part off the screen face shaded.</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
 <h3>Preset Guide</h3>
 <ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock.</li><li>Quick layouts: right-click a screen and choose <strong>Create… → Quick layout</strong> to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.</li><li>Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.</li><li><strong>Page Up / Page Down</strong> step through presets.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li>Exports to PowerPoint and Excel.</li></ul>
 <h3>Exports</h3>
@@ -3661,8 +3665,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.71.html). Bump it with every release.
-const APP_VERSION = '3.71';
+// (pixelplanner-v3.72.html). Bump it with every release.
+const APP_VERSION = '3.72';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
@@ -3885,47 +3889,60 @@ function dims(s){
   if (s.mode === 'diag'){ const r = Math.hypot(s.rw, s.rh); return {w:s.diag*s.rw/r, h:s.diag*s.rh/r}; }
   return {w:s.pw, h:s.ph};
 }
-/* Shaped projection screens: curved ends and an angle (askew). s.shape = {l, r, a, rw, rh, pw, ph, diag}:
-   l and r bow the left and right ends out (+) or in (-) by that many mm at their middle, a turns the screen
-   that many degrees, and rw, rh, pw, ph, diag are the flat face's own pixels and size as typed in the card.
-   The screen's own rw, rh, pw, ph then describe the projector's raster: the upright box around the shape,
-   at the face's pixel density, so every canvas, export and spec uses the pixels the projector has to cover. */
-const SHAPE_STEPS = 24;
-function endArc(x, y0, y1, sag){
-  // Points from (x, y0) to (x, y1) on a circular arc whose middle sits sag mm to the side (+ = right).
-  if (Math.abs(sag) < 1e-6) return [[x, y0], [x, y1]];
-  const h = Math.abs(y1 - y0) / 2, a = Math.abs(sag), R = (h * h + a * a) / (2 * a), sg = Math.sign(sag);
-  const ox = x + sag - sg * R, oy = (y0 + y1) / 2, out = [];
-  for (let i = 0; i <= SHAPE_STEPS; i++){ const y = y0 + (y1 - y0) * i / SHAPE_STEPS, dy = y - oy; out.push([ox + sg * Math.sqrt(Math.max(0, R * R - dy * dy)), y]); }
-  return out;
+/* Shaped projection screens: curved ends and moved corners. s.shape = {l, r, c, rw, rh, pw, ph, diag}:
+   l and r bow the left and right ends out (+) or in (-) by that many mm at their middle; c holds how far each
+   corner (tl, tr, br, bl) is moved from the flat face's corner, [right, down] in mm; rw, rh, pw, ph, diag are
+   the flat face's own pixels and size as typed in the card. The screen's own rw, rh, pw, ph then describe the
+   projector's raster: the upright box around the shape, at the face's pixel density, so every canvas, export
+   and spec uses the pixels the projector has to cover. */
+const CORNERS = ['tl', 'tr', 'br', 'bl'], CORNER_NAMES = {tl: 'Top left', tr: 'Top right', br: 'Bottom right', bl: 'Bottom left'};
+const SHAPE_STEPS = 48;
+function endArc(A, B, sag){
+  // Points from A to B on a circular arc whose middle sits sag mm out from the chord (+ = to the left of A→B
+  // turned outward, i.e. away from the screen), spaced evenly along the arc so deep curves stay round.
+  const len = Math.hypot(B[0] - A[0], B[1] - A[1]); if (len < 1e-6 || Math.abs(sag) < 1e-6) return [A, B];
+  const d = [(B[0] - A[0]) / len, (B[1] - A[1]) / len], n = [d[1], -d[0]], h = len / 2;
+  const a = Math.min(Math.abs(sag), h), sg = Math.sign(sag), R = (h * h + a * a) / (2 * a), phi = Math.atan2(h, R - a);
+  const M = [(A[0] + B[0]) / 2, (A[1] + B[1]) / 2], O = [M[0] + n[0] * sg * (a - R), M[1] + n[1] * sg * (a - R)], out = [];
+  for (let i = 0; i <= SHAPE_STEPS; i++){
+    const t = -phi + 2 * phi * i / SHAPE_STEPS, c = R * Math.cos(t), s = R * Math.sin(t);
+    out.push([O[0] + n[0] * sg * c + d[0] * s, O[1] + n[1] * sg * c + d[1] * s]);
+  }
+  out[0] = A; out[SHAPE_STEPS] = B; return out;
 }
-const maxCurve = f => f.ph / 2; // a half circle is as far as an end can bow
+const blankCorners = () => ({tl: [0, 0], tr: [0, 0], br: [0, 0], bl: [0, 0]});
+function faceCorners(f){ // the face's four corners in mm, with the flat face's top-left at 0, 0
+  const c = f.c || blankCorners(), at = (k, x, y) => [x + c[k][0], y + c[k][1]];
+  return {tl: at('tl', 0, 0), tr: at('tr', f.pw, 0), br: at('br', f.pw, f.ph), bl: at('bl', 0, f.ph)};
+}
+const endLen = (f, side) => { const q = faceCorners(f), A = side === 'l' ? q.bl : q.tr, B = side === 'l' ? q.tl : q.br; return Math.hypot(B[0] - A[0], B[1] - A[1]); };
+const maxCurve = (f, side) => endLen(f, side) / 2; // a half circle is as far as an end can bow
 function shapeGeom(f){
-  // The face outline in mm, turned by the angle, then moved so the box around it starts at 0, 0.
-  const W = f.pw, H = f.ph, cl = Math.max(-maxCurve(f), Math.min(maxCurve(f), f.l || 0)), cr = Math.max(-maxCurve(f), Math.min(maxCurve(f), f.r || 0));
-  let pts = [[-W / 2, -H / 2], ...endArc(W / 2, -H / 2, H / 2, cr), ...endArc(-W / 2, H / 2, -H / 2, -cl)];
-  const a = (f.a || 0) * Math.PI / 180, co = Math.cos(a), si = Math.sin(a);
-  pts = pts.map(([x, y]) => [x * co - y * si, x * si + y * co]);
+  // The face outline in mm, moved so the box around it starts at 0, 0. ox, oy: where the flat face's top-left sits in that box.
+  const q = faceCorners(f);
+  const pts = [q.tl, ...endArc(q.tr, q.br, f.r || 0), ...endArc(q.bl, q.tl, f.l || 0).slice(0, -1)];
   const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]), x0 = Math.min(...xs), y0 = Math.min(...ys);
-  return {pts: pts.map(([x, y]) => [x - x0, y - y0]), w: Math.max(...xs) - x0, h: Math.max(...ys) - y0};
+  return {pts: pts.map(([x, y]) => [x - x0, y - y0]), w: Math.max(...xs) - x0, h: Math.max(...ys) - y0, ox: -x0, oy: -y0,
+    corners: Object.fromEntries(CORNERS.map(k => [k, [q[k][0] - x0, q[k][1] - y0]]))};
 }
 const shapeOf = s => s.shape ? shapeGeom(s.shape) : null;
-const isShaped = f => !!(f && (f.l || f.r || f.a));
-function applyShape(s){
-  // Rework the raster from the face; the screen keeps its centre.
-  const f = s.shape, g = shapeGeom(f), cx = s.x + s.pw / 2, cy = s.y + s.ph / 2;
+const isShaped = f => !!(f && (f.l || f.r || (f.c && CORNERS.some(k => f.c[k][0] || f.c[k][1]))));
+const faceAt = s => { if (!s.shape) return {x: s.x, y: s.y}; const g = shapeOf(s); return {x: s.x + g.ox, y: s.y + g.oy}; };
+function applyShape(s, from){
+  // Rework the raster from the face. `from`: where the flat face's top-left was on the layout, kept in place.
+  const f = s.shape; f.l = Math.max(-maxCurve(f, 'l'), Math.min(maxCurve(f, 'l'), f.l || 0)); f.r = Math.max(-maxCurve(f, 'r'), Math.min(maxCurve(f, 'r'), f.r || 0));
+  const g = shapeGeom(f);
   s.rw = Math.max(1, Math.round(g.w * f.rw / f.pw)); s.rh = Math.max(1, Math.round(g.h * f.rh / f.ph));
   s.pw = g.w; s.ph = g.h; s.diag = Math.hypot(g.w, g.h);
-  s.x = cx - s.pw / 2; s.y = cy - s.ph / 2;
+  if (from){ s.x = from.x - g.ox; s.y = from.y - g.oy; }
 }
-function setShape(s, k, v){
-  // Change one of curve left / right / angle. Starts a shape from the flat screen, and goes back to flat at all zeros.
-  if (!s.shape){ const d = dims(s); s.shape = {l: 0, r: 0, a: 0, rw: s.rw, rh: s.rh, pw: d.w, ph: d.h, diag: Math.hypot(d.w, d.h)}; s.pw = d.w; s.ph = d.h; }
-  s.shape[k] = v;
-  if (isShaped(s.shape)) { applyShape(s); return; }
-  const f = s.shape, cx = s.x + s.pw / 2, cy = s.y + s.ph / 2;
-  Object.assign(s, {rw: f.rw, rh: f.rh, pw: f.pw, ph: f.ph, diag: f.diag}); delete s.shape;
-  s.x = cx - s.pw / 2; s.y = cy - s.ph / 2;
+function setShape(s, fn){
+  // Change the shape (fn edits s.shape). Starts one from the flat screen, and goes back to flat when nothing is left.
+  const at = faceAt(s);
+  if (!s.shape){ const d = dims(s); s.shape = {l: 0, r: 0, c: blankCorners(), rw: s.rw, rh: s.rh, pw: d.w, ph: d.h, diag: Math.hypot(d.w, d.h)}; s.pw = d.w; s.ph = d.h; }
+  fn(s.shape);
+  if (isShaped(s.shape)){ applyShape(s, at); return; }
+  const f = s.shape; Object.assign(s, {rw: f.rw, rh: f.rh, pw: f.pw, ph: f.ph, diag: f.diag, x: at.x, y: at.y}); delete s.shape;
 }
 // Outline of a shaped screen inside a box of w × h (in whatever units the box is drawn in).
 const shapePath = (s, x, y, w, h) => { const g = shapeOf(s); return g.pts.map(([px, py], i) => `${i ? 'L' : 'M'}${+(x + px / g.w * w).toFixed(3)} ${+(y + py / g.h * h).toFixed(3)}`).join('') + 'Z'; };
@@ -4029,7 +4046,8 @@ function sanitizeBase(o){
       applyLed(t);
     } else if (t.unset) t.unset = t.unset.filter(k => !['cw','ch','cpx','cpy'].includes(k));
     if (t.mode !== 'led' && !t.unset && s.shape && typeof s.shape === 'object'){
-      const f = s.shape, sh = {l: num(f.l, 0), r: num(f.r, 0), a: Math.max(-180, Math.min(180, num(f.a, 0))),
+      const f = s.shape, cn = f.c && typeof f.c === 'object' ? f.c : {}, sh = {l: num(f.l, 0), r: num(f.r, 0),
+        c: Object.fromEntries(CORNERS.map(k => [k, [num(cn[k] && cn[k][0], 0), num(cn[k] && cn[k][1], 0)]])),
         rw: Math.max(1, Math.round(num(f.rw, t.rw))), rh: Math.max(1, Math.round(num(f.rh, t.rh))), pw: Math.max(1, num(f.pw, t.pw)), ph: Math.max(1, num(f.ph, t.ph))};
       sh.diag = Math.max(1, num(f.diag, Math.hypot(sh.pw, sh.ph)));
       if (isShaped(sh)){ t.shape = sh; applyShape(t); }
@@ -4605,7 +4623,7 @@ function cardHTML(s){
     ${posHTML(s)}
     <div class="card-tools">
       ${S.match.on && !isRef && ready(s) ? '<button type="button" class="btn ghost" data-act="ref">Make reference</button>' : ''}
-      ${isLed ? '' : '<button type="button" class="btn ghost" data-act="rot">Rotate 90°</button>'}
+      ${isLed || s.shape ? '' : '<button type="button" class="btn ghost" data-act="rot">Rotate 90°</button>'}
       <button type="button" class="btn ghost" data-act="lock">${s.locked ? 'Unlock' : 'Lock'}</button>
       <button type="button" class="btn ghost" data-act="dup">Duplicate</button>
       <button type="button" class="btn ghost danger" data-act="del"${S.screens.length < 2 ? ' disabled' : ''}>Delete</button>
@@ -4613,16 +4631,22 @@ function cardHTML(s){
   </article>`;
 }
 const shapeOpen = new Set(); // screens whose Shape section is open
+const shapeSum = f => !f ? '' : [f.l ? `left ${f.l > 0 ? 'out' : 'in'} ${fmtLen(Math.abs(f.l))}` : '', f.r ? `right ${f.r > 0 ? 'out' : 'in'} ${fmtLen(Math.abs(f.r))}` : '',
+  CORNERS.some(k => f.c && (f.c[k][0] || f.c[k][1])) ? 'corners moved' : ''].filter(Boolean).join(' · ');
+let cornerEd = null; // the screen whose corner handles are showing on the layout
 function shapeHTML(s){
-  const f = s.shape || {l: 0, r: 0, a: 0}, num = (k, lbl, v, title) => `<label class="f" title="${title}">${lbl}<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" data-sk="${k}" value="${v}" placeholder="0"></label>`;
-  const sum = s.shape ? [f.l ? `left ${f.l > 0 ? 'out' : 'in'} ${fmtLen(Math.abs(f.l))}` : '', f.r ? `right ${f.r > 0 ? 'out' : 'in'} ${fmtLen(Math.abs(f.r))}` : '', f.a ? `${+f.a.toFixed(2)}°` : ''].filter(Boolean).join(' · ') : '';
-  return `<details class="more shape" data-shaped${shapeOpen.has(s.id) ? ' open' : ''}><summary>Shape${sum ? ' · ' + esc(sum) : ': curved ends, angle'}</summary>
-    <div class="row r3">
-      ${num('l', `Left end (${uLabel()})`, f.l ? val(f.l) : '', 'How far the middle of the left end bows: + curves out, − curves in')}
-      ${num('r', `Right end (${uLabel()})`, f.r ? val(f.r) : '', 'How far the middle of the right end bows: + curves out, − curves in')}
-      ${num('a', 'Angle (°)', f.a ? +f.a.toFixed(3) : '', 'Turns the screen: + clockwise, − counterclockwise')}
+  const f = s.shape || {l: 0, r: 0, c: blankCorners()}, sum = shapeSum(s.shape);
+  const box = (k, lbl, v, title) => `<label class="f" title="${title}">${lbl}<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" data-sk="${k}" value="${v ? val(v) : ''}" placeholder="0"></label>`;
+  const corner = k => `<div class="crow"><span>${CORNER_NAMES[k]}</span>${box(k + 'x', 'Right', f.c[k][0], `Move the ${CORNER_NAMES[k].toLowerCase()} corner right (+) or left (−)`)}${box(k + 'y', 'Down', f.c[k][1], `Move the ${CORNER_NAMES[k].toLowerCase()} corner down (+) or up (−)`)}</div>`;
+  return `<details class="more shape" data-shaped${shapeOpen.has(s.id) ? ' open' : ''}><summary>Shape${sum ? ' · ' + esc(sum) : ': curved ends, corners'}</summary>
+    <div class="row r2">
+      ${box('l', `Left end (${uLabel()})`, f.l, 'How far the middle of the left end bows: + curves out, − curves in')}
+      ${box('r', `Right end (${uLabel()})`, f.r, 'How far the middle of the right end bows: + curves out, − curves in')}
     </div>
-    <span class="hint">Ends: + curves out, − curves in, up to half the face height. Width and height above are the flat face; the projector covers the box around the shape.</span>
+    <span class="hint">Ends: + curves out, − curves in, up to half the end's length.</span>
+    <div class="corners"><span class="hint">Corners (${uLabel()}), moved from the flat face:</span>${CORNERS.map(corner).join('')}</div>
+    <div class="cut-foot"><label class="chkrow"><input type="checkbox" data-act="corners"${cornerEd === s.id ? ' checked' : ''}> Corner handles on the layout</label>${s.shape ? '<button type="button" class="btn" data-act="flat">Make flat</button>' : ''}</div>
+    <span class="hint">Width, height and pixels above are the flat face. The projector covers the box around the shape.</span>
   </details>`;
 }
 function derivedHTML(s){
@@ -4760,23 +4784,30 @@ function revealCard(id){
   else if (r.bottom > sr.bottom - 8) side.scrollTop += Math.min(r.bottom - sr.bottom + 8, r.top - sr.top - 8);
 }
 
-// Shape boxes: curve on each end (a length, + out / − in) and the angle in degrees.
+// Shape boxes: curve on each end (+ out / − in) and how far each corner is moved (right, down), all lengths.
+function shapeChanged(s, rebuild){
+  if (rebuild) keepPlace(() => { refreshAll(); });
+  else {
+    document.querySelectorAll(`.card[data-id="${s.id}"] [data-shaped] summary`).forEach(el => { el.textContent = 'Shape · ' + shapeSum(s.shape); });
+    S.screens.forEach(updateDerived); S.screens.forEach(syncPosInputs); renderSelects(); renderRef(); renderTable(); maybeFit(); renderStage();
+  }
+  save();
+}
 document.addEventListener('input', e => {
   const t = e.target, k = t.dataset && t.dataset.sk; if (!k || !t.closest('#list, #stageEd')) return;
   const s = getS(t.closest('.card').dataset.id); if (!s) return;
-  const raw = String(t.value).trim(), n = raw === '' || raw === '-' ? 0 : (k === 'a' ? parseFloat(raw) : parseLen(raw));
-  let ok = isFinite(n) && (k !== 'a' || Math.abs(n) <= 180);
-  const face = s.shape || {ph: dims(s).h}, mm = k === 'a' ? n : n * U().f;
-  if (ok && k !== 'a' && Math.abs(mm) > maxCurve(face) + 1e-6){ ok = false; toast(`An end can curve up to half the face height (${fmtLen(maxCurve(face))}).`); }
-  t.classList.toggle('bad', !ok); if (!ok) return;
-  const had = !!s.shape; setShape(s, k, mm); shapeOpen.add(s.id);
-  if (had !== !!s.shape) keepPlace(() => { refreshAll(); });
-  else {
-    const f = s.shape;
-    document.querySelectorAll(`.card[data-id="${s.id}"] [data-shaped] summary`).forEach(el => { el.textContent = 'Shape · ' + [f.l ? `left ${f.l > 0 ? 'out' : 'in'} ${fmtLen(Math.abs(f.l))}` : '', f.r ? `right ${f.r > 0 ? 'out' : 'in'} ${fmtLen(Math.abs(f.r))}` : '', f.a ? `${+f.a.toFixed(2)}°` : ''].filter(Boolean).join(' · '); });
-    document.querySelectorAll(`.card[data-id="${s.id}"] [data-sk="${k}"]`).forEach(i => { if (i !== t) i.value = t.value; });
-    S.screens.forEach(updateDerived); S.screens.forEach(syncPosInputs); renderSelects(); renderRef(); renderTable(); maybeFit(); renderStage(); save();
+  const raw = String(t.value).trim(), n = raw === '' || raw === '-' ? 0 : parseLen(raw), mm = n * U().f;
+  let ok = isFinite(n);
+  if (ok && (k === 'l' || k === 'r')){
+    const f = s.shape || {pw: dims(s).w, ph: dims(s).h, c: blankCorners()}, mx = maxCurve(f, k);
+    if (Math.abs(mm) > mx + 1e-6){ ok = false; toast(`An end can curve up to half its length (${fmtLen(mx)}).`); }
   }
+  t.classList.toggle('bad', !ok); if (!ok) return;
+  const had = !!s.shape;
+  setShape(s, f => { if (k === 'l' || k === 'r') f[k] = mm; else f.c[k.slice(0, 2)][k[2] === 'x' ? 0 : 1] = mm; });
+  shapeOpen.add(s.id);
+  document.querySelectorAll(`.card[data-id="${s.id}"] [data-sk="${k}"]`).forEach(i => { if (i !== t) i.value = t.value; });
+  shapeChanged(s, had !== !!s.shape);
 });
 // Card events are handled for both the left pane (#list) and the layout's edit panel (#stageEd).
 document.addEventListener('input', e => {
@@ -4805,7 +4836,7 @@ document.addEventListener('input', e => {
         s.unset = s.unset.filter(x => x === 'rw' || x === 'rh').concat(physUnset ? (v === 'diag' ? ['diag'] : ['pw', 'ph']) : []);
       }
     }
-    if (v === 'led' && s.shape){ setShape(s, 'l', 0); setShape(s, 'r', 0); setShape(s, 'a', 0); }
+    if (v === 'led' && s.shape){ setShape(s, f => { f.l = f.r = 0; f.c = blankCorners(); }); if (cornerEd === s.id) cornerEd = null; }
     const d = dims(s);
     if (v === 'led'){
       // Start from the nearest whole number of 500 × 500 cabinets, keeping the bottom edge in place.
@@ -4871,11 +4902,11 @@ document.addEventListener('input', e => {
   if (s.shape && ['rw', 'rh', 'pw', 'ph', 'diag'].includes(k)){
     // Shaped screen: the boxes are the flat face; the raster around it is worked out again.
     const f = s.shape;
+    const at = faceAt(s);
     if (k === 'rw' || k === 'rh') f[k] = Math.max(1, Math.round(n)); else f[k] = n * U().f;
     if (k === 'diag' || ((k === 'rw' || k === 'rh') && s.mode === 'diag')){ const r = Math.hypot(f.rw, f.rh); f.pw = f.diag * f.rw / r; f.ph = f.diag * f.rh / r; }
     if (k === 'pw' || k === 'ph') f.diag = Math.hypot(f.pw, f.ph);
-    f.l = Math.max(-maxCurve(f), Math.min(maxCurve(f), f.l)); f.r = Math.max(-maxCurve(f), Math.min(maxCurve(f), f.r));
-    applyShape(s);
+    applyShape(s, at); // curves too deep for the new size are cut back to a half circle
     S.screens.forEach(updateDerived); S.screens.forEach(syncPosInputs);
     maybeFit(); renderStage(); renderTable(); renderRef(); save(); return;
   }
@@ -4917,8 +4948,9 @@ document.addEventListener('click', e => {
   }
   if (act === 'cutclear'){ delete s.led.off; afterCut(s, true); toast('All cabinets restored'); return; }
   if (act === 'ref'){ S.match.ref = s.id; refreshAll(); }
-  if (act === 'rot' && s.shape){ setShape(s, 'a', ((s.shape.a + 90 + 180) % 360 + 360) % 360 - 180); refreshAll(); maybeFit(); }
-  else if (act === 'rot'){
+  if (act === 'corners'){ cornerEd = b.checked ? s.id : null; document.querySelectorAll('[data-act="corners"]').forEach(i => { i.checked = cornerEd === i.closest('.card').dataset.id; }); renderStage(); return; }
+  if (act === 'flat'){ setShape(s, f => { f.l = f.r = 0; f.c = blankCorners(); }); cornerEd = cornerEd === s.id ? null : cornerEd; refreshAll(); maybeFit(); toast('Screen is flat again'); return; }
+  if (act === 'rot'){
     const d = dims(s), cx = s.x + d.w / 2, cy = s.y + d.h / 2;
     [s.rw, s.rh] = [s.rh, s.rw]; [s.pw, s.ph] = [s.ph, s.pw];
     const n = dims(s); s.x = cx - n.w / 2; s.y = cy - n.h / 2;
@@ -5349,6 +5381,14 @@ function scheduleStage(){
   if (rafId) return;
   rafId = requestAnimationFrame(() => { rafId = 0; renderStage(); if (drag && drag.s) (getO(drag.s.id) ? syncObjInputs : syncPosInputs)(drag.s); });
 }
+// Corner handles: a square on each corner of the screen face. Drag one to move that corner (to the nearest inch,
+// or centimetre in meters); the exact amounts are in the card's Shape section.
+function cornerHandles(s, ut, u){
+  const q = s.shape ? (g => Object.fromEntries(CORNERS.map(k => [k, [s.x + g.corners[k][0], s.y + g.corners[k][1]]])))(shapeOf(s))
+    : {tl: [s.x, s.y], tr: [s.x + s.pw, s.y], br: [s.x + s.pw, s.y + s.ph], bl: [s.x, s.y + s.ph]};
+  const r = ut * 0.75;
+  return CORNERS.map(k => `<g class="chandle" data-corner="${k}" data-csid="${s.id}"><circle cx="${q[k][0]}" cy="${q[k][1]}" r="${r * 2}" fill="transparent"/><rect x="${q[k][0] - r / 2}" y="${q[k][1] - r / 2}" width="${r}" height="${r}" fill="#fff" stroke="${s.color}" stroke-width="${u * .25}"><title>${CORNER_NAMES[k]} corner: drag to move it</title></rect></g>`).join('');
+}
 function renderStage(){
   keepObjCentered();
   if (!view) fitView();
@@ -5440,6 +5480,7 @@ function renderStage(){
     if (sel || multi.has(s.id)) onTop += `<rect x="${s.x - u * .7}" y="${s.y - u * .7}" width="${d.w + u * 1.4}" height="${d.h + u * 1.4}" fill="none" stroke="${sel ? 'var(--stage-ink)' : 'var(--accent)'}" stroke-width="${u * .12}" stroke-dasharray="${u * .8} ${u * .5}" pointer-events="none"/>`;
     if (s.locked) onTop += lockSVG(s.x + d.w - ut * 1.3, s.y - ut * 2.4, ut * 0.11);
     if (sel || S.allDims) onTop += dimLines(s, d, c, ut, u);
+    if (cornerEd === s.id) onTop += cornerHandles(s, ut, u);
   }
   ovList = computeOverlaps();
   for (const o of S.objects) out += objSVG(o, u, ut); // objects always sit in front of every screen
@@ -6026,6 +6067,15 @@ svg.addEventListener('pointerdown', e => {
     try { svg.setPointerCapture(e.pointerId); } catch (err) {} svg.focus({preventScroll:true}); renderStage();
     return;
   }
+  const ch = e.target.closest('[data-corner]'), cs = ch && getS(ch.dataset.csid);
+  if (cs){
+    if (cs.locked){ toast(`${cs.label || 'This screen'} is locked. Unlock it to move its corners.`); return; }
+    const p = svgPt(e), k = ch.dataset.corner;
+    histCommit(); // typing just before is its own undo step, apart from this drag
+    drag = {corner: k, s: cs, px: p.x, py: p.y, o: cs.shape ? cs.shape.c[k].slice() : [0, 0], moved: false};
+    try { svg.setPointerCapture(e.pointerId); } catch (err) {} svg.classList.add('dragging'); svg.focus({preventScroll:true});
+    return;
+  }
   const hitO = e.target.closest('[data-oid]'), hitS = e.target.closest('[data-sid]'), hitN = e.target.closest('[data-nid]');
   lastDown = hitN ? {nid: hitN.dataset.nid} : hitO ? {oid: hitO.dataset.oid} : hitS ? {sid: hitS.dataset.sid} : null;
   const gl = e.target.closest('[data-gap]');
@@ -6115,6 +6165,13 @@ svg.addEventListener('pointermove', e => {
   let ddx = p.x - drag.px, ddy = p.y - drag.py, straight = null;
   if (e.shiftKey && !drag.gnd && !drag.resize){ straight = Math.abs(ddx) >= Math.abs(ddy) ? 'x' : 'y'; if (straight === 'x') ddy = 0; else ddx = 0; }
   if (drag.gnd){ S.ground.y = drag.oy + (p.y - drag.py); drag.moved = true; snapGround(); S.ground.y = Math.max(S.ground.y, groundFloor()); /* can't be dragged up through a screen or object */ scheduleStage(); return; }
+  if (drag.corner){
+    const step = S.unit === 'm' ? 10 : 25.4, k = drag.corner; // whole inches, or centimetres
+    const nx = Math.round((drag.o[0] + ddx) / step) * step, ny = Math.round((drag.o[1] + ddy) / step) * step;
+    const cur = drag.s.shape ? drag.s.shape.c[k] : [0, 0];
+    if (cur[0] !== nx || cur[1] !== ny){ setShape(drag.s, f => { f.c[k] = [nx, ny]; }); drag.moved = true; scheduleStage(); }
+    return;
+  }
   if (drag.note){
     const n = drag.note;
     if (drag.resize) n.w = Math.max(n.size * 4, drag.ow + (p.x - drag.px));
@@ -6148,6 +6205,7 @@ function endDrag(){
   }
   if (pan){ const p = pan; pan = null; svg.classList.remove('panning'); if (!p.moved && !p.locked && multi.size){ multi.clear(); renderStage(); } return; }
   if (!drag) return;
+  if (drag.corner){ const s = drag.s, moved = drag.moved; drag = null; svg.classList.remove('dragging'); if (moved){ shapeOpen.add(s.id); keepPlace(() => refreshAll()); maybeFit(); save(); } return; }
   if (drag.gnd || drag.note){ const moved = drag.moved; drag = null; svg.classList.remove('dragging'); if (moved){ maybeFit(); renderTable(); save(); } return; }
   const s = drag.s, moved = drag.moved, others = drag.others || []; drag = null; svg.classList.remove('dragging');
   S.screens.forEach(syncPosInputs); // canvas pixel positions of other screens can shift too
@@ -6370,6 +6428,8 @@ svg.addEventListener('contextmenu', e => {
         return [{label: isOff ? `Put back ${nm}` : `Remove ${nm}`, run: () => { setOff(s, cell.c, cell.r, !isOff); afterCut(s, true); }},
           ...(offCount(s) ? [{label: 'Restore all cabinets', run: () => { delete s.led.off; afterCut(s, true); }}] : [])];
       })(),
+      ...(s.mode !== 'led' && ready(s) ? [{label: cornerEd === s.id ? 'Hide corner handles' : 'Show corner handles', run: () => { cornerEd = cornerEd === s.id ? null : s.id; if (cornerEd){ shapeOpen.add(s.id); selectScreen(s.id); } refreshAll(); }},
+        ...(s.shape ? [{label: 'Make flat', run: () => cardAct(s.id, 'flat')}] : [])] : []),
       {label: 'Duplicate', run: () => cardAct(s.id, 'dup')},
       {label: 'Bring to front', run: () => bringToFront(s)},
       {label: 'Send to back', run: () => sendToBack(s)},
@@ -6854,7 +6914,7 @@ function contentCanvasJSON(id){
         pixelsPerInch: +(density(s).x * 25.4).toFixed(2), type: s.mode === 'led' ? 'led' : 'display', color: s.color, id: s.id};
       const cover = computeObjOverlaps().filter(o => o.s === s && o.px);
       if (s.shape){ const g = shapeOf(s), f = s.shape;
-        out.shape = {leftEndCurveMm: +f.l.toFixed(1), rightEndCurveMm: +f.r.toFixed(1), angleDeg: +f.a.toFixed(3), faceWidthMm: +f.pw.toFixed(1), faceHeightMm: +f.ph.toFixed(1),
+        out.shape = {leftEndCurveMm: +f.l.toFixed(1), rightEndCurveMm: +f.r.toFixed(1), cornerMovesMm: Object.fromEntries(CORNERS.map(k => [k, f.c[k].map(v => +v.toFixed(1))])), faceWidthMm: +f.pw.toFixed(1), faceHeightMm: +f.ph.toFixed(1),
           faceNativeWidth: f.rw, faceNativeHeight: f.rh, outline: g.pts.map(([x, y]) => [+(x / g.w).toFixed(5), +(y / g.h).toFixed(5)])}; }
       if (cover.length) out.coveredBy = cover.map(o => ({object: o.ob.label || 'Object', x: o.px.x, y: o.px.y, width: o.px.w, height: o.px.h}));
       if (s.mode === 'led'){
