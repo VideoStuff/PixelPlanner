@@ -28,7 +28,7 @@ It is a single web page (`index.html`). Nothing to install: open it in a current
 - Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.
 - **Picture library**: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's `.json`, and shown in the PowerPoint and Excel exports.
 - Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.
-- Exports to PowerPoint and Excel.
+- Exports to PowerPoint and Excel, a PNG sheet with every preset of the layout one under the other, and a PDF summary: a cover listing every preset (PiPs, screens used, notes), then a page per preset with its picture, notes and a table of its PiPs in each screen's pixels.
 
 ### Exports
 - Canvas export PNG at exact pixel size, layout snapshot, layout summary and test patterns.

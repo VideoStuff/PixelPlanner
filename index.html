@@ -764,7 +764,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <h3>Screen Builder</h3>
 <ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>LED wall cutouts</strong>: remove cabinets in a wall's <strong>Cutouts</strong> map (or right-click a cabinet). They become holes, as if the cabinets weren't there: a screen placed behind the wall (lower in the Screens list) shows through them on the layout, in every export and in the Preset Guide, and PiPs in the hole count on the screen behind. Overlaps leave out the holes in either wall: only the strips where the screen behind tucks under remaining cabinets count, each measured across its narrow side, with one label per pair of screens.</li><li><strong>Curved and reshaped projection screens</strong>: in a screen's <strong>Shape</strong> section, bow each end out (+) or in (−) by typing an amount or using its slider (from fully in to fully out: half the end's length, so ±7.5 ft on a 15 ft high screen), and move any corner by an exact amount. Or turn on <strong>Corner handles</strong> (also in the screen's right-click menu) and drag the corners on the layout, to the nearest inch. The width, height and pixels you type are the flat face; PixelPlanner works out the projector raster (the upright box around the shape, at the face's pixel density) and uses it for the canvas and every export, with the part off the screen face shaded.</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li><strong>Options → Clear layout…</strong> (or right-click the layout or its tab) removes every screen, object and note from the open layout after you confirm, so you can build it again from the first screen. A layout can have no screens.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
 <h3>Preset Guide</h3>
-<ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock. <strong>+ New</strong> and <strong>Duplicate</strong> ask for the preset's name; leave it blank for "Preset" and its number.</li><li>Quick layouts: right-click a screen and choose <strong>Create… → Quick layout</strong> to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.</li><li>Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.</li><li><strong>Page Up / Page Down</strong> step through presets.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li>Exports to PowerPoint and Excel.</li></ul>
+<ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock. <strong>+ New</strong> and <strong>Duplicate</strong> ask for the preset's name; leave it blank for "Preset" and its number.</li><li>Quick layouts: right-click a screen and choose <strong>Create… → Quick layout</strong> to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.</li><li>Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.</li><li><strong>Page Up / Page Down</strong> step through presets.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li>Exports to PowerPoint and Excel, a PNG sheet with every preset of the layout one under the other, and a PDF summary: a cover listing every preset (PiPs, screens used, notes), then a page per preset with its picture, notes and a table of its PiPs in each screen's pixels.</li></ul>
 <h3>Exports</h3>
 <ul><li>Canvas export PNG at exact pixel size, layout snapshot, layout summary and test patterns.</li><li>PDF spec pack, PowerPoint template, layered PSD and SVG.</li><li>Spec sheet as CSV.</li><li>Switcher planning <code>.xml</code> (screens, layers and auxes).</li><li><strong>Advanced → EDID (experimental):</strong> an EDID <code>.bin</code> for a screen, with connector, refresh rate, CVT blanking and a split across outputs. Check results on your hardware before you rely on them.</li></ul>
 <h2>Using it</h2>
@@ -1084,6 +1084,8 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
   <button class="btn danger" id="btnResetAll" title="Remove every preset and PiP and start again with the Screen Builder screens">Reset presets</button>
   <button class="btn primary" id="btnPptx" title="One slide per preset, with every screen and its measurements">Export PowerPoint</button>
   <button class="btn primary" id="btnXlsx">Export Excel</button>
+  <button class="btn primary" id="btnPng" title="One PNG with every preset of this layout, one under the other">Export PNG</button>
+  <button class="btn primary" id="btnPdf" title="A PDF summary: a cover listing every preset, then a page per preset with its picture and its PiPs in pixels">Export PDF</button>
   <input type="file" id="fileProject" accept=".json,application/json" hidden>
 </div>
 <div class="status" id="status" role="status"></div>
@@ -1193,6 +1195,7 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
     <div id="optThumbsRow" style="display:flex;flex-direction:column;gap:4px">
       <div style="display:flex;align-items:center"><label class="chk"><input type="checkbox" id="optThumbs" checked> Screen thumbnails</label><button type="button" class="info" data-tip="Adds a picture of each screen, with its PiPs, to the preset columns on the Presets sheet. The PiP names stay as text under each picture." aria-label="About screen thumbnails">i</button></div>
     </div>
+    <label class="lbl" id="optPageRow" hidden>Page size<select id="optPage" class="field"><option value="letter">Letter (landscape)</option><option value="tabloid">Tabloid 11 × 17 (landscape)</option><option value="a4">A4 (landscape)</option><option value="a3">A3 (landscape)</option></select></label>
     <div style="display:flex;align-items:center"><label class="chk"><input type="checkbox" id="optObjs" checked> Include objects</label><button type="button" class="info" data-tip="Every object from the Screen Builder. Leave it off for clean screens with only the PiPs." aria-label="About including objects">i</button></div>
     <div class="row" style="justify-content:flex-end">
       <button class="btn" id="expCancel">Cancel</button>
@@ -3410,16 +3413,22 @@ async function buildWorkbook(){
 let expKind='xlsx';
 const expObjects=()=>S.expObjects!==false;
 function openExport(kind){
-  expKind=kind; $('expTitle').textContent=kind==='pptx'?'Export PowerPoint':'Export Excel';
+  expKind=kind; $('expTitle').textContent=kind==='pptx'?'Export PowerPoint':kind==='png'?'Export PNG of every preset':kind==='pdf'?'Export PDF summary of the presets':'Export Excel';
+  $('optPageRow').hidden=kind!=='pdf'; $('optPage').value=S.pdfPage||'letter';
   $('optThumbsRow').hidden=kind!=='xlsx'; $('optObjs').checked=expObjects();
   $('dlgExport').showModal(); $('expGo').focus();
 }
 $('optObjs').onchange=e=>{S.expObjects=e.target.checked; touch();};
 $('btnXlsx').onclick=()=>openExport('xlsx');
+$('btnPng').onclick=()=>openExport('png');
+$('btnPdf').onclick=()=>openExport('pdf');
+$('optPage').onchange=e=>{S.pdfPage=e.target.value; touch();};
 $('expCancel').onclick=()=>$('dlgExport').close();
 $('expGo').onclick=async()=>{
   $('dlgExport').close();
   if(expKind==='pptx') return exportPptx();
+  if(expKind==='png') return exportPng();
+  if(expKind==='pdf') return exportPresetPdf();
   await ensureLib('ExcelJS',EXCELJS_URLS);
   if(typeof ExcelJS==='undefined'){say('The Excel library did not load. Check the connection and reload.','err');return;}
   try{
@@ -3551,6 +3560,158 @@ async function buildPptx(){
   return pptx;
 }
 $('btnPptx').onclick=()=>openExport('pptx');
+/* A preset drawn on a canvas: the screens back to front (cutouts open and outlined, curved faces outlined), the PiPs with
+   their names and pictures, then the objects in front. X and Y map the layout to the drawing; sc is its scale. */
+function presetArea(objs){
+  const boxes=[...S.screens,...objs.map(o=>({x:o.x,y:o.y,w:o.w,h:o.h}))];
+  for(const P of S.presets) for(const p of P.pips) for(const r of [p,mirrorRect(p)]) if(r) boxes.push(r);
+  const x0=Math.min(...boxes.map(b=>b.x)), y0=Math.min(...boxes.map(b=>b.y));
+  return {x0,y0,w:Math.max(...boxes.map(b=>b.x+b.w))-x0,h:Math.max(...boxes.map(b=>b.y+b.h))-y0};
+}
+function drawPresetBody(g,P,X,Y,sc,objs){
+  const F='"Barlow","Arial",sans-serif';
+  for(const s of S.screens){
+    const x=X(s.x), y=Y(s.y), w=s.w*sc, h=s.h*sc, hs=holesOf(s);
+    g.save(); g.beginPath(); g.rect(x,y,w,h); for(const q of hs) g.rect(X(q.x),Y(q.y),q.w*sc,q.h*sc);
+    g.fillStyle='#1c2330'; g.fill('evenodd'); g.restore();
+    g.strokeStyle='#5d6b80'; g.lineWidth=2; g.strokeRect(x+1,y+1,w-2,h-2);
+    if(hs.length){ g.setLineDash([8,6]); g.strokeStyle='#8e98a6'; g.lineWidth=1.5; for(const q of hs) g.strokeRect(X(q.x)+1,Y(q.y)+1,q.w*sc-2,q.h*sc-2); g.setLineDash([]); }   /* a cutout: see-through, outlined */
+    if(s.outline){ g.beginPath(); s.outline.forEach((q,i)=>g[i?'lineTo':'moveTo'](x+q[0]*w,y+q[1]*h)); g.closePath(); g.setLineDash([10,6]); g.strokeStyle='#8e98a6'; g.lineWidth=2; g.stroke(); g.setLineDash([]); }
+    const fs=Math.max(12,Math.min(22,h*0.09,w/Math.max(8,sname(s).length*0.62)));
+    g.fillStyle='#8e98a6'; g.font=`600 ${fs}px ${F}`; g.textBaseline='top'; g.textAlign='left'; g.fillText(sname(s).toUpperCase(),x+8,y+7);
+  }
+  P.pips.forEach((p,i)=>{
+    const nm=pname(p,i);
+    for(const r of [p,mirrorRect(p)]){ if(!r) continue;
+      const q={x:X(r.x),y:Y(r.y),w:r.w*sc,h:r.h*sc}, pic=p.img&&IMGS.get(p.img);
+      if(pic) drawPic(g,pic,q,p.fit);
+      g.globalAlpha=pic?.18:.6; g.fillStyle=p.color; g.fillRect(q.x,q.y,q.w,q.h); g.globalAlpha=1;
+      g.strokeStyle=p.color; g.lineWidth=3; g.strokeRect(q.x+1.5,q.y+1.5,q.w-3,q.h-3);
+      if(pic&&nameOff(p)) continue;
+      const fs=Math.max(11,Math.min(40,q.h*0.32,q.w/Math.max(4,nm.length*0.6)));
+      g.font=`700 ${fs}px ${F}`; g.textAlign='center'; g.textBaseline='middle'; g.lineJoin='round';
+      g.lineWidth=Math.max(2,fs/7); g.strokeStyle='rgba(0,0,0,.75)'; g.strokeText(nm,q.x+q.w/2,q.y+q.h/2,q.w-6);
+      g.fillStyle='#fff'; g.fillText(nm,q.x+q.w/2,q.y+q.h/2,q.w-6); g.textAlign='left';
+    }
+  });
+  for(const o of objs){
+    const pts=bobjPts(o); g.beginPath(); pts.forEach(([px,py],i)=>g[i?'lineTo':'moveTo'](X(px),Y(py))); g.closePath();
+    g.globalAlpha=o.imported?.55:.8; g.fillStyle=o.color||'#6b3a3a'; g.fill(); g.globalAlpha=1;
+    if(o.imported){ g.setLineDash([8,6]); g.strokeStyle='#e5484d'; g.lineWidth=2; g.stroke(); g.setLineDash([]); }
+  }
+}
+/* One PNG sheet with every preset of this layout, one under the other: its number and name, then the preset. */
+async function buildPresetSheet(){
+  syncAutoNames(); await picsReady();
+  if(!S.screens.length) throw new Error('there are no screens in this layout');
+  const objs=allObjects(), A=presetArea(objs);
+  const n=S.presets.length, M=60, HEAD=150, PH=84, GAP=56;
+  let W=2400, sc=(W-2*M)/A.w;
+  if(A.h*sc>1100) sc=1100/A.h;                                   /* very tall layouts: keep each preset to a sensible height */
+  let rowH=PH+A.h*sc+GAP, H=Math.round(HEAD+n*rowH+M);
+  if(H>30000){ sc*=30000/H; rowH=PH+A.h*sc+GAP; H=Math.round(HEAD+n*rowH+M); }   /* stay inside the browser's canvas limit */
+  const cv=document.createElement('canvas'); cv.width=W; cv.height=H; const g=cv.getContext('2d');
+  const F='"Barlow","Arial",sans-serif', MONO='"JetBrains Mono",Consolas,monospace';
+  g.fillStyle='#0f1217'; g.fillRect(0,0,W,H);
+  g.fillStyle='#eef1f5'; g.font=`700 52px ${F}`; g.textBaseline='alphabetic'; g.fillText(sheetTitle(),M,M+46);
+  g.fillStyle='#8e98a6'; g.font=`500 24px ${F}`; g.fillText(`Preset guide · ${n} preset${n===1?'':'s'} · ${new Date().toLocaleDateString()}`,M,M+84);
+  S.presets.forEach((P,k)=>{
+    const top=HEAD+k*rowH;
+    g.fillStyle='#2a3240'; g.fillRect(M,top+8,W-2*M,2);
+    g.fillStyle='#4db8e4'; g.font=`700 34px ${MONO}`; g.textBaseline='alphabetic'; const num=presetNum(P,k); g.fillText(num,M,top+58);
+    const nx=M+g.measureText(num).width+22; g.fillStyle='#eef1f5'; g.font=`700 38px ${F}`; g.fillText(P.name||'Untitled',nx,top+58);
+    const nw=g.measureText(P.name||'Untitled').width; g.fillStyle='#8e98a6'; g.font=`500 24px ${F}`; g.fillText(`${P.pips.length} PiP${P.pips.length===1?'':'s'}`,nx+nw+22,top+58);
+    drawPresetBody(g,P,x=>M+(x-A.x0)*sc,y=>top+PH+(y-A.y0)*sc,sc,objs);
+  });
+  return cv;
+}
+const sheetTitle=()=>{const lay=PP.canvases.find(c=>c&&c.layoutId===S.srcLayout); return (S.name||PP.name||'Show')+(lay&&PP.canvases.length>1?' · '+(lay.layout||''):'');};
+/* Where each PiP (and its mirror copy) lands, in each screen's own pixels: rows for the PDF's PiP tables. */
+function pipTable(P){
+  const rows=[];
+  P.pips.forEach((p,i)=>{
+    const nm=pname(p,i), pic=p.img&&IMGS.get(p.img);
+    [[p,''],[mirrorRect(p),' (mirror)']].forEach(([r,tag])=>{ if(!r) return;
+      const hits=screensFor(r);
+      if(!hits.length){ rows.push([nm+tag,'not on a screen','','','',pic?pic.name||'':'']); return; }
+      for(const {s,i:ix} of hits){ const n=nativeRes(s), at=pipAt(ix,s);   /* where this part of the PiP lands on the screen, and its size there */
+        rows.push([nm+tag,sname(s),String(at.x),String(at.y),`${round(ix.w/s.w*n.w)} × ${round(ix.h/s.h*n.h)}`,pic?pic.name||'':'']); }
+    });
+  });
+  return rows;
+}
+/* PDF summary of the presets: a cover listing every preset, then a page per preset (its picture, notes and PiP table),
+   continued on more pages when the table is long. White pages, written by the Screen Builder's PDF writer. */
+async function exportPresetPdf(){
+  try{
+    const writer=parent&&parent.__ppWritePDF; if(!writer) throw new Error('the PDF writer is not available');
+    if(!S.screens.length) throw new Error('there are no screens in this layout');
+    say('Drawing the PDF pages…'); syncAutoNames(); await picsReady();
+    const SIZES={letter:[792,612],tabloid:[1224,792],a4:[842,595],a3:[1191,842]}, [pw,ph]=SIZES[S.pdfPage]||SIZES.letter;
+    const DPI=200, W=Math.round(pw/72*DPI), H=Math.round(ph/72*DPI), M=Math.round(DPI*0.45);
+    const INK='#1A1F26', MUTED='#5A6473', LINE='#C9CFD8', ACC='#0A6C97', F='"Barlow","Arial",sans-serif', MONO='"JetBrains Mono",Consolas,monospace';
+    const objs=allObjects(), A=presetArea(objs), title=sheetTitle(), date=new Date().toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'});
+    const fs=DPI*0.12, rowH=fs*2, top=M+DPI*0.6, bottom=H-M*0.7-DPI*0.3;
+    /* plan the pages first, so every footer can say "Page n of m" */
+    const cover=S.presets.map((P,k)=>{const used=[...new Set(P.pips.flatMap(p=>[p,mirrorRect(p)].filter(Boolean).flatMap(r=>screensFor(r).map(h=>sname(h.s)))))];
+      return [presetNum(P,k),P.name||'Untitled',String(P.pips.length),used.join(', ')||'—',(P.notes||'').replace(/\s+/g,' ').trim()||'—'];});
+    const perCover=Math.max(1,Math.floor((bottom-(top+DPI*0.9))/rowH)-1), plan=[];
+    for(let i=0;i<Math.max(1,cover.length);i+=perCover) plan.push({kind:'cover',rows:cover.slice(i,i+perCover),cont:i>0});
+    const picH=Math.min((H-top-M)*0.52,(W-2*M)*A.h/A.w), firstRows=Math.max(1,Math.floor((bottom-(top+picH+DPI*0.55))/rowH)-1), moreRows=Math.max(1,Math.floor((bottom-top-DPI*0.2)/rowH)-1);
+    S.presets.forEach((P,k)=>{ const rows=pipTable(P); plan.push({kind:'preset',P,k,rows:rows.slice(0,firstRows),pic:true});
+      for(let i=firstRows;i<rows.length;i+=moreRows) plan.push({kind:'preset',P,k,rows:rows.slice(i,i+moreRows),cont:true}); });
+    const table=(c,y,head,rows,widths)=>{   /* a simple table; widths are shares of the page width; long text is cut with … */
+      const tw=W-2*M, xs=widths.reduce((a,w)=>(a.push(a[a.length-1]+w*tw),a),[M]);
+      const fit=(s,w)=>{ if(c.measureText(s).width<=w) return s; while(s.length>1&&c.measureText(s+'…').width>w) s=s.slice(0,-1); return s+'…'; };
+      c.textBaseline='middle'; c.font=`700 ${fs*.85}px ${F}`; c.fillStyle=MUTED;
+      head.forEach((h,i)=>c.fillText(fit(h.toUpperCase(),xs[i+1]-xs[i]-fs*.6),xs[i]+fs*.3,y+rowH/2));
+      c.strokeStyle=LINE; c.lineWidth=2; c.beginPath(); c.moveTo(M,y+rowH); c.lineTo(W-M,y+rowH); c.stroke();
+      rows.forEach((r,j)=>{ const ry=y+rowH*(j+1); if(j%2){ c.fillStyle='#F4F6F8'; c.fillRect(M,ry,tw,rowH); }
+        r.forEach((v,i)=>{ c.fillStyle=INK; c.font=`500 ${fs}px ${/^[\d ×—]+$/.test(v)?MONO:F}`; c.fillText(fit(String(v),xs[i+1]-xs[i]-fs*.6),xs[i]+fs*.3,ry+rowH/2); }); });
+      return y+rowH*(rows.length+1);
+    };
+    const pages=plan.map((pg,idx)=>{
+      const cv=document.createElement('canvas'); cv.width=W; cv.height=H; const c=cv.getContext('2d');
+      c.fillStyle='#FFFFFF'; c.fillRect(0,0,W,H); c.textAlign='left'; c.textBaseline='alphabetic';
+      const heading=pg.kind==='cover'?'Preset guide':`${presetNum(pg.P,pg.k)} · ${pg.P.name||'Untitled'}`;
+      c.fillStyle=pg.kind==='cover'?INK:ACC; c.font=`700 ${DPI*0.26}px ${F}`; c.fillText(heading+(pg.cont?' (continued)':''),M,M+DPI*0.22);
+      c.fillStyle=MUTED; c.font=`500 ${DPI*0.12}px ${F}`;
+      c.fillText((pg.kind==='cover'?`${S.presets.length} preset${S.presets.length===1?'':'s'} · ${S.screens.length} screen${S.screens.length===1?'':'s'}`:`${pg.P.pips.length} PiP${pg.P.pips.length===1?'':'s'}`).toUpperCase(),M,M+DPI*0.42);
+      c.textAlign='right'; c.font=`500 ${DPI*0.1}px ${MONO}`; c.fillText(title,W-M,M+DPI*0.22); c.textAlign='left';
+      c.strokeStyle=LINE; c.lineWidth=3; c.beginPath(); c.moveTo(M,top-DPI*0.05); c.lineTo(W-M,top-DPI*0.05); c.stroke();
+      const fy=H-M*0.7; c.beginPath(); c.moveTo(M,fy-DPI*0.16); c.lineTo(W-M,fy-DPI*0.16); c.stroke();
+      c.fillStyle=MUTED; c.font=`500 ${DPI*0.09}px ${MONO}`; c.fillText(date+' · PixelPlanner',M,fy); c.textAlign='right'; c.fillText(`Page ${idx+1} of ${plan.length}`,W-M,fy); c.textAlign='left';
+      if(pg.kind==='cover'){
+        let y=top+DPI*0.15;
+        if(!pg.cont){ c.fillStyle=INK; c.font=`700 ${DPI*0.36}px ${F}`; c.textBaseline='alphabetic'; c.fillText(title,M,y+DPI*0.36); y+=DPI*0.65; }
+        table(c,y,['#','Preset','PiPs','Screens used','Notes'],pg.rows,[0.06,0.22,0.07,0.3,0.35]);
+      }else{
+        let y=top+DPI*0.1;
+        if(pg.pic){   /* the preset, dark on the white page */
+          const sc=Math.min((W-2*M)/A.w,picH/A.h), dw=A.w*sc, dh=A.h*sc, ox=M+(W-2*M-dw)/2, pad=DPI*0.06;
+          c.fillStyle='#0f1217'; c.fillRect(ox-pad,y-pad,dw+pad*2,dh+pad*2);
+          drawPresetBody(c,pg.P,x=>ox+(x-A.x0)*sc,v=>y+(v-A.y0)*sc,sc,objs);
+          y+=dh+pad+DPI*0.15;
+          const notes=(pg.P.notes||'').replace(/\s+/g,' ').trim();
+          if(notes){ c.fillStyle=MUTED; c.font=`500 ${fs}px ${F}`; c.textBaseline='middle'; let s=notes; while(s.length>1&&c.measureText('Notes: '+s).width>W-2*M) s=s.slice(0,-1); c.fillText('Notes: '+s+(s===notes?'':'…'),M,y+fs*.6); y+=fs*1.8; }
+        }
+        if(pg.rows.length) table(c,y,['PiP','Screen','X (px)','Y (px)','Size (px)','Picture'],pg.rows,[0.24,0.24,0.1,0.1,0.14,0.18]);
+        else{ c.fillStyle=MUTED; c.font=`500 ${fs}px ${F}`; c.textBaseline='middle'; c.fillText('No PiPs in this preset.',M,y+rowH/2); }
+      }
+      return {cv,w:pw,h:ph};
+    });
+    say('Writing the PDF…');
+    const blob=await writer(pages,title+' presets');
+    await offer(safeName((S.name||'Show')+' presets','.pdf'),await blob.arrayBuffer());
+  }catch(e){say('Could not build the PDF: '+(e.message==='nocompress'?'this browser cannot compress PDF images; try a current Chrome, Edge, Firefox or Safari':e.message),'err');}
+}
+async function exportPng(){
+  try{
+    say('Drawing every preset…');
+    const cv=await buildPresetSheet(), blob=await new Promise(r=>cv.toBlob(r,'image/png'));
+    await offer(safeName((S.name||'Show')+' presets','.png'),await blob.arrayBuffer());
+  }catch(e){say('Could not build the PNG: '+e.message,'err');}
+}
 async function exportPptx(){
   try{
     say('Loading the PowerPoint library…');
@@ -3798,8 +3959,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.86.html). Bump it with every release.
-const APP_VERSION = '3.86';
+// (pixelplanner-v3.87.html). Bump it with every release.
+const APP_VERSION = '3.87';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
@@ -7849,6 +8010,7 @@ async function writePDF(pages, title, onStep){
   w(`trailer\n<< /Size ${size} /Root 1 0 R /Info ${info} 0 R >>\nstartxref\n${xref}\n%%EOF\n`);
   return new Blob(chunks, {type: 'application/pdf'});
 }
+window.__ppWritePDF = writePDF; // the Preset Guide (same origin) builds its presets PDF with this writer
 // One page: white, with a title bar, a picture fitted into the body, and a footer.
 function pdfPage(size, heading, sub, pic, pageNo, pageCount){
   const DPI = 200, W = Math.round(size.w / 72 * DPI), H = Math.round(size.h / 72 * DPI), M = Math.round(DPI * 0.45);
@@ -9313,7 +9475,7 @@ window.addEventListener('message', e => {
   if (m.type === 'pp-keys'){ openKeys(); return; }
   if (m.type === 'pp-pg-state'){ pgState = m.state; store(PG_KEY, JSON.stringify(pgState)); if (m.summary){ pgSummary = m.summary; const w = pgWaiters.splice(0); w.forEach(f => f()); } }
   else if (m.type === 'pp-save' && typeof m.filename === 'string'){
-    const d = m.data, mime = /\.xlsx$/i.test(m.filename) ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : /\.pptx$/i.test(m.filename) ? 'application/vnd.openxmlformats-officedocument.presentationml.presentation' : 'application/octet-stream';
+    const d = m.data, mime = /\.xlsx$/i.test(m.filename) ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : /\.pptx$/i.test(m.filename) ? 'application/vnd.openxmlformats-officedocument.presentationml.presentation' : /\.png$/i.test(m.filename) ? 'image/png' : /\.pdf$/i.test(m.filename) ? 'application/pdf' : 'application/octet-stream';
     offer(m.filename, typeof d === 'string' ? d : new Blob([d], {type: mime}));
   }
 });
