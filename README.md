@@ -10,6 +10,7 @@ It is a single web page (`index.html`). Nothing to install: open it in a current
 
 ### Screen Builder
 - Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).
+- **Curved and angled projection screens**: in a screen's **Shape** section, bow each end out (+) or in (−) and set an angle. The width, height and pixels you type are the flat face; PixelPlanner works out the projector raster (the upright box around the shape, at the face's pixel density) and uses it for the canvas and every export, with the part off the screen face shaded.
 - **Pixel density matching**: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.
 - Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.
 - Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.

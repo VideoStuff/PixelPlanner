@@ -722,7 +722,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <p>Your work is saved in your browser and can be saved to and opened from a <code>.json</code> file.</p>
 <h2>What it does</h2>
 <h3>Screen Builder</h3>
-<ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
+<ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>Curved and angled projection screens</strong>: in a screen's <strong>Shape</strong> section, bow each end out (+) or in (−) and set an angle. The width, height and pixels you type are the flat face; PixelPlanner works out the projector raster (the upright box around the shape, at the face's pixel density) and uses it for the canvas and every export, with the part off the screen face shaded.</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
 <h3>Preset Guide</h3>
 <ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock.</li><li>Quick layouts: right-click a screen and choose <strong>Create… → Quick layout</strong> to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.</li><li>Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.</li><li><strong>Page Up / Page Down</strong> step through presets.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li>Exports to PowerPoint and Excel.</li></ul>
 <h3>Exports</h3>
@@ -920,6 +920,8 @@ label.lbl{font-size:12px;color:var(--muted);display:flex;flex-direction:column;g
 .scr{fill:var(--screen);stroke:var(--screen-line);stroke-width:2;vector-effect:non-scaling-stroke}
 .scr.custom{stroke-dasharray:6 4;fill:#15281f}
 .scr.sel{stroke:#fff;stroke-width:2.5}
+.scr-off{fill:#000;fill-opacity:.45}
+.scr-face{fill:none;stroke:var(--screen-line);stroke-width:2;stroke-dasharray:8 5;vector-effect:non-scaling-stroke}
 .scr-name{fill:var(--stage-ink);font-family:var(--f-display);font-weight:600;letter-spacing:.04em;text-transform:uppercase;pointer-events:none}
 .est{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:10px}
 .est-row{display:flex;flex-direction:column;gap:1px}
@@ -1472,6 +1474,7 @@ function parseScreens(data,field,useLabels){
     /* Multiscreen Guide Builder files also give each screen's native resolution, and any object covering it */
     const nw=parseFloat(f.nativeWidth), nh=parseFloat(f.nativeHeight);
     if(nw>0&&nh>0&&(round(nw)!==sc.w||round(nh)!==sc.h)) sc.res={w:round(nw),h:round(nh)};
+    if(items[i].shape&&Array.isArray(items[i].shape.outline)&&items[i].shape.outline.length>2) sc.outline=items[i].shape.outline.slice(0,400).map(p=>[Math.min(1,Math.max(0,+p[0]||0)),Math.min(1,Math.max(0,+p[1]||0))]);   /* curved or angled screen face, 0–1 of the box */
     if(Array.isArray(items[i].coveredBy)) sc.covers=items[i].coveredBy.filter(c=>c&&c.width>0&&c.height>0)
       .map(c=>({name:String(c.object||'Object'),x:round(c.x-mx)-sc.x,y:round(c.y-my)-sc.y,w:round(c.width),h:round(c.height)}));   /* relative to the screen */
     return sc;
@@ -1597,10 +1600,13 @@ function renderStage(){
    if(ms){const mx=ms.x+ms.w/2, my=ms.y+ms.h/2;   /* the selected PiP's screen-mirror axis, on its screen */
      if(sp.mirror!=='v') g+=`<line class="axis scr-axis" x1="${mx}" y1="${ms.y}" x2="${mx}" y2="${ms.y+ms.h}"/>`;
      if(sp.mirror!=='h') g+=`<line class="axis scr-axis" x1="${ms.x}" y1="${my}" x2="${ms.x+ms.w}" y2="${my}"/>`;}}
+  /* A curved or angled screen: the part of its raster off the screen face is shaded, and the face outlined. */
+  const faceSVG=s=>{const d=s.outline.map((p,i)=>`${i?'L':'M'}${+(s.x+p[0]*s.w).toFixed(2)} ${+(s.y+p[1]*s.h).toFixed(2)}`).join('')+'Z';
+    return `<path class="scr-off" d="M${s.x} ${s.y}H${s.x+s.w}V${s.y+s.h}H${s.x}Z${d}" fill-rule="evenodd" pointer-events="none"/><path class="scr-face" d="${d}" pointer-events="none"/>`;};
   for(const s of S.screens){
     const nm=sname(s), fs=Math.max(24,s.h*0.085)*TS, mod=screenMod(s);
     const isSel=sel&&sel.kind==='screen'&&sel.id===s.id;
-    g+=`<g data-kind="screen" data-id="${s.id}"><rect class="scr ${s.kind==='custom'?'custom':''} ${isSel?'sel':''}" x="${s.x}" y="${s.y}" width="${s.w}" height="${s.h}"/>
+    g+=`<g data-kind="screen" data-id="${s.id}"><rect class="scr ${s.kind==='custom'?'custom':''} ${isSel?'sel':''}" x="${s.x}" y="${s.y}" width="${s.w}" height="${s.h}"/>${s.outline?faceSVG(s):''}
       <text class="scr-name" x="${s.x+fs*.6}" y="${s.y+fs*1.5}" font-size="${fs}">${esc(nm)}</text>
       <text class="scr-dim ${mod?'mod':''}" x="${s.x+fs*.6}" y="${s.y+fs*2.7}" font-size="${fs*.6}">${[s.kind==='custom'?'custom':'',mod?mod+' here':''].filter(Boolean).join(' · ')}</text>${s.locked?lockBadge(s,scale):''}</g>`;
   }
@@ -3524,7 +3530,7 @@ function applyBuilder(force){
   let b=builderScreens(); renderSrcLine(b);
   if(!b) return false;
   if(S.srcLayout&&b.layout.layoutId&&b.layout.layoutId!==S.srcLayout){ enterLayout(b.layout.layoutId); force=force||!S.screens.length; }
-  const sig=JSON.stringify([b.screens.map(s=>[s.ppId,s.srcName,s.x,s.y,s.w,s.h,s.res||null,s.covers||null]),b.objects]);
+  const sig=JSON.stringify([b.screens.map(s=>[s.ppId,s.srcName,s.x,s.y,s.w,s.h,s.res||null,s.covers||null,s.outline||null]),b.objects]);
   if(!force&&S.srcSig===sig&&S.screens.some(s=>s.kind==='source')) return false;
   const oldSrc=S.screens.filter(s=>s.kind==='source'), customs=S.screens.filter(s=>s.kind==='custom');
   const merged=b.screens.map(ns=>{
@@ -3655,8 +3661,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.70.html). Bump it with every release.
-const APP_VERSION = '3.70';
+// (pixelplanner-v3.71.html). Bump it with every release.
+const APP_VERSION = '3.71';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
@@ -3875,9 +3881,55 @@ const ready = s => !(s.unset && s.unset.length);
 const live = () => S.screens.filter(ready);
 const un = (s, k) => !!(s.unset && s.unset.includes(k));
 function dims(s){
+  if (s.shape) return {w:s.pw, h:s.ph}; // shaped screen: the projector's raster box
   if (s.mode === 'diag'){ const r = Math.hypot(s.rw, s.rh); return {w:s.diag*s.rw/r, h:s.diag*s.rh/r}; }
   return {w:s.pw, h:s.ph};
 }
+/* Shaped projection screens: curved ends and an angle (askew). s.shape = {l, r, a, rw, rh, pw, ph, diag}:
+   l and r bow the left and right ends out (+) or in (-) by that many mm at their middle, a turns the screen
+   that many degrees, and rw, rh, pw, ph, diag are the flat face's own pixels and size as typed in the card.
+   The screen's own rw, rh, pw, ph then describe the projector's raster: the upright box around the shape,
+   at the face's pixel density, so every canvas, export and spec uses the pixels the projector has to cover. */
+const SHAPE_STEPS = 24;
+function endArc(x, y0, y1, sag){
+  // Points from (x, y0) to (x, y1) on a circular arc whose middle sits sag mm to the side (+ = right).
+  if (Math.abs(sag) < 1e-6) return [[x, y0], [x, y1]];
+  const h = Math.abs(y1 - y0) / 2, a = Math.abs(sag), R = (h * h + a * a) / (2 * a), sg = Math.sign(sag);
+  const ox = x + sag - sg * R, oy = (y0 + y1) / 2, out = [];
+  for (let i = 0; i <= SHAPE_STEPS; i++){ const y = y0 + (y1 - y0) * i / SHAPE_STEPS, dy = y - oy; out.push([ox + sg * Math.sqrt(Math.max(0, R * R - dy * dy)), y]); }
+  return out;
+}
+const maxCurve = f => f.ph / 2; // a half circle is as far as an end can bow
+function shapeGeom(f){
+  // The face outline in mm, turned by the angle, then moved so the box around it starts at 0, 0.
+  const W = f.pw, H = f.ph, cl = Math.max(-maxCurve(f), Math.min(maxCurve(f), f.l || 0)), cr = Math.max(-maxCurve(f), Math.min(maxCurve(f), f.r || 0));
+  let pts = [[-W / 2, -H / 2], ...endArc(W / 2, -H / 2, H / 2, cr), ...endArc(-W / 2, H / 2, -H / 2, -cl)];
+  const a = (f.a || 0) * Math.PI / 180, co = Math.cos(a), si = Math.sin(a);
+  pts = pts.map(([x, y]) => [x * co - y * si, x * si + y * co]);
+  const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]), x0 = Math.min(...xs), y0 = Math.min(...ys);
+  return {pts: pts.map(([x, y]) => [x - x0, y - y0]), w: Math.max(...xs) - x0, h: Math.max(...ys) - y0};
+}
+const shapeOf = s => s.shape ? shapeGeom(s.shape) : null;
+const isShaped = f => !!(f && (f.l || f.r || f.a));
+function applyShape(s){
+  // Rework the raster from the face; the screen keeps its centre.
+  const f = s.shape, g = shapeGeom(f), cx = s.x + s.pw / 2, cy = s.y + s.ph / 2;
+  s.rw = Math.max(1, Math.round(g.w * f.rw / f.pw)); s.rh = Math.max(1, Math.round(g.h * f.rh / f.ph));
+  s.pw = g.w; s.ph = g.h; s.diag = Math.hypot(g.w, g.h);
+  s.x = cx - s.pw / 2; s.y = cy - s.ph / 2;
+}
+function setShape(s, k, v){
+  // Change one of curve left / right / angle. Starts a shape from the flat screen, and goes back to flat at all zeros.
+  if (!s.shape){ const d = dims(s); s.shape = {l: 0, r: 0, a: 0, rw: s.rw, rh: s.rh, pw: d.w, ph: d.h, diag: Math.hypot(d.w, d.h)}; s.pw = d.w; s.ph = d.h; }
+  s.shape[k] = v;
+  if (isShaped(s.shape)) { applyShape(s); return; }
+  const f = s.shape, cx = s.x + s.pw / 2, cy = s.y + s.ph / 2;
+  Object.assign(s, {rw: f.rw, rh: f.rh, pw: f.pw, ph: f.ph, diag: f.diag}); delete s.shape;
+  s.x = cx - s.pw / 2; s.y = cy - s.ph / 2;
+}
+// Outline of a shaped screen inside a box of w × h (in whatever units the box is drawn in).
+const shapePath = (s, x, y, w, h) => { const g = shapeOf(s); return g.pts.map(([px, py], i) => `${i ? 'L' : 'M'}${+(x + px / g.w * w).toFixed(3)} ${+(y + py / g.h * h).toFixed(3)}`).join('') + 'Z'; };
+function traceShape(ctx, s, x, y, w, h){ const g = shapeOf(s); ctx.beginPath(); g.pts.forEach(([px, py], i) => ctx[i ? 'lineTo' : 'moveTo'](x + px / g.w * w, y + py / g.h * h)); ctx.closePath(); }
 function mkScreen(p, extra){
   const s = {id:nid(), label:p.label||'Screen', rw:p.rw||1, rh:p.rh||1, mode:p.mode, diag:(p.diagIn||0)*25.4, pw:p.pw||0, ph:p.ph||0, x:0, y:0, color:COLORS[0]};
   if (p.custom){
@@ -3976,6 +4028,12 @@ function sanitizeBase(o){
       if (Array.isArray(s.led.off)){ const off = [...new Set(s.led.off.filter(k => typeof k === 'string' && /^\d{1,3},\d{1,3}$/.test(k)))]; if (off.length) t.led.off = off; }
       applyLed(t);
     } else if (t.unset) t.unset = t.unset.filter(k => !['cw','ch','cpx','cpy'].includes(k));
+    if (t.mode !== 'led' && !t.unset && s.shape && typeof s.shape === 'object'){
+      const f = s.shape, sh = {l: num(f.l, 0), r: num(f.r, 0), a: Math.max(-180, Math.min(180, num(f.a, 0))),
+        rw: Math.max(1, Math.round(num(f.rw, t.rw))), rh: Math.max(1, Math.round(num(f.rh, t.rh))), pw: Math.max(1, num(f.pw, t.pw)), ph: Math.max(1, num(f.ph, t.ph))};
+      sh.diag = Math.max(1, num(f.diag, Math.hypot(sh.pw, sh.ph)));
+      if (isShaped(sh)){ t.shape = sh; applyShape(t); }
+    }
     return t;
   });
   const ids = screens.map(s => s.id);
@@ -4499,12 +4557,12 @@ const val = mm => isFtIn() ? ftIn(mm) : trim(mm / U().f, U().d);
 
 function cardHTML(s){
   const isRef = S.match.on && s.id === refScreen().id;
-  const isLed = s.mode === 'led';
+  const isLed = s.mode === 'led', F = s.shape || s; // a shaped screen's boxes show its flat face
   const phys = isLed
     ? `<label class="f">Cabinet<select data-k="cab">${Object.entries(CABS).map(([k, c]) => `<option value="${k}"${s.led.cab === k ? ' selected' : ''}>${c.name}</option>`).join('')}<option value="custom"${s.led.cab === 'custom' ? ' selected' : ''}>Custom size</option></select></label>`
     : s.mode === 'diag'
-    ? `<label class="f">Diagonal (${uLabel()})<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" step="any" min="0" data-k="diag" value="${un(s, 'diag') ? '' : val(s.diag)}" placeholder="${uLabel()}"></label>`
-    : `<div class="x-sep"><label class="f">Width (${uLabel()})<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" step="any" min="0" data-k="pw" value="${un(s, 'pw') ? '' : val(s.pw)}" placeholder="${uLabel()}"></label><span>×</span><label class="f">Height (${uLabel()})<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" step="any" min="0" data-k="ph" value="${un(s, 'ph') ? '' : val(s.ph)}" placeholder="${uLabel()}"></label></div>`;
+    ? `<label class="f">Diagonal (${uLabel()})<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" step="any" min="0" data-k="diag" value="${un(s, 'diag') ? '' : val(F.diag)}" placeholder="${uLabel()}"></label>`
+    : `<div class="x-sep"><label class="f">Width (${uLabel()})<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" step="any" min="0" data-k="pw" value="${un(s, 'pw') ? '' : val(F.pw)}" placeholder="${uLabel()}"></label><span>×</span><label class="f">Height (${uLabel()})<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" step="any" min="0" data-k="ph" value="${un(s, 'ph') ? '' : val(F.ph)}" placeholder="${uLabel()}"></label></div>`;
   const custRow = isLed && s.led.cab === 'custom' ? `<div class="row r2">
       <label class="f">Panel width (mm)<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" min="1" step="any" data-k="cw" value="${un(s, 'cw') ? '' : s.led.cw}" placeholder="mm"></label>
       <label class="f">Panel height (mm)<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" min="1" step="any" data-k="ch" value="${un(s, 'ch') ? '' : s.led.ch}" placeholder="mm"></label>
@@ -4521,7 +4579,7 @@ function cardHTML(s){
     </div>` : '');
   // Pixel size. For LED walls it's worked out from the panels, so it sits after Columns and Rows and can't be edited or selected.
   const pxAttr = isLed ? ' disabled tabindex="-1" class="calc" title="Worked out from the panel pixels × columns and rows"' : '';
-  const pxRow = `<div class="x-sep"><label class="f">${isLed ? 'Total width (px)' : 'Width (px)'}<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" min="1" step="1" data-k="rw" value="${un(s, 'rw') || (isLed && !ready(s)) ? '' : s.rw}" placeholder="${isLed ? '—' : 'px'}"${pxAttr}></label><span>×</span><label class="f">${isLed ? 'Total height (px)' : 'Height (px)'}<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" min="1" step="1" data-k="rh" value="${un(s, 'rh') || (isLed && !ready(s)) ? '' : s.rh}" placeholder="${isLed ? '—' : 'px'}"${pxAttr}></label></div>`;
+  const pxRow = `<div class="x-sep"><label class="f">${isLed ? 'Total width (px)' : s.shape ? 'Face width (px)' : 'Width (px)'}<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" min="1" step="1" data-k="rw" value="${un(s, 'rw') || (isLed && !ready(s)) ? '' : F.rw}" placeholder="${isLed ? '—' : 'px'}"${pxAttr}></label><span>×</span><label class="f">${isLed ? 'Total height (px)' : s.shape ? 'Face height (px)' : 'Height (px)'}<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" min="1" step="1" data-k="rh" value="${un(s, 'rh') || (isLed && !ready(s)) ? '' : F.rh}" placeholder="${isLed ? '—' : 'px'}"${pxAttr}></label></div>`;
   return `<article class="card${s.id === S.sel && !selObj ? ' sel' : ''}" data-id="${s.id}">
     <div class="card-head">
       <button type="button" class="grip" data-grip aria-label="Reorder ${esc(s.label || 'screen')}: drag, or use the up and down arrow keys. Top of the list is in front." title="Drag to change which screen is in front (top = front)">⠿</button>
@@ -4539,6 +4597,7 @@ function cardHTML(s){
     ${isLed ? pxRow : ''}
     ${isLed && ready(s) ? `<label class="chkrow" title="Adds an LED wall ground support: a bar ${fmtLen(GSUP)} tall under the wall, shown on the layout, layout snapshot and layout summary but not on the canvas export"><input type="checkbox" data-act="support"${s.support ? ' checked' : ''}> LED wall ground support <span class="chkhint">${esc(fmtLen(GSUP))}</span></label>` : ''}
     <div class="derived" data-derived></div>
+    ${!isLed && ready(s) ? shapeHTML(s) : ''}
     ${isLed && ready(s) ? `<details class="more cut" data-cutd${cutOpen.has(s.id) ? ' open' : ''}><summary>Cutouts${offCount(s) ? ` · ${offCount(s)} removed` : ''}</summary>
       <canvas class="cutmap" data-cut role="img" aria-label="Cabinet map. Click or drag over cabinets to remove them, again to put them back."></canvas>
       <div class="cut-foot"><span class="hint">Click or drag over cabinets to remove them; again to put them back.</span><button type="button" class="btn" data-act="cutclear"${offCount(s) ? '' : ' hidden'}>Restore all cabinets</button></div>
@@ -4553,12 +4612,26 @@ function cardHTML(s){
     </div>
   </article>`;
 }
+const shapeOpen = new Set(); // screens whose Shape section is open
+function shapeHTML(s){
+  const f = s.shape || {l: 0, r: 0, a: 0}, num = (k, lbl, v, title) => `<label class="f" title="${title}">${lbl}<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" data-sk="${k}" value="${v}" placeholder="0"></label>`;
+  const sum = s.shape ? [f.l ? `left ${f.l > 0 ? 'out' : 'in'} ${fmtLen(Math.abs(f.l))}` : '', f.r ? `right ${f.r > 0 ? 'out' : 'in'} ${fmtLen(Math.abs(f.r))}` : '', f.a ? `${+f.a.toFixed(2)}°` : ''].filter(Boolean).join(' · ') : '';
+  return `<details class="more shape" data-shaped${shapeOpen.has(s.id) ? ' open' : ''}><summary>Shape${sum ? ' · ' + esc(sum) : ': curved ends, angle'}</summary>
+    <div class="row r3">
+      ${num('l', `Left end (${uLabel()})`, f.l ? val(f.l) : '', 'How far the middle of the left end bows: + curves out, − curves in')}
+      ${num('r', `Right end (${uLabel()})`, f.r ? val(f.r) : '', 'How far the middle of the right end bows: + curves out, − curves in')}
+      ${num('a', 'Angle (°)', f.a ? +f.a.toFixed(3) : '', 'Turns the screen: + clockwise, − counterclockwise')}
+    </div>
+    <span class="hint">Ends: + curves out, − curves in, up to half the face height. Width and height above are the flat face; the projector covers the box around the shape.</span>
+  </details>`;
+}
 function derivedHTML(s){
   if (!ready(s)) return s.mode === 'led'
     ? '<span class="match">Enter the panel width and height in mm and its pixels across and down to place this wall.</span>'
     : `<span class="match">Enter the width and height in pixels and in ${uLabel()} to place this screen.</span>`;
   const d = dims(s), c = content(s), pitch = d.w / s.rw;
   let h = (s.mode === 'led' ? `<span><b>${ledCount(s)}</b></span>` : '') + `<span><b>${fmtLen2(d.w, d.h)}</b></span><span>${aspect(s.rw, s.rh)}</span><span>${ppiText(s)}</span><span>${pitch.toFixed(2)} mm pitch</span>`;
+  if (s.shape) h = `<span>Face <b>${fmtLen2(s.shape.pw, s.shape.ph)}</b> · ${s.shape.rw} × ${s.shape.rh} px</span><span class="match">Projector raster <b class="match">${s.rw} × ${s.rh} px</b> · ${fmtLen2(d.w, d.h)}</span><span>${ppiText(s)}</span><span>${pitch.toFixed(2)} mm pitch</span>`;
   if (S.match.on && s.id !== refScreen().id) h += `<span class="match">Content <b class="match">${c.w} × ${c.h} px</b> · ×${(s.rw / c.w).toFixed(2)} to native</span>`;
   return h;
 }
@@ -4622,7 +4695,9 @@ function afterCut(s, rebuild){
   renderStage(); save();
 }
 document.addEventListener('toggle', e => {
-  const d = e.target; if (!d.matches || !d.matches('[data-cutd]')) return;
+  const d = e.target;
+  if (d.matches && d.matches('[data-shaped]')){ const id = d.closest('.card').dataset.id; if (d.open) shapeOpen.add(id); else shapeOpen.delete(id); return; }
+  if (!d.matches || !d.matches('[data-cutd]')) return;
   const id = d.closest('.card').dataset.id; if (d.open) cutOpen.add(id); else cutOpen.delete(id);
   const s = getS(id); if (s && d.open) drawCutMaps(s);
 }, true);
@@ -4685,6 +4760,24 @@ function revealCard(id){
   else if (r.bottom > sr.bottom - 8) side.scrollTop += Math.min(r.bottom - sr.bottom + 8, r.top - sr.top - 8);
 }
 
+// Shape boxes: curve on each end (a length, + out / − in) and the angle in degrees.
+document.addEventListener('input', e => {
+  const t = e.target, k = t.dataset && t.dataset.sk; if (!k || !t.closest('#list, #stageEd')) return;
+  const s = getS(t.closest('.card').dataset.id); if (!s) return;
+  const raw = String(t.value).trim(), n = raw === '' || raw === '-' ? 0 : (k === 'a' ? parseFloat(raw) : parseLen(raw));
+  let ok = isFinite(n) && (k !== 'a' || Math.abs(n) <= 180);
+  const face = s.shape || {ph: dims(s).h}, mm = k === 'a' ? n : n * U().f;
+  if (ok && k !== 'a' && Math.abs(mm) > maxCurve(face) + 1e-6){ ok = false; toast(`An end can curve up to half the face height (${fmtLen(maxCurve(face))}).`); }
+  t.classList.toggle('bad', !ok); if (!ok) return;
+  const had = !!s.shape; setShape(s, k, mm); shapeOpen.add(s.id);
+  if (had !== !!s.shape) keepPlace(() => { refreshAll(); });
+  else {
+    const f = s.shape;
+    document.querySelectorAll(`.card[data-id="${s.id}"] [data-shaped] summary`).forEach(el => { el.textContent = 'Shape · ' + [f.l ? `left ${f.l > 0 ? 'out' : 'in'} ${fmtLen(Math.abs(f.l))}` : '', f.r ? `right ${f.r > 0 ? 'out' : 'in'} ${fmtLen(Math.abs(f.r))}` : '', f.a ? `${+f.a.toFixed(2)}°` : ''].filter(Boolean).join(' · '); });
+    document.querySelectorAll(`.card[data-id="${s.id}"] [data-sk="${k}"]`).forEach(i => { if (i !== t) i.value = t.value; });
+    S.screens.forEach(updateDerived); S.screens.forEach(syncPosInputs); renderSelects(); renderRef(); renderTable(); maybeFit(); renderStage(); save();
+  }
+});
 // Card events are handled for both the left pane (#list) and the layout's edit panel (#stageEd).
 document.addEventListener('input', e => {
   if (!e.target.closest('#list, #stageEd')) return;
@@ -4712,6 +4805,7 @@ document.addEventListener('input', e => {
         s.unset = s.unset.filter(x => x === 'rw' || x === 'rh').concat(physUnset ? (v === 'diag' ? ['diag'] : ['pw', 'ph']) : []);
       }
     }
+    if (v === 'led' && s.shape){ setShape(s, 'l', 0); setShape(s, 'r', 0); setShape(s, 'a', 0); }
     const d = dims(s);
     if (v === 'led'){
       // Start from the nearest whole number of 500 × 500 cabinets, keeping the bottom edge in place.
@@ -4719,7 +4813,8 @@ document.addEventListener('input', e => {
       s.led = s.led || {cab:'500x500', cols: Math.max(1, Math.round(d.w / 500)), rows: Math.max(1, Math.round(d.h / 500)), half:'none'};
       s.mode = 'led'; applyLed(s); s.y = bottom - s.ph;
     } else {
-      s.pw = d.w; s.ph = d.h; s.diag = Math.hypot(d.w, d.h); s.mode = v;
+      if (!s.shape){ s.pw = d.w; s.ph = d.h; s.diag = Math.hypot(d.w, d.h); }
+      s.mode = v;
     }
     refreshAll(); maybeFit(); return;
   }
@@ -4773,6 +4868,17 @@ document.addEventListener('input', e => {
   const ok = (k === 'x' || k === 'y') ? isFinite(n) : (isFinite(n) && n > 0);
   t.classList.toggle('bad', !ok);
   if (!ok) return;
+  if (s.shape && ['rw', 'rh', 'pw', 'ph', 'diag'].includes(k)){
+    // Shaped screen: the boxes are the flat face; the raster around it is worked out again.
+    const f = s.shape;
+    if (k === 'rw' || k === 'rh') f[k] = Math.max(1, Math.round(n)); else f[k] = n * U().f;
+    if (k === 'diag' || ((k === 'rw' || k === 'rh') && s.mode === 'diag')){ const r = Math.hypot(f.rw, f.rh); f.pw = f.diag * f.rw / r; f.ph = f.diag * f.rh / r; }
+    if (k === 'pw' || k === 'ph') f.diag = Math.hypot(f.pw, f.ph);
+    f.l = Math.max(-maxCurve(f), Math.min(maxCurve(f), f.l)); f.r = Math.max(-maxCurve(f), Math.min(maxCurve(f), f.r));
+    applyShape(s);
+    S.screens.forEach(updateDerived); S.screens.forEach(syncPosInputs);
+    maybeFit(); renderStage(); renderTable(); renderRef(); save(); return;
+  }
   if (s.unset){
     // A size box was filled in; once all are, the screen joins the layout for real.
     s.unset = s.unset.filter(x => x !== k);
@@ -4811,7 +4917,8 @@ document.addEventListener('click', e => {
   }
   if (act === 'cutclear'){ delete s.led.off; afterCut(s, true); toast('All cabinets restored'); return; }
   if (act === 'ref'){ S.match.ref = s.id; refreshAll(); }
-  if (act === 'rot'){
+  if (act === 'rot' && s.shape){ setShape(s, 'a', ((s.shape.a + 90 + 180) % 360 + 360) % 360 - 180); refreshAll(); maybeFit(); }
+  else if (act === 'rot'){
     const d = dims(s), cx = s.x + d.w / 2, cy = s.y + d.h / 2;
     [s.rw, s.rh] = [s.rh, s.rw]; [s.pw, s.ph] = [s.ph, s.pw];
     const n = dims(s); s.x = cx - n.w / 2; s.y = cy - n.h / 2;
@@ -4820,6 +4927,7 @@ document.addEventListener('click', e => {
   if (act === 'dup'){
     const d = dims(s), c = Object.assign({}, s, {id:nid(), label: s.label + ' copy', x: s.x + d.w + S.gap, color: nextColor(), z: topZ()});
     if (s.led) c.led = Object.assign({}, s.led);
+    if (s.shape) c.shape = Object.assign({}, s.shape);
     if (s.unset) c.unset = s.unset.slice();
     S.screens.splice(S.screens.indexOf(s) + 1, 0, c); S.sel = c.id; refreshAll(); fitView(); renderStage();
   }
@@ -4844,7 +4952,7 @@ function addScreen(p){
 function setCount(n){
   n = Math.max(1, Math.min(24, Math.round(n) || 1));
   while (S.screens.length < n){
-    const last = S.screens[S.screens.length - 1], label = last.label.replace(/ copy$/, '');
+    const L = S.screens[S.screens.length - 1], last = L.shape ? Object.assign({}, L, L.shape) : L, label = L.label.replace(/ copy$/, ''); // a shaped screen adds a flat one its face's size
     addScreen(last.mode === 'led' ? {label, mode:'led', led:Object.assign({}, last.led)}
       : last.mode === 'diag' ? {label, rw:last.rw, rh:last.rh, mode:'diag', diagIn:last.diag/25.4}
       : {label, rw:last.rw, rh:last.rh, mode:'dims', pw:last.pw, ph:last.ph});
@@ -5286,7 +5394,7 @@ function renderStage(){
     const d = dims(s), c = content(s), sel = s.id === S.sel && !selObj;
     const cx = s.x + d.w / 2, cy = s.y + d.h / 2;
     const label = s.label || 'Untitled';
-    const lines = [
+    const lines = s.shape ? [`${s.rw} × ${s.rh} px raster`, `face ${fmtLen2(s.shape.pw, s.shape.ph)}`] : [
       `${s.rw} × ${s.rh} px native`,
       fmtLen2(d.w, d.h),
     ];
@@ -5320,9 +5428,14 @@ function renderStage(){
       const x = s.x + d.w * o.fx0, y = s.y + d.h * o.fy0, w = d.w * (o.fx1 - o.fx0), h = d.h * (o.fy1 - o.fy0);
       holes += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="var(--stage)" stroke="${s.color}" stroke-opacity=".55" stroke-width="${u * .08}" stroke-dasharray="${u * .4} ${u * .3}"/><path d="M${x} ${y}L${x + w} ${y + h}M${x + w} ${y}L${x} ${y + h}" stroke="${s.color}" stroke-opacity=".3" stroke-width="${u * .06}"/>`;
     }
+    // Shaped screen: the projector's raster box drawn faint and dashed, the screen face itself solid.
+    const body = s.shape
+      ? `<rect x="${s.x}" y="${s.y}" width="${d.w}" height="${d.h}" fill="${s.color}" fill-opacity=".05" stroke="${s.color}" stroke-opacity=".6" stroke-width="${u * .1}" stroke-dasharray="${u * .7} ${u * .45}"/>
+      <path d="${shapePath(s, s.x, s.y, d.w, d.h)}" fill="var(--stage)"/><path d="${shapePath(s, s.x, s.y, d.w, d.h)}" fill="${s.color}" fill-opacity="${sel ? .24 : .14}" stroke="${s.color}" stroke-width="${u * (sel ? .4 : .22)}" stroke-linejoin="round"/>`
+      : `<rect x="${s.x}" y="${s.y}" width="${d.w}" height="${d.h}" fill="var(--stage)"/>
+      <rect x="${s.x}" y="${s.y}" width="${d.w}" height="${d.h}" fill="${s.color}" fill-opacity="${sel ? .24 : .14}" stroke="${s.color}" stroke-width="${u * (sel ? .4 : .22)}"/>`;
     out += `<g class="scr" data-sid="${s.id}">${supportSVG(s, d, u)}
-      <rect x="${s.x}" y="${s.y}" width="${d.w}" height="${d.h}" fill="var(--stage)"/>
-      <rect x="${s.x}" y="${s.y}" width="${d.w}" height="${d.h}" fill="${s.color}" fill-opacity="${sel ? .24 : .14}" stroke="${s.color}" stroke-width="${u * (sel ? .4 : .22)}"/>${seams}${holes}
+      ${body}${seams}${holes}
       ${t}</g>`;
     if (sel || multi.has(s.id)) onTop += `<rect x="${s.x - u * .7}" y="${s.y - u * .7}" width="${d.w + u * 1.4}" height="${d.h + u * 1.4}" fill="none" stroke="${sel ? 'var(--stage-ink)' : 'var(--accent)'}" stroke-width="${u * .12}" stroke-dasharray="${u * .8} ${u * .5}" pointer-events="none"/>`;
     if (s.locked) onTop += lockSVG(s.x + d.w - ut * 1.3, s.y - ut * 2.4, ut * 0.11);
@@ -6641,7 +6754,8 @@ function tableRows(){
   // Same order as the Screens list on the left (front to back), so reordering there reorders the spec sheet too.
   return zOrder(live()).reverse().map(s => {
     const d = dims(s), c = content(s), it = lay && lay.items.find(i => i.s === s);
-    return {s, label: s.label, native: `${s.rw} × ${s.rh}`, phys: fmtLen2(d.w, d.h), aspect: aspect(s.rw, s.rh),
+    // A shaped screen lists the projector's raster, and its face size beside the box around it.
+    return {s, label: s.label, native: `${s.rw} × ${s.rh}${s.shape ? ' raster' : ''}`, phys: s.shape ? `face ${fmtLen2(s.shape.pw, s.shape.ph)} · box ${fmtLen2(d.w, d.h)}` : fmtLen2(d.w, d.h), aspect: aspect(s.rw, s.rh),
       ppi: ppiText(s), pitch: (d.w / s.rw).toFixed(3) + ' mm', content: S.match.on ? `${c.w} × ${c.h}` : '—',
       scale: S.match.on ? '×' + (s.rw / c.w).toFixed(3) : '—', offset: it ? `${it.x}, ${it.y}` : '—',
       bottom: fmtLen(aboveGround(s)), top: fmtLen(aboveGround(s) + d.h)};
@@ -6739,6 +6853,9 @@ function contentCanvasJSON(id){
         nativeWidth: s.rw, nativeHeight: s.rh, physicalWidthMm: +d.w.toFixed(1), physicalHeightMm: +d.h.toFixed(1),
         pixelsPerInch: +(density(s).x * 25.4).toFixed(2), type: s.mode === 'led' ? 'led' : 'display', color: s.color, id: s.id};
       const cover = computeObjOverlaps().filter(o => o.s === s && o.px);
+      if (s.shape){ const g = shapeOf(s), f = s.shape;
+        out.shape = {leftEndCurveMm: +f.l.toFixed(1), rightEndCurveMm: +f.r.toFixed(1), angleDeg: +f.a.toFixed(3), faceWidthMm: +f.pw.toFixed(1), faceHeightMm: +f.ph.toFixed(1),
+          faceNativeWidth: f.rw, faceNativeHeight: f.rh, outline: g.pts.map(([x, y]) => [+(x / g.w).toFixed(5), +(y / g.h).toFixed(5)])}; }
       if (cover.length) out.coveredBy = cover.map(o => ({object: o.ob.label || 'Object', x: o.px.x, y: o.px.y, width: o.px.w, height: o.px.h}));
       if (s.mode === 'led'){
         out.cabinets = {columns: s.led.cols, rows: s.led.rows};
@@ -6843,6 +6960,22 @@ cdlg.addEventListener('keydown', e => {
 /* ---------- guide images ---------- */
 function rgba(hex, a){ const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; }
 // Removed LED cabinets on a drawn screen: filled, cross-hatched and outlined (pixel-aligned like the cabinet seams).
+// Shaped screen on a canvas: the raster outside the face is hatched black (the projector still covers it,
+// but it lands off the screen), the face is outlined in the screen's color and the raster edge is dashed.
+function drawShapeMask(ctx, it, bw, st){
+  st = st || {};
+  const {x, y, w, h, s} = it;
+  ctx.save();
+  ctx.beginPath(); ctx.rect(x, y, w, h); const g = shapeOf(s);
+  g.pts.forEach(([px, py], i) => ctx[i ? 'lineTo' : 'moveTo'](x + px / g.w * w, y + py / g.h * h)); ctx.closePath();
+  ctx.fillStyle = st.fill || '#000000'; ctx.fill('evenodd'); ctx.clip('evenodd');
+  const sp = Math.max(8, Math.min(w, h) / 40); ctx.strokeStyle = st.hatch || '#262626'; ctx.lineWidth = Math.max(1, sp / 6); ctx.beginPath();
+  for (let k = -h; k < w; k += sp){ ctx.moveTo(x + k, y + h); ctx.lineTo(x + k + h, y); }
+  ctx.stroke(); ctx.restore();
+  ctx.save(); traceShape(ctx, s, x, y, w, h); ctx.strokeStyle = s.color; ctx.lineWidth = bw; ctx.lineJoin = 'round'; ctx.stroke();
+  ctx.strokeStyle = rgba(s.color, .6); ctx.lineWidth = Math.max(1, bw / 2); ctx.setLineDash([Math.max(4, w / 80), Math.max(3, w / 120)]);
+  ctx.strokeRect(x + ctx.lineWidth / 2, y + ctx.lineWidth / 2, w - ctx.lineWidth, h - ctx.lineWidth); ctx.restore();
+}
 function drawHoles(ctx, it, fill, hatch, edge){
   const {x, y, w, h, s} = it, cells = offCells(s); if (!cells.length) return;
   ctx.save();
@@ -6898,7 +7031,8 @@ function drawScreen(ctx, it, opts, physLabel){
     ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.beginPath(); ctx.arc(cx, cy, Math.max(2, lw * 1.5), 0, Math.PI * 2); ctx.fill();
   }
   drawHoles(ctx, it, '#000000', '#2A2A2A', rgba(s.color, .6));
-  ctx.strokeStyle = s.color; ctx.lineWidth = bw; ctx.strokeRect(x + bw / 2, y + bw / 2, w - bw, h - bw);
+  if (s.shape) drawShapeMask(ctx, it, bw);
+  else { ctx.strokeStyle = s.color; ctx.lineWidth = bw; ctx.strokeRect(x + bw / 2, y + bw / 2, w - bw, h - bw); }
   }
   if (opts.part !== 'base' && (opts.labels || opts.native)){
     // Name above the centre, measurements below it, each on a dark panel so they read over any color.
@@ -7267,7 +7401,9 @@ function buildSVG(){
       b += `<g data-cutout="${c.c + 1},${c.r + 1}"><rect x="${x0}" y="${y0}" width="${cw}" height="${ch}" fill="#000"/><path d="M${x0} ${y0}L${x0 + cw} ${y0 + ch}M${x0 + cw} ${y0}L${x0} ${y0 + ch}" stroke="${s.color}" stroke-opacity=".5" stroke-width="1"/></g>`;
     }
     if (o.cross){ const r = h / 2 - 1; b += `<circle cx="${X(x + w / 2)}" cy="${X(y + h / 2)}" r="${X(r)}" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="${Math.max(1, Math.round(m / 400))}"/>`; }
-    b += `<rect x="${X(x + bw / 2)}" y="${X(y + bw / 2)}" width="${w - bw}" height="${h - bw}" fill="none" stroke="${s.color}" stroke-width="${bw}"/>`;
+    if (s.shape){ const sp = shapePath(s, x, y, w, h);
+      b += `<path data-off-screen="raster outside the screen face" d="M${x} ${y}H${x + w}V${y + h}H${x}Z${sp}" fill="#000" fill-rule="evenodd"/><path d="${sp}" fill="none" stroke="${s.color}" stroke-width="${bw}" stroke-linejoin="round"/><rect x="${X(x + bw / 4)}" y="${X(y + bw / 4)}" width="${X(w - bw / 2)}" height="${X(h - bw / 2)}" fill="none" stroke="${s.color}" stroke-opacity=".6" stroke-width="${X(Math.max(1, bw / 2))}" stroke-dasharray="${X(Math.max(4, w / 80))} ${X(Math.max(3, w / 120))}"/>`; }
+    else b += `<rect x="${X(x + bw / 2)}" y="${X(y + bw / 2)}" width="${w - bw}" height="${h - bw}" fill="none" stroke="${s.color}" stroke-width="${bw}"/>`;
     const label = s.label || 'Untitled', fs = Math.min(m * .11, w * .86 / (Math.max(label.length, 5) * .5), 220), fs2 = Math.min(Math.max(fs * .55, m * .055), 120);
     if (o.labels){
       b += `<text x="${X(x + w / 2)}" y="${X(y + h / 2 - fs * .4)}" text-anchor="middle" font-family="${DISP}" font-weight="700" font-size="${X(fs)}" fill="#fff">${esc(label)}</text>`;
@@ -7484,6 +7620,11 @@ async function buildPPTX(asTemplate){
   // (merged into as few rectangles as possible), so artwork placed in it is clipped to the real wall.
   const geom = it => {
     const s = it.s, cells = offCells(s);
+    if (s.shape){ // shaped projection screen: the placeholder follows the screen face
+      const sg = shapeOf(s), cw = Math.max(1, E(it.w)), ch = Math.max(1, E(it.h));
+      const path = sg.pts.map(([px, py], i) => `<a:${i ? 'lnTo' : 'moveTo'}><a:pt x="${Math.round(px / sg.w * cw)}" y="${Math.round(py / sg.h * ch)}"/></a:${i ? 'lnTo' : 'moveTo'}>`).join('') + '<a:close/>';
+      return `<a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l="0" t="0" r="r" b="b"/><a:pathLst><a:path w="${cw}" h="${ch}">${path}</a:path></a:pathLst></a:custGeom>`;
+    }
     if (!cells.length) return '<a:prstGeom prst="rect"><a:avLst/></a:prstGeom>';
     const g = ledGrid(s), off = offKeys(s), ox = E(it.x), oy = E(it.y), cw = Math.max(1, E(it.w)), ch = Math.max(1, E(it.h));
     const px = f => E(Math.round(it.x + f * it.w)) - ox, py = f => E(Math.round(it.y + f * it.h)) - oy;
@@ -7504,13 +7645,13 @@ async function buildPPTX(asTemplate){
   };
   // A picture placeholder over each screen, named after it, with its size as the prompt.
   const phs = tinted => stack.map((it, i) => {
-    const s = it.s, label = s.label || 'Screen', nOff = offCount(s), prompt = `${label} · ${it.w} × ${it.h} px${nOff ? ` · ${nOff} cabinet${nOff === 1 ? '' : 's'} removed` : ''}`;
+    const s = it.s, label = s.label || 'Screen', nOff = offCount(s), prompt = `${label} · ${it.w} × ${it.h} px${s.shape ? ' raster' : ''}${nOff ? ` · ${nOff} cabinet${nOff === 1 ? '' : 's'} removed` : ''}`;
     const sz = Math.round(Math.max(800, Math.min(40000, Math.min(E(it.h) / 12700 * 0.1, E(it.w) / 12700 / Math.max(prompt.length, 8) * 1.6) * 100)));
     return `<p:sp><p:nvSpPr><p:cNvPr id="${i + 10}" name="${X(label)}"/><p:cNvSpPr><a:spLocks noGrp="1" ${LOCKED}/></p:cNvSpPr><p:nvPr><p:ph type="pic" idx="${i + 10}"/></p:nvPr></p:nvSpPr>`
       + `<p:spPr>${xfrm(it.x, it.y, it.w, it.h)}${geom(it)}${tinted ? `<a:solidFill><a:srgbClr val="${s.color.slice(1)}"><a:alpha val="22000"/></a:srgbClr></a:solidFill>` : '<a:noFill/>'}<a:ln><a:noFill/></a:ln></p:spPr>`
       + `<p:txBody><a:bodyPr lIns="0" tIns="0" rIns="0" bIns="0" anchor="ctr"><a:normAutofit/></a:bodyPr><a:lstStyle><a:lvl1pPr marL="0" indent="0" algn="ctr"><a:buNone/><a:defRPr sz="${sz}"><a:solidFill><a:srgbClr val="FFFFFF"/></a:solidFill><a:latin typeface="Arial"/></a:defRPr></a:lvl1pPr></a:lstStyle><a:p><a:r><a:rPr lang="en-US" dirty="0"/><a:t>${X(prompt)}</a:t></a:r></a:p></p:txBody></p:sp>`;
   }).join('');
-  const slidePhs = () => stack.map((it, i) => `<p:sp><p:nvSpPr><p:cNvPr id="${i + 10}" name="${X(it.s.label || 'Screen')}"/><p:cNvSpPr><a:spLocks noGrp="1" ${LOCKED}/></p:cNvSpPr><p:nvPr><p:ph type="pic" idx="${i + 10}"/></p:nvPr></p:nvSpPr><p:spPr>${offCount(it.s) ? xfrm(it.x, it.y, it.w, it.h) + geom(it) : ''}</p:spPr></p:sp>`).join('');
+  const slidePhs = () => stack.map((it, i) => `<p:sp><p:nvSpPr><p:cNvPr id="${i + 10}" name="${X(it.s.label || 'Screen')}"/><p:cNvSpPr><a:spLocks noGrp="1" ${LOCKED}/></p:cNvSpPr><p:nvPr><p:ph type="pic" idx="${i + 10}"/></p:nvPr></p:nvSpPr><p:spPr>${offCount(it.s) || it.s.shape ? xfrm(it.x, it.y, it.w, it.h) + geom(it) : ''}</p:spPr></p:sp>`).join('');
   // Slide 2 also carries a shaded, dashed area on each place an object overlaps a screen, at its exact canvas pixels
   // (shapes only, no text). With no overlaps it is just the screen placeholders.
   const ovl = computeObjOverlaps().filter(o => o.px && stack.some(i => i.s === o.s));
@@ -7968,8 +8109,11 @@ function layoutDrawingCanvas(){
       ctx.stroke();
     }
     drawHoles(ctx, it, '#FFFFFF', '#DADFE6', MUTED);
-    ctx.fillStyle = s.color; ctx.fillRect(x, y, w, Math.max(6, Math.min(14, h * 0.04)));
-    ctx.strokeStyle = INK; ctx.lineWidth = 3; ctx.strokeRect(x, y, w, h);
+    if (s.shape) drawShapeMask(ctx, it, 3, {fill: '#FFFFFF', hatch: '#E3E7EC'});
+    else {
+      ctx.fillStyle = s.color; ctx.fillRect(x, y, w, Math.max(6, Math.min(14, h * 0.04)));
+      ctx.strokeStyle = INK; ctx.lineWidth = 3; ctx.strokeRect(x, y, w, h);
+    }
     if (hasSupport(s)){ // ground support under the wall
       const sh = GSUP * sc; ctx.fillStyle = '#C9D0DA'; ctx.fillRect(x, y + h, w, sh); ctx.strokeStyle = INK; ctx.lineWidth = 3; ctx.strokeRect(x, y + h, w, sh);
       const gf = Math.min(sh * 0.6, 26), gt = 'Ground support ' + fmtLen(GSUP);
@@ -7977,7 +8121,7 @@ function layoutDrawingCanvas(){
     }
     // Text block, shrunk to fit inside the screen
     const label = s.label || 'Untitled', c = content(s);
-    const lines = [fmtLen2(d.w, d.h), `${s.rw} × ${s.rh} px`];
+    const lines = s.shape ? [`face ${fmtLen2(s.shape.pw, s.shape.ph)}`, `${s.rw} × ${s.rh} px raster`] : [fmtLen2(d.w, d.h), `${s.rw} × ${s.rh} px`];
     if (s.mode === 'led') lines.push(ledCount(s));
     if (S.match.on) lines.push(s.id === ref.id ? 'reference density' : `content ${c.w} × ${c.h} px`);
     let fs = Math.min(64, h / 4.2), fs2;
@@ -8215,10 +8359,11 @@ function layoutViewCanvas(){
       ctx.stroke();
     }
     drawHoles(ctx, it, BG, '#2A303A', rgba(s.color, .6));
-    ctx.strokeStyle = s.color; ctx.lineWidth = bw; ctx.strokeRect(x + bw / 2, y + bw / 2, w - bw, h - bw);
+    if (s.shape) drawShapeMask(ctx, it, bw, {fill: BG, hatch: '#2A303A'});
+    else { ctx.strokeStyle = s.color; ctx.lineWidth = bw; ctx.strokeRect(x + bw / 2, y + bw / 2, w - bw, h - bw); }
     // Name, then native pixels, physical size and content (canvas) pixels
     const c = content(s), label = s.label || 'Untitled';
-    const lines = [[`${s.rw} × ${s.rh} px native`, MUTED], [fmtLen2(d.w, d.h), MUTED]];
+    const lines = s.shape ? [[`${s.rw} × ${s.rh} px raster`, MUTED], [`face ${fmtLen2(s.shape.pw, s.shape.ph)}`, MUTED]] : [[`${s.rw} × ${s.rh} px native`, MUTED], [fmtLen2(d.w, d.h), MUTED]];
     if (S.match.on) lines.push([s === ref ? `canvas ${c.w} × ${c.h} px · reference density` : `canvas ${c.w} × ${c.h} px`, s.color]);
     if (s.mode === 'led') lines.push([ledCount(s), MUTED]);
     let fs = Math.min(140, h / 4.4); ctx.font = `700 ${fs}px ${DISP}`;
@@ -8395,6 +8540,14 @@ function drawLedCabinets(ctx, r, o){
     }
   }
 }
+// Shaped screen on a test pattern: the pattern fills the whole raster (what the projector puts out), with the
+// screen face traced over it so the projector can be lined up to the screen's edges.
+function tpFace(ctx, r){
+  const lw = Math.max(2, Math.round(Math.min(r.w, r.h) / 300));
+  ctx.save(); ctx.beginPath(); ctx.rect(r.x, r.y, r.w, r.h); ctx.clip(); ctx.lineJoin = 'round';
+  traceShape(ctx, r.s, r.x, r.y, r.w, r.h); ctx.strokeStyle = '#000'; ctx.lineWidth = lw * 3; ctx.stroke();
+  ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = lw; ctx.setLineDash([lw * 6, lw * 4]); ctx.stroke(); ctx.restore();
+}
 function drawTPRegion(ctx, r, o){
   const {x, y, w, h, s} = r, m = Math.min(w, h);
   const DISP = '"Barlow Semi Condensed", "Arial Narrow", sans-serif', MONO = '"JetBrains Mono", Consolas, monospace';
@@ -8533,7 +8686,7 @@ function renderTP(){
   $('#oneRes').querySelector('option[value="native"]').textContent = tsel && tsel.mode === 'led' ? 'Native panel' : 'Native resolution';
   if (!t){ $('#tpInfo').textContent = 'Add a screen first.'; $('#tpSave').disabled = true; return; }
   if (tooBig(t.W, t.H)){ $('#tpInfo').textContent = `Too large to draw (${t.W} × ${t.H} px).`; $('#tpSave').disabled = true; return; }
-  const draw = c => { c.fillStyle = '#000'; c.fillRect(0, 0, t.W, t.H); for (const r of t.regions) drawTPRegion(c, r, o); };
+  const draw = c => { c.fillStyle = '#000'; c.fillRect(0, 0, t.W, t.H); for (const r of t.regions){ drawTPRegion(c, r, o); if (r.s && r.s.shape) tpFace(c, r); } };
   const big = !fitsOneCanvas(t.W, t.H);
   // Preview: full size when it fits on one canvas, otherwise scaled down (the saved PNG is still full size).
   const k = big ? Math.min(1, 4096 / t.W, 4096 / t.H) : 1;
