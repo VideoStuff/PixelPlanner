@@ -3766,8 +3766,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.81.html). Bump it with every release.
-const APP_VERSION = '3.81';
+// (pixelplanner-v3.82.html). Bump it with every release.
+const APP_VERSION = '3.82';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
@@ -9049,6 +9049,11 @@ function addLayout(copy){
   S.layouts.splice(S.layouts.indexOf(curLayout()) + 1, 0, L);
   curLayout().data = null; // still the open one until the switch below
   switchLayout(id);
+  if (copy && !S.ground.on){ // a copy has the ground line on too, placed as the Ground line button would place it
+    S.ground.on = true;
+    if (!S.ground.placed){ if (S.screens.length || S.objects.length) placeGround(); else Object.assign(S.ground, {y: 0, placed: true}); }
+    view = null; refreshAll(); renderStage();
+  }
   save();
   toast(copy ? 'Layout copied' : 'New layout added');
 }
