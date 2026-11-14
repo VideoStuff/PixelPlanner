@@ -19,7 +19,7 @@ It is a single web page (`index.html`). Nothing to install: open it in a current
 
 ### Preset Guide
 - Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.
-- Build presets of PiPs on each screen, with mirroring and aspect ratio lock.
+- Build presets of PiPs on each screen, with mirroring and aspect ratio lock. **+ New** and **Duplicate** ask for the preset's name; leave it blank for "Preset" and its number.
 - Quick layouts: right-click a screen and choose **Create… → Quick layout** to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.
 - Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.
 - **Page Up / Page Down** step through presets.

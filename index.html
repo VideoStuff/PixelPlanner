@@ -763,7 +763,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <h3>Screen Builder</h3>
 <ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>Curved and reshaped projection screens</strong>: in a screen's <strong>Shape</strong> section, bow each end out (+) or in (−) by typing an amount or using its slider (from fully in to fully out: half the end's length, so ±7.5 ft on a 15 ft high screen), and move any corner by an exact amount. Or turn on <strong>Corner handles</strong> (also in the screen's right-click menu) and drag the corners on the layout, to the nearest inch. The width, height and pixels you type are the flat face; PixelPlanner works out the projector raster (the upright box around the shape, at the face's pixel density) and uses it for the canvas and every export, with the part off the screen face shaded.</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
 <h3>Preset Guide</h3>
-<ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock.</li><li>Quick layouts: right-click a screen and choose <strong>Create… → Quick layout</strong> to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.</li><li>Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.</li><li><strong>Page Up / Page Down</strong> step through presets.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li>Exports to PowerPoint and Excel.</li></ul>
+<ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock. <strong>+ New</strong> and <strong>Duplicate</strong> ask for the preset's name; leave it blank for "Preset" and its number.</li><li>Quick layouts: right-click a screen and choose <strong>Create… → Quick layout</strong> to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.</li><li>Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.</li><li><strong>Page Up / Page Down</strong> step through presets.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li>Exports to PowerPoint and Excel.</li></ul>
 <h3>Exports</h3>
 <ul><li>Canvas export PNG at exact pixel size, layout snapshot, layout summary and test patterns.</li><li>PDF spec pack, PowerPoint template, layered PSD and SVG.</li><li>Spec sheet as CSV.</li><li>Switcher planning <code>.xml</code> (screens, layers and auxes).</li><li><strong>Advanced → EDID (experimental):</strong> an EDID <code>.bin</code> for a screen, with connector, refresh rate, CVT blanking and a split across outputs. Check results on your hardware before you rely on them.</li></ul>
 <h2>Using it</h2>
@@ -1176,6 +1176,16 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
 </div>
 
 <div id="ctxMenu" role="menu" hidden></div>
+<dialog id="dlgName">
+  <form class="dlg" id="nameForm" style="min-width:min(360px,80vw)">
+    <h2 id="nameTitle" style="font-size:20px;color:var(--ink);display:block;text-transform:none;letter-spacing:.01em">New preset</h2>
+    <label class="lbl" for="nameIn">Preset name<input id="nameIn" class="field" autocomplete="off" spellcheck="false"></label>
+    <div class="row" style="justify-content:flex-end">
+      <button type="button" class="btn" id="nameCancel">Cancel</button>
+      <button type="submit" class="btn primary" id="nameOk">Create</button>
+    </div>
+  </form>
+</dialog>
 <dialog id="dlgExport">
   <div class="dlg">
     <h2 id="expTitle" style="font-size:20px;color:var(--ink);display:block;text-transform:none;letter-spacing:.01em">Export Excel</h2>
@@ -2515,8 +2525,20 @@ $('pName').addEventListener('input',e=>{preset().name=e.target.value;preset().au
 $('pNotes').addEventListener('input',e=>{preset().notes=e.target.value;touch();});
 $('projNotes').addEventListener('input',e=>{S.notes=e.target.value;touch();});
 $('projName').addEventListener('input',e=>{S.name=e.target.value;touch();});
-$('pNew').onclick=()=>{const p={id:uid(),name:'Preset '+presetNum({},S.presets.length),auto:true,pips:[]};S.presets.push(p);S.cur=p.id;sel=null;renderAll();touch();$('pName').focus();$('pName').select();};
-$('pDup').onclick=()=>{const src=preset();const p={id:uid(),name:(src.name||'Preset')+' copy',notes:src.notes,pips:src.pips.map(x=>({...x,id:uid()}))};S.presets.push(p);S.cur=p.id;sel=null;renderAll();touch();};
+/* New and Duplicate ask for the preset's name first. Left blank, it is 'Preset ' + its number (and keeps following
+   that number); Cancel or Esc makes no preset. */
+function askPresetName(title,make){
+  const d=$('dlgName'), inp=$('nameIn');
+  $('nameTitle').textContent=title; $('nameOk').textContent=title.startsWith('Duplicate')?'Duplicate':'Create';
+  inp.value=''; inp.placeholder='Preset '+presetNum({},S.presets.length);
+  $('nameForm').onsubmit=e=>{e.preventDefault(); const v=inp.value.trim(); d.close(); make(v);};
+  $('nameCancel').onclick=()=>d.close();
+  d.showModal(); inp.focus();
+}
+const addPreset=(name,extra)=>{const p={id:uid(),name:name||'Preset '+presetNum({},S.presets.length),...(name?{}:{auto:true}),pips:[],...extra};
+  S.presets.push(p);S.cur=p.id;sel=null;renderAll();touch();};
+$('pNew').onclick=()=>askPresetName('New preset',v=>addPreset(v));
+$('pDup').onclick=()=>{const src=preset();askPresetName(`Duplicate ${src.name||'preset'}`,v=>addPreset(v,{notes:src.notes,pips:src.pips.map(x=>({...x,id:uid()}))}));};
 $('pDel').onclick=()=>{if(S.presets.length<2) return;S.presets=S.presets.filter(p=>p.id!==S.cur);S.cur=S.presets[0].id;sel=null;renderAll();touch();};
 $('useLabels').onchange=e=>{S.useLabels=e.target.checked;renderAll();touch();};
 $('screenList').addEventListener('click',e=>{const b=e.target.closest('[data-screen]'); if(!b) return; sel={kind:'screen',id:b.dataset.screen}; renderAll();});
@@ -3720,8 +3742,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.76.html). Bump it with every release.
-const APP_VERSION = '3.76';
+// (pixelplanner-v3.77.html). Bump it with every release.
+const APP_VERSION = '3.77';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
