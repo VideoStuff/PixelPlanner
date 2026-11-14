@@ -3766,8 +3766,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.80.html). Bump it with every release.
-const APP_VERSION = '3.80';
+// (pixelplanner-v3.81.html). Bump it with every release.
+const APP_VERSION = '3.81';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
@@ -9042,14 +9042,14 @@ function addLayout(copy){
     const first = data.screens[0] ? data.screens[0].id : null;
     data.match.ref = map[data.match.ref] || first; data.sel = map[data.sel] || first;
   } else {
-    const sc = mkScreen(PRESETS.find(p => p.mode === 'dims') || PRESETS[0], {color: COLORS[0]});
-    data = {screens: [sc], objects: [], notes: [], ground: {on: false, placed: false, y: 0}, match: {on: src.match.on, ref: sc.id, round: src.match.round}, gap: src.gap, sel: sc.id};
+    // Blank: no screens yet, with the ground line on, ready for the first screen (which lands on it).
+    data = {screens: [], objects: [], notes: [], ground: {on: true, placed: true, y: 0}, match: {on: src.match.on, ref: null, round: src.match.round}, gap: src.gap, sel: null};
   }
   const id = 'L' + nid(), L = {id, name: copy ? `${curLayout().name} copy` : `Layout ${n}`, data};
   S.layouts.splice(S.layouts.indexOf(curLayout()) + 1, 0, L);
   curLayout().data = null; // still the open one until the switch below
   switchLayout(id);
-  if (!copy){ S.ground.on = true; placeGround(); refreshAll(); renderStage(); save(); } // a fresh layout starts with the ground line on, under its screen
+  save();
   toast(copy ? 'Layout copied' : 'New layout added');
 }
 function deleteLayout(id){
