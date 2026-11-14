@@ -101,6 +101,14 @@ main.work{display:grid;grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:1
 .panel h2{font-family:var(--f-display);font-weight:700;font-size:15px;letter-spacing:.08em;text-transform:uppercase;margin:0;text-wrap:balance}
 .panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
 .hint{color:var(--muted);font-size:13px;margin:0}
+/* Circled "i": hover (or tap) to read what a section does. The text shows in one floating tip (#tipPop). */
+.info{display:inline-grid;place-items:center;flex:none;width:17px;height:17px;padding:0;margin:0 0 0 6px;border:1.5px solid currentColor;border-radius:50%;background:none;
+  color:var(--muted);font:italic 700 11px/1 Georgia,"Times New Roman",serif;letter-spacing:0;text-transform:none;cursor:help;vertical-align:middle;opacity:.85}
+.info:hover,.info:focus-visible,.info.on{color:var(--accent);opacity:1}
+.stage-footer .info{color:var(--stage-muted)}
+#tipPop{position:fixed;z-index:200;max-width:min(320px,calc(100vw - 24px));background:var(--ink);color:var(--bg);font:500 13px/1.45 var(--f-body);letter-spacing:0;text-transform:none;
+  padding:8px 11px;border-radius:7px;box-shadow:0 8px 24px rgba(0,0,0,.3);pointer-events:none}
+.sw-row{display:flex;align-items:center;gap:2px}
 
 label.f,div.f{display:flex;flex-direction:column;gap:3px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:0}
 .f input,.f select,.f textarea,select.sel{border:1px solid var(--line);background:var(--field);border-radius:5px;padding:6px 8px;font-size:14px;letter-spacing:0;text-transform:none;color:var(--ink);width:100%;min-width:0}
@@ -469,6 +477,34 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
   window.__ppReport = report;
 })();
 </script>
+<script>
+/* Info tips: one floating box for every circled "i", shown on hover or keyboard focus, and toggled by a tap. */
+(function(){
+  var tip = null, cur = null;
+  function hide(){ if (tip) tip.hidden = true; if (cur) cur.classList.remove('on'); cur = null; }
+  function show(b){
+    if (!tip){ tip = document.createElement('div'); tip.id = 'tipPop'; tip.setAttribute('role', 'tooltip'); document.body.appendChild(tip); }
+    if (cur && cur !== b) cur.classList.remove('on');
+    cur = b; b.classList.add('on'); tip.innerHTML = b.getAttribute('data-tip') || ''; tip.hidden = false;
+    var r = b.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight, vw = document.documentElement.clientWidth, vh = window.innerHeight;
+    var x = Math.max(12, Math.min(vw - w - 12, r.left + r.width / 2 - w / 2)), y = r.bottom + 8;
+    if (y + h > vh - 8 && r.top - h - 8 > 8) y = r.top - h - 8;
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  }
+  var isInfo = function(t){ return t && t.closest ? t.closest('.info') : null; };
+  document.addEventListener('pointerover', function(e){ var b = isInfo(e.target); if (b && e.pointerType !== 'touch') show(b); });
+  document.addEventListener('pointerout', function(e){ var b = isInfo(e.target); if (b && b === cur && e.pointerType !== 'touch' && !b.contains(e.relatedTarget) && document.activeElement !== b) hide(); });
+  document.addEventListener('focusin', function(e){ var b = isInfo(e.target); if (b) show(b); });
+  document.addEventListener('focusout', function(e){ if (isInfo(e.target) === cur) hide(); });
+  document.addEventListener('click', function(e){
+    var b = isInfo(e.target);
+    if (b){ e.preventDefault(); e.stopPropagation(); if (cur === b && !tip.hidden && e.pointerType === 'touch') hide(); else show(b); return; } // a tip button doesn't open its section, pick a card or press a label
+    if (cur) hide();
+  }, true);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && cur){ hide(); } }, true);
+  window.addEventListener('scroll', hide, true); window.addEventListener('resize', hide);
+})();
+</script>
 <header class="top">
   <div class="brand">
     <span class="eyebrow">PixelPlanner <span id="appVer" class="appver"></span></span>
@@ -512,8 +548,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <main class="work builder-only" id="builderMain">
   <div class="col side" id="side" aria-label="Settings">
     <section class="panel" aria-labelledby="h-match">
-      <label class="switch"><input type="checkbox" id="matchOn"><span id="h-match">Match pixel density</span></label>
-      <p class="hint" style="margin-top:6px">Resizes every screen's content resolution so one pixel covers the same physical area as on the reference screen. Content then lines up across screens without stretching.</p>
+      <div class="sw-row"><label class="switch"><input type="checkbox" id="matchOn"><span id="h-match">Match pixel density</span></label><button type="button" class="info" data-tip="Resizes every screen&#x27;s content resolution so one pixel covers the same physical area as on the reference screen. Content then lines up across screens without stretching." aria-label="About matching pixel density">i</button></div>
       <div class="match-body" id="matchBody">
         <div class="row r2">
           <label class="f">Reference screen<select id="refSel"></select></label>
@@ -531,14 +566,13 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 
     <section class="panel" aria-labelledby="h-screens">
       <div class="panel-head">
-        <h2 id="h-screens">Screens</h2>
+        <h2 id="h-screens">Screens<button type="button" class="info" data-tip="Drag ⠿ to reorder. The top card is the screen in front, the bottom card is at the back. On the layout, Shift-click or Shift-drag to select several, and Ctrl+C / Ctrl+V to copy and paste." aria-label="About the screen list">i</button></h2>
         <div class="count">
           <button class="btn" type="button" id="cMinus" aria-label="Remove last screen">−</button>
           <label class="f" style="flex-direction:row;align-items:center;gap:6px"><span class="sr" hidden>Number of screens</span><input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="count" min="1" max="24" aria-label="Number of screens"></label>
           <button class="btn" type="button" id="cPlus" aria-label="Add a screen">+</button>
         </div>
       </div>
-      <p class="hint zhint" id="zHint">Drag ⠿ to reorder. The top card is the screen in front, the bottom card is at the back. On the layout, Shift-click or Shift-drag to select several, and Ctrl+C / Ctrl+V to copy and paste.</p>
       <div id="list"></div>
       <div class="add-row">
         <select class="sel" id="presetSel" aria-label="Screen preset"></select>
@@ -546,6 +580,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
         <button class="btn" type="button" id="btnAddObj" aria-expanded="false" aria-controls="objAdd">Add object</button>
       </div>
       <div class="obj-add" id="objAdd" role="group" hidden aria-label="Add an object">
+        <div class="sw-row"><span class="eyebrow">New object</span><button type="button" class="info" data-tip="Objects show on the layout, the layout snapshot and the layout summary so you can place screens around them. They aren&#x27;t part of the content canvas, gaps or spec sheet." aria-label="About objects">i</button></div>
         <label class="f">Type<select class="sel" id="oaPreset" aria-label="Object type"></select></label>
         <label class="f">Name<input type="text" id="oaName" autocomplete="off" spellcheck="false" value="Object"></label>
         <div class="x-sep" id="oaSize">
@@ -555,7 +590,6 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
         <p class="hint" id="oaDrawHint" hidden>Click on the layout to place each corner, then press Enter (or Finish). Shift keeps an edge straight; Esc cancels.</p>
         <label class="f" id="oaSideRow" hidden>Ramp side<select id="oaSide"><option value="rampL">Left of the stage (rises to the right)</option><option value="rampR">Right of the stage (rises to the left)</option></select></label>
         <label class="chk-row" id="oaRailRow" hidden><input type="checkbox" id="oaRail" checked> Handrails, 38 in above the ramp</label>
-        <p class="hint">Objects show on the layout, the layout snapshot and the layout summary so you can place screens around them. They aren't part of the content canvas, gaps or spec sheet.</p>
         <div class="gp-actions">
           <button class="btn primary" type="button" id="oaOk">Add to layout</button>
           <button class="btn" type="button" id="oaCancel">Cancel</button>
@@ -564,8 +598,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
     </section>
 
     <section class="panel" id="objPanel" aria-labelledby="h-objs" hidden>
-      <div class="panel-head"><h2 id="h-objs">Objects</h2></div>
-      <p class="hint zhint" id="objHint">Drag ⠿ to reorder. The top card is the object in front. Objects always sit in front of the screens.</p>
+      <div class="panel-head"><h2 id="h-objs">Objects<button type="button" class="info" data-tip="Drag ⠿ to reorder. The top card is the object in front. Objects always sit in front of the screens." aria-label="About the object list">i</button></h2></div>
       <div id="objList"></div>
     </section>
   </div>
@@ -622,7 +655,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
       <div class="ctxmenu" id="ctxMenu" role="menu" hidden></div>
       <div class="stage-footer">
         <div class="stage-foot" id="stageFoot"></div>
-        <span class="stage-hint">Drag screens to arrange · scroll to zoom · drag the background to pan · click a gap to set it · double-click to edit</span>
+        <span class="stage-hint">Layout tips<button type="button" class="info" data-tip="Drag screens to arrange, scroll to zoom, drag the background to pan, click a gap to set it, double-click to edit. Press ? for every shortcut." aria-label="Layout tips">i</button></span>
       </div>
       <div class="gappop" id="gapPop" role="dialog" hidden aria-labelledby="gpTitle">
         <div class="gp-title" id="gpTitle">Gap</div>
@@ -659,8 +692,8 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
           <div class="tbl-wrap"><table id="tbl"></table></div>
         </div>
         <div role="tabpanel" id="pnExp" aria-labelledby="tabExp" class="exp" hidden>
-          <p class="hint">PNG templates at exact pixel size. Drop them on a guide layer in your editor or motion graphics tool.</p>
           <div class="exp-actions">
+            <span class="eyebrow sw-row">Images<button type="button" class="info" data-tip="PNG templates at exact pixel size. Drop them on a guide layer in your editor or motion graphics tool." aria-label="About image exports">i</button></span>
             <button class="btn primary" type="button" id="btnCanvas" aria-haspopup="dialog" title="The full content canvas at exact pixel size, as a PNG guide for your editor or media server">Canvas Export…</button>
             <button class="btn" type="button" id="btnLayoutView" aria-haspopup="dialog" title="PNG of the layout as it looks here: every screen, object and note, with the content canvas width and height measured">Layout snapshot…</button>
             <button class="btn" type="button" id="btnLayout" aria-haspopup="dialog" title="To-scale drawing on white with physical sizes, gaps, overall dimensions and the spec sheet">Layout summary…</button>
@@ -696,9 +729,8 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
           </div>
         </div>
         <div role="tabpanel" id="pnAdv" aria-labelledby="tabAdv" class="exp" hidden>
-          <p class="hint">Advanced tools. Features marked experimental are new and not yet proven on show hardware, so check their results before you rely on them.</p>
           <div class="exp-actions">
-            <span class="eyebrow">EDID <span class="tag tag-exp">Experimental</span></span>
+            <span class="eyebrow sw-row">EDID <span class="tag tag-exp">Experimental</span><button type="button" class="info" data-tip="Advanced tools. Features marked experimental are new and not yet proven on show hardware, so check their results before you rely on them." aria-label="About advanced tools">i</button></span>
             <button class="btn" type="button" id="btnEDID" aria-haspopup="dialog" title="Experimental. An EDID file for one screen, so a media server or graphics card offers that exact resolution. Choose the connector, refresh rate and blanking.">EDID…</button>
           </div>
         </div>
@@ -736,7 +768,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <ul><li>Canvas export PNG at exact pixel size, layout snapshot, layout summary and test patterns.</li><li>PDF spec pack, PowerPoint template, layered PSD and SVG.</li><li>Spec sheet as CSV.</li><li>Switcher planning <code>.xml</code> (screens, layers and auxes).</li><li><strong>Advanced → EDID (experimental):</strong> an EDID <code>.bin</code> for a screen, with connector, refresh rate, CVT blanking and a split across outputs. Check results on your hardware before you rely on them.</li></ul>
 <h2>Using it</h2>
 <ol><li>Add your screens on the left, or choose <strong>Options → Load example</strong> to see one set up.</li><li>Arrange them on the layout, then switch to <strong>Preset Guide</strong> to plan PiPs.</li><li>Use the <strong>Export</strong> tab under the layout for files, and <strong>Options → Save .json</strong> to keep your work.</li></ol>
-<p>Press <strong>?</strong> (or <strong>Options → Keyboard shortcuts</strong>) for every shortcut, and use <strong>Options → Layout text size</strong> to make the labels on both layouts smaller or larger.</p>
+<p>Hover over (or tap) a circled <strong>i</strong> to see what a section does. Press <strong>?</strong> (or <strong>Options → Keyboard shortcuts</strong>) for every shortcut, and use <strong>Options → Layout text size</strong> to make the labels on both layouts smaller or larger.</p>
 <p><strong>Options → Reset app</strong> clears everything PixelPlanner has saved in this browser.</p>
 <!-- README:END -->
     </div>
@@ -761,7 +793,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
         <label class="f">Split across outputs<select id="edidSplit"></select></label>
         <label class="f" id="edidDirWrap">Split direction<select id="edidDir"><option value="cols">Side by side (columns)</option><option value="rows">Stacked (rows)</option></select></label>
         <p class="hint" id="edidSplitHint"></p>
-        <p class="hint">Timings follow VESA CVT 1.2. Reduced blanking v2 uses the least bandwidth and suits LED processors and media servers; standard blanking suits older displays and projectors. Load the .bin into your EDID manager, graphics card software or processor input.</p>
+        <p class="hint sw-row">About the timings<button type="button" class="info" data-tip="Timings follow VESA CVT 1.2. Reduced blanking v2 uses the least bandwidth and suits LED processors and media servers; standard blanking suits older displays and projectors. Load the .bin into your EDID manager, graphics card software or processor input." aria-label="About the timings">i</button></p>
       </div>
       <div class="tp-prev" id="edidInfo" aria-live="polite"></div>
     </div>
@@ -907,6 +939,12 @@ h2{font-family:var(--f-display);font-size:15px;font-weight:600;letter-spacing:.0
 .count{font:500 11px var(--f-mono);color:var(--muted)}
 .tag{font:600 10px var(--f-body);letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line);border-radius:4px;padding:0 5px;color:var(--muted)}
 .hint{color:var(--muted);font-size:12px;margin:0}
+.info{display:inline-grid;place-items:center;flex:none;width:16px;height:16px;padding:0;margin:0 0 0 6px;border:1.5px solid currentColor;border-radius:50%;background:none;
+  color:var(--muted);font:italic 700 10.5px/1 Georgia,"Times New Roman",serif;letter-spacing:0;text-transform:none;cursor:help;vertical-align:middle;opacity:.85;min-height:0}
+.info:hover,.info:focus-visible,.info.on{color:var(--focus,#4db8e4);opacity:1}
+#tipPop{position:fixed;z-index:200;max-width:min(320px,calc(100vw - 24px));background:#0b0e12;color:#eef1f5;border:1px solid #2b3340;font:500 12.5px/1.45 var(--f-body,system-ui);letter-spacing:0;text-transform:none;
+  padding:8px 11px;border-radius:7px;box-shadow:0 8px 24px rgba(0,0,0,.35);pointer-events:none}
+#tipPop b{color:#fff}
 label.lbl{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:3px;min-width:0}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 
@@ -1069,7 +1107,7 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
       <label class="chk"><input type="checkbox" id="useLabels"> Use screen names from the Screen Builder</label>
       <div class="list" id="screenList"></div>
       <button class="btn" id="btnReset" title="Put every Screen Builder screen back to its position, size and name from the Screen Builder">Reset screens to Screen Builder</button>
-      <h2 style="margin-top:4px">Add a screen</h2>
+      <h2 style="margin-top:4px">Add a screen<button type="button" class="info" data-tip="Leave the resolution blank for 1920 × 1080. The resolution sets the screen&#x27;s shape on the layout and is the reference for PiP estimates; resizing the screen later doesn&#x27;t change it." aria-label="About adding a screen">i</button></h2>
       <div class="row">
         <button class="btn sm" data-quick="Delay">Delay</button>
         <button class="btn sm" data-quick="Confidence">Confidence</button>
@@ -1079,14 +1117,12 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
         <label class="lbl" for="nsW">Resolution width<input id="nsW" class="field num" type="number" min="16" max="16384" step="1" inputmode="numeric"></label>
         <label class="lbl" for="nsH">Resolution height<input id="nsH" class="field num" type="number" min="16" max="16384" step="1" inputmode="numeric"></label>
       </div>
-      <p class="hint" id="nsHint">Leave blank for 1920 × 1080. The resolution sets the screen's shape on the layout and is the reference for PiP estimates; resizing the screen later doesn't change it.</p>
       <button class="btn" id="nsAdd">Add screen</button>
     </section>
     <section class="panel">
-      <h2>Excel notes</h2>
+      <h2>Excel notes<button type="button" class="info" data-tip="These go on the Notes sheet of the Excel, next to each preset&#x27;s own notes." aria-label="About Excel notes">i</button></h2>
       <label class="lbl" for="projNotes">General notes for the whole show
         <textarea id="projNotes" class="field" rows="4" placeholder="Venue, signal flow, contacts, anything the team should know"></textarea></label>
-      <p class="hint">These go on the Notes sheet of the Excel, next to each preset's own notes.</p>
     </section>
   </aside>
 
@@ -1109,7 +1145,7 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
         <span class="count" id="zVal">100%</span>
         <button class="btn sm" id="zIn" aria-label="Zoom in">+</button>
         <button class="btn sm" id="zFit">Fit</button>
-        <button class="btn sm" id="pgFull" aria-pressed="false" title="Full screen layout (F)">Full screen</button>
+        <button class="btn sm" id="pgFull" aria-pressed="false" title="Full screen layout (F)">Full screen</button><button type="button" class="info" data-tip="Right-click the layout to add a PiP or screen at that spot. Double-click a PiP to type its name. Drag to move, use the white handles to resize. Hold Ctrl (Cmd on a Mac) while dragging to skip snapping. Scroll the mouse wheel over the layout to zoom. Delete removes it, arrow keys nudge. On a phone or tablet: pinch to zoom, drag the background (or a screen you haven&#x27;t selected) to scroll, tap a screen to select it before dragging it, double-tap the background to fit, and press and hold for the menu. Press ? for every shortcut." aria-label="Layout tips">i</button>
       </div>
     </div>
     <div class="stage-scroll" id="scroll">
@@ -1120,20 +1156,16 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
       </div>
     </div>
     <section class="panel">
-      <h2>PiP library <span class="count" id="libCount"></span></h2>
+      <h2><span>PiP library <span class="count" id="libCount"></span></span><button type="button" class="info" data-tip="Drag a PiP onto the layout to add it to this preset. Every named PiP from any preset, in any layout, is listed here at its own aspect ratio. Click one to drop it in the middle of the first screen." aria-label="About the PiP library">i</button></h2>
       <div class="lib" id="library" role="list"></div>
-      <p class="hint" id="libHint">Drag a PiP onto the layout to add it to this preset. Every named PiP from any preset, in any layout, is listed here at its own aspect ratio. Click one to drop it in the middle of the first screen.</p>
     </section>
     <section class="panel" id="picPanel">
-      <h2>Picture library <span class="count" id="picCount"></span></h2>
+      <h2><span>Picture library <span class="count" id="picCount"></span></span><button type="button" class="info" data-tip="Pictures are shared by every preset. Select a PiP and click a picture to put it in that PiP, or drag a picture onto a PiP (dropping it on an empty spot makes a new PiP). You can also drop image files here or straight onto a PiP. Pictures are shrunk to at most 1920 px and saved in the guide&#x27;s .json." aria-label="About the picture library">i</button></h2>
       <div class="row"><button class="btn sm" id="picAdd" type="button">Add pictures…</button><input type="file" id="picFile" accept="image/*" multiple hidden></div>
       <div class="pics" id="pics" role="list"></div>
-      <p class="hint">Pictures are shared by every preset. Select a PiP and click a picture to put it in that PiP, or drag a picture onto a PiP (dropping it on an empty spot makes a new PiP). You can also drop image files here or straight onto a PiP. Pictures are shrunk to at most 1920 px and saved in the guide's .json.</p>
     </section>
-    <p class="hint">Right-click the layout to add a PiP or screen at that spot. Double-click a PiP to type its name. Drag to move, use the white handles to resize. Hold Ctrl (Cmd on a Mac) while dragging to skip snapping. Scroll the mouse wheel over the layout to zoom. Delete removes it, arrow keys nudge. On a phone or tablet: pinch to zoom, drag the background (or a screen you haven't selected) to scroll, tap a screen to select it before dragging it, double-tap the background to fit, and press and hold for the menu.</p>
     <section class="panel">
-      <h2>What the Excel will say for this preset</h2>
-      <p class="hint" style="margin-top:-4px">Layer 1 is in front. Drag a row up or down to change the stacking order, or right-click a PiP on the layout.</p>
+      <h2>What the Excel will say for this preset<button type="button" class="info" data-tip="Layer 1 is in front. Drag a row up or down to change the stacking order, or right-click a PiP on the layout." aria-label="About layers">i</button></h2>
       <div class="tbl-wrap"><table class="t" id="preview"></table></div>
     </section>
   </section>
@@ -1148,11 +1180,9 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
   <div class="dlg">
     <h2 id="expTitle" style="font-size:20px;color:var(--ink);display:block;text-transform:none;letter-spacing:.01em">Export Excel</h2>
     <div id="optThumbsRow" style="display:flex;flex-direction:column;gap:4px">
-      <label class="chk" title="Put a small picture of each screen, with its PiPs, in the preset columns of the Excel"><input type="checkbox" id="optThumbs" checked> Screen thumbnails</label>
-      <p class="hint" style="margin:0">Adds a picture of each screen, with its PiPs, to the preset columns on the Presets sheet. The PiP names stay as text under each picture.</p>
+      <div style="display:flex;align-items:center"><label class="chk"><input type="checkbox" id="optThumbs" checked> Screen thumbnails</label><button type="button" class="info" data-tip="Adds a picture of each screen, with its PiPs, to the preset columns on the Presets sheet. The PiP names stay as text under each picture." aria-label="About screen thumbnails">i</button></div>
     </div>
-    <label class="chk" title="Show objects (like a lectern) and the objects from the Screen Builder that cover a screen"><input type="checkbox" id="optObjs" checked> Include objects</label>
-    <p class="hint" style="margin:0">Every object from the Screen Builder. Leave it off for clean screens with only the PiPs.</p>
+    <div style="display:flex;align-items:center"><label class="chk"><input type="checkbox" id="optObjs" checked> Include objects</label><button type="button" class="info" data-tip="Every object from the Screen Builder. Leave it off for clean screens with only the PiPs." aria-label="About including objects">i</button></div>
     <div class="row" style="justify-content:flex-end">
       <button class="btn" id="expCancel">Cancel</button>
       <button class="btn primary" id="expGo">Export</button>
@@ -1195,8 +1225,7 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
 </dialog>
 <dialog id="dlgImport">
   <div class="dlg">
-    <h2 style="font-size:18px;color:var(--ink)">Import screens from the v2 video content guide</h2>
-    <p class="hint">Choose the exported JSON file or paste its contents. Screens are placed using the positions saved in the file. Only the screen layout is imported; this app never changes or exports any resolution.</p>
+    <h2 style="font-size:18px;color:var(--ink)">Import screens from the v2 video content guide<button type="button" class="info" data-tip="Choose the exported JSON file or paste its contents. Screens are placed using the positions saved in the file. Only the screen layout is imported; this app never changes or exports any resolution." aria-label="About importing">i</button></h2>
     <div class="row">
       <input type="file" id="fileScreens" accept=".json,application/json">
       <button class="btn sm" id="loadSample">Use example JSON</button>
@@ -1762,8 +1791,7 @@ function estHtml(p){
     }).join('');
   };
   const m=mirrorRect(p);
-  return `<h2 style="margin-bottom:2px">Estimated resolution</h2>${part(m?'Original':'',p)}${m?part('Mirror',m):''}`+
-    `<p class="hint">Measured against each screen's resolution from the Screen Builder. Resizing a screen here doesn't change that reference.</p>`;
+  return `<h2 style="margin-bottom:2px">Estimated resolution${info('Measured against each screen\'s resolution from the Screen Builder. Resizing a screen here doesn\'t change that reference.','About the estimate')}</h2>${part(m?'Original':'',p)}${m?part('Mirror',m):''}`;
 }
 /* Set size: type the PiP's size as a resolution in pixels, or as a percentage of the screen it is mostly on.
    Sized against that screen's resolution (the same reference as the estimate). Keeps the PiP's centre. */
@@ -1774,20 +1802,21 @@ function sizeHtml(p,r){
   const n=nativeRes(s), pct=sizeMode==='pct', f=v=>pct?Math.round(v*10)/10:Math.round(v);
   const w=pct?r.w/s.w*100:r.w/s.w*n.w, h=pct?r.h/s.h*100:r.h/s.h*n.h, u=pct?'%':'px';
   const at=pipAt(r,s);
-  return `<div class="est" id="sizeSet"><h2 style="margin-bottom:2px">Position on ${esc(sname(s))}</h2>
+  return `<div class="est" id="sizeSet"><h2 style="margin-bottom:2px">Position on ${esc(sname(s))}${info(`The PiP's top-left corner, in ${esc(sname(s))}'s pixels (${n.w} × ${n.h}), measured from the screen's top-left corner (0, 0). Press Enter or leave the box to move it there.`,'About the position')}</h2>
     <div class="grid2">
       <label class="lbl" for="iPosX">X (px)<input id="iPosX" class="field num" type="number" step="1" value="${at.x}"></label>
       <label class="lbl" for="iPosY">Y (px)<input id="iPosY" class="field num" type="number" step="1" value="${at.y}"></label>
     </div>
-    <p class="hint">The PiP's top-left corner, in ${esc(sname(s))}'s pixels (${n.w} × ${n.h}), measured from the screen's top-left corner (0, 0). Press Enter or leave the box to move it there.</p>
-    <h2 style="margin:6px 0 2px">Set size</h2>
+    <h2 style="margin:6px 0 2px">Set size${info(`Against ${esc(sname(s))} (${n.w} × ${n.h}). Press Enter or leave the box to apply; the PiP keeps its centre.${pipLocked(p)?' Aspect ratio is locked, so the other side follows. Untick <b>Lock aspect ratio</b> to set both.':''}`,'About setting the size')}</h2>
     <label class="lbl" for="iSzMode">Size by<select id="iSzMode" class="field"><option value="px"${pct?'':' selected'}>Resolution (px)</option><option value="pct"${pct?' selected':''}>Percentage of the screen</option></select></label>
     <div class="grid2">
       <label class="lbl" for="iSzW">Width (${u})<input id="iSzW" class="field num" type="number" min="${pct?0.1:1}" step="${pct?0.1:1}" value="${f(w)}"></label>
       <label class="lbl" for="iSzH">Height (${u})<input id="iSzH" class="field num" type="number" min="${pct?0.1:1}" step="${pct?0.1:1}" value="${f(h)}"></label>
     </div>
-    <p class="hint">Against ${esc(sname(s))} (${n.w} × ${n.h}). Press Enter or leave the box to apply; the PiP keeps its centre.${pipLocked(p)?' Aspect ratio is locked, so the other side follows. Untick <b>Lock aspect ratio</b> to set both.':''}</p></div>`;
+    </div>`;
 }
+/* Circled "i": the text shows in a tip on hover, focus or tap. t may hold simple markup that is already escaped. */
+const info=(t,label)=>`<button type="button" class="info" data-tip="${String(t).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}" aria-label="${label||'More info'}">i</button>`;
 const LOCK_ICON=on=>`<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="${on?'M4.5 7V5a3.5 3.5 0 0 1 7 0v2':'M4.5 7V5a3.5 3.5 0 0 1 6.8-1.2'}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="2.5" y="7" width="11" height="7.5" rx="1.6" fill="currentColor"/></svg>`;
 const lockBtn=o=>`<button class="lockbtn" id="lockToggle" aria-pressed="${o.locked?'true':'false'}" title="${o.locked?'Locked: click to unlock':'Lock it so it cannot be moved, resized or replaced'}">${LOCK_ICON(!!o.locked)}<span>${o.locked?'Locked':'Lock'}</span></button>`;
 function renderInspector(){
@@ -1796,8 +1825,7 @@ function renderInspector(){
   if(multi.size<2) multi.clear();
   if(multi.size>1){
     const n=multi.size, prim=sel&&pipById(sel.id), B=(a,t,tip,dis)=>`<button class="btn sm" data-grp="${a}" title="${tip}"${dis?' disabled':''}>${t}</button>`;
-    el.innerHTML=`<h2>${n} PiPs selected</h2>
-      <p class="hint" style="margin-top:-4px">Shift- or Ctrl-click a PiP to add or remove it. Drag one to move them all; arrow keys nudge them, Delete removes them.</p>
+    el.innerHTML=`<h2>${n} PiPs selected${info('Shift- or Ctrl-click a PiP to add or remove it. Drag one to move them all; arrow keys nudge them, Delete removes them.','About group editing')}</h2>
       <span class="count">Align</span>
       <div class="row grp-row">${B('left','Left','Line up their left edges')}${B('hcenter','Centre','Line up their centres side to side')}${B('right','Right','Line up their right edges')}</div>
       <div class="row grp-row">${B('top','Top','Line up their top edges')}${B('vcenter','Middle','Line up their centres top to bottom')}${B('bottom','Bottom','Line up their bottom edges')}</div>
@@ -1841,16 +1869,15 @@ function renderInspector(){
     {const q=p.w/p.h; $('iAR').value=!pipLocked(p)?'custom':Math.abs(q/(16/9)-1)<0.01?'16:9':Math.abs(q/3-1)<0.01?'3:1':'custom';}   /* unlocked reads as Custom */
   }else if(sel&&sel.kind==='screen'&&scrById(sel.id)){
     const s=scrById(sel.id), custom=s.kind==='custom';
-    el.innerHTML=`<h2><span>Screen ${custom?'<span class="tag">custom</span>':''}</span> ${lockBtn(s)}</h2>
+    el.innerHTML=`<h2><span>Screen ${custom?'<span class="tag">custom</span>':''}${info('Drag the screen or its white handles on the stage. Changing the resolution resizes the screen on the layout to match, and PiP estimates use it. The mirror axis follows the centre of the video-wall screens.','About screens')}</span> ${lockBtn(s)}</h2>
       <div class="row"><button class="btn sm" id="sFocus" title="Zoom the layout so this screen fills the viewer">Focus on this screen</button><button class="btn sm" id="sFit">Fit canvas</button></div>
       <div class="row" role="group" aria-label="Stacking order">
-        <span class="count" style="margin-right:2px">Layer</span>
+        <span class="count" style="margin-right:2px">Layer${info('Where screens overlap, a PiP counts only on the screen in front.','About screen layers')}</span>
         <button class="btn sm" data-szm="front" ${S.screens[S.screens.length-1]===s?'disabled':''} title="In front of every other screen">To front</button>
         <button class="btn sm" data-szm="fwd" ${S.screens[S.screens.length-1]===s?'disabled':''}>Forward</button>
         <button class="btn sm" data-szm="back" ${S.screens[0]===s?'disabled':''}>Backward</button>
         <button class="btn sm" data-szm="backmost" ${S.screens[0]===s?'disabled':''} title="Behind every other screen">To back</button>
       </div>
-      <p class="hint" style="margin-top:-4px">Where screens overlap, a PiP counts only on the screen in front.</p>
       <label class="lbl" for="sName">Name<input id="sName" class="field" value="${esc(sname(s))}"></label>
       <div class="grid2">
         <label class="lbl" for="sX">X<input id="sX" class="field num" type="number" value="${s.x}"></label>
@@ -1860,9 +1887,7 @@ function renderInspector(){
         <label class="lbl" for="sRW">Resolution width<input id="sRW" class="field num" type="number" min="16" max="16384" step="1" value="${nativeRes(s).w}"></label>
         <label class="lbl" for="sRH">Resolution height<input id="sRH" class="field num" type="number" min="16" max="16384" step="1" value="${nativeRes(s).h}"></label>
       </div>
-      <p class="hint" style="margin-top:-4px">Changing the resolution resizes the screen on the layout to match, and PiP estimates use it.</p>
       <label class="chk" title="Keep this screen's width-to-height ratio when you resize it"><input type="checkbox" id="sLock" ${screenLocked(s)?'checked':''}> Lock aspect ratio for this screen</label>
-      <p class="hint">Drag the screen or its white handles on the stage. The mirror axis follows the centre of the video-wall screens.</p>
       ${custom?'':`<div class="banner warnbox">This screen comes from the Screen Builder${screenMod(s)?` and is currently <b>${screenMod(s)}</b> here`:''}. Changing it here makes the Preset Guide differ from the Screen Builder. <b>Reset screens to Screen Builder</b> restores it.</div>`}
       <div class="row">
         <button class="btn sm" id="sReset" ${(()=>{const d=defOf(s);return d&&(d.x!==s.x||d.y!==s.y||d.w!==s.w||d.h!==s.h)?'':'disabled';})()} title="Back to the ${custom?'size and position it was created with':'size and position from the Screen Builder'}">Reset size and position</button>
@@ -1870,7 +1895,7 @@ function renderInspector(){
       </div>`;
   }else if(sel&&sel.kind==='object'&&objById(sel.id)){
     const o=objById(sel.id);
-    el.innerHTML=`<h2>Object ${lockBtn(o)}</h2>
+    el.innerHTML=`<h2><span>Object${info('Drag it on the layout and use the white handles to resize. Objects always sit above every screen and PiP.','About objects')}</span> ${lockBtn(o)}</h2>
       <div class="row"><button class="btn sm" id="oFocus" title="Zoom the layout so this object fills the viewer">Focus on this object</button><button class="btn sm" id="sFit">Fit canvas</button></div>
       <label class="lbl" for="oName">Name (shown in the middle)<input id="oName" class="field" value="${esc(o.name||'')}" placeholder="e.g. Lectern"></label>
       <div class="swatches" role="group" aria-label="Colour">${OBJ_COLORS.map(c=>`<button class="sw ${c.toLowerCase()===String(o.color).toLowerCase()?'on':''}" data-ocolor="${c}" style="background:${c}" aria-label="Colour ${c}"></button>`).join('')}
@@ -1879,10 +1904,9 @@ function renderInspector(){
         <label class="lbl" for="oX">X<input id="oX" class="field num" type="number" value="${round(o.x)}"></label>
         <label class="lbl" for="oY">Y<input id="oY" class="field num" type="number" value="${round(o.y)}"></label>
       </div>
-      <p class="hint">Drag it on the layout and use the white handles to resize. Objects always sit above every screen and PiP.</p>
       <div class="row"><button class="btn sm" id="oDup">Duplicate</button><button class="btn sm danger" id="oDel">Delete</button></div>`;
   }else{
-    el.innerHTML=`<h2>Inspector</h2><p class="hint">Select a PiP, a screen or an object to edit it. Use <b>+ Add PiP</b>, or right-click a screen and choose <b>Create… → PiP</b> to add one there. Double-click a PiP to type its name.</p>
+    el.innerHTML=`<h2>Inspector${info('Use <b>+ Add PiP</b>, or right-click a screen and choose <b>Create… → PiP</b> to add one there. Double-click a PiP to type its name.','About the inspector')}</h2><p class="hint">Select a PiP, a screen or an object to edit it.</p>
       ${S.example?'<div class="banner">This is an example layout. Import your v2 video content guide JSON to replace the video screens, then edit or delete the example presets.</div>':''}`;
   }
   /* a locked PiP or screen: everything that could change it is switched off until it is unlocked */
@@ -3637,6 +3661,34 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 
 })();
 </script>
+<script>
+/* Info tips: one floating box for every circled "i", shown on hover or keyboard focus, and toggled by a tap. */
+(function(){
+  var tip = null, cur = null;
+  function hide(){ if (tip) tip.hidden = true; if (cur) cur.classList.remove('on'); cur = null; }
+  function show(b){
+    if (!tip){ tip = document.createElement('div'); tip.id = 'tipPop'; tip.setAttribute('role', 'tooltip'); document.body.appendChild(tip); }
+    if (cur && cur !== b) cur.classList.remove('on');
+    cur = b; b.classList.add('on'); tip.innerHTML = b.getAttribute('data-tip') || ''; tip.hidden = false;
+    var r = b.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight, vw = document.documentElement.clientWidth, vh = window.innerHeight;
+    var x = Math.max(12, Math.min(vw - w - 12, r.left + r.width / 2 - w / 2)), y = r.bottom + 8;
+    if (y + h > vh - 8 && r.top - h - 8 > 8) y = r.top - h - 8;
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  }
+  var isInfo = function(t){ return t && t.closest ? t.closest('.info') : null; };
+  document.addEventListener('pointerover', function(e){ var b = isInfo(e.target); if (b && e.pointerType !== 'touch') show(b); });
+  document.addEventListener('pointerout', function(e){ var b = isInfo(e.target); if (b && b === cur && e.pointerType !== 'touch' && !b.contains(e.relatedTarget) && document.activeElement !== b) hide(); });
+  document.addEventListener('focusin', function(e){ var b = isInfo(e.target); if (b) show(b); });
+  document.addEventListener('focusout', function(e){ if (isInfo(e.target) === cur) hide(); });
+  document.addEventListener('click', function(e){
+    var b = isInfo(e.target);
+    if (b){ e.preventDefault(); e.stopPropagation(); if (cur === b && !tip.hidden && e.pointerType === 'touch') hide(); else show(b); return; } // a tip button doesn't open its section, pick a card or press a label
+    if (cur) hide();
+  }, true);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && cur){ hide(); } }, true);
+  window.addEventListener('scroll', hide, true); window.addEventListener('resize', hide);
+})();
+</script>
 </template>
 <div id="toast" hidden></div>
 <div id="resetDlg" class="cdlg-back" hidden>
@@ -3668,8 +3720,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.74.html). Bump it with every release.
-const APP_VERSION = '3.74';
+// (pixelplanner-v3.75.html). Bump it with every release.
+const APP_VERSION = '3.75';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
@@ -4463,7 +4515,7 @@ function openNoteEditor(id, noFocus){
         <span style="display:flex;gap:4px"><button type="button" class="btn" data-nact="smaller" title="Smaller text">A−</button><button type="button" class="btn" data-nact="larger" title="Larger text">A+</button></span>
         <span style="display:flex;gap:4px"><button type="button" class="btn ghost" data-nact="dup">Duplicate</button><button type="button" class="btn ghost danger" data-nact="del">Delete</button></span>
       </div>
-      <p class="hint">Drag the note to move it, and its corner handle to change the width. Notes print on the layout snapshot and layout summary.</p>
+      <div class="sw-row hint">About notes${info('Drag the note to move it, and its corner handle to change the width. Notes print on the layout snapshot and layout summary.', 'About notes')}</div>
     </div>`;
   stageEd.hidden = false; revealEditor();
   if (!noFocus){ const t = stageEd.querySelector('textarea'); t.focus({preventScroll:true}); t.setSelectionRange(t.value.length, t.value.length); }
@@ -4621,7 +4673,7 @@ function cardHTML(s){
     ${!isLed && ready(s) ? shapeHTML(s) : ''}
     ${isLed && ready(s) ? `<details class="more cut" data-cutd${cutOpen.has(s.id) ? ' open' : ''}><summary>Cutouts${offCount(s) ? ` · ${offCount(s)} removed` : ''}</summary>
       <canvas class="cutmap" data-cut role="img" aria-label="Cabinet map. Click or drag over cabinets to remove them, again to put them back."></canvas>
-      <div class="cut-foot"><span class="hint">Click or drag over cabinets to remove them; again to put them back.</span><button type="button" class="btn" data-act="cutclear"${offCount(s) ? '' : ' hidden'}>Restore all cabinets</button></div>
+      <div class="cut-foot"><span class="hint sw-row">Click or drag cabinets${info('Click or drag over cabinets to remove them; again to put them back.', 'About cutouts')}</span><button type="button" class="btn" data-act="cutclear"${offCount(s) ? '' : ' hidden'}>Restore all cabinets</button></div>
     </details>` : ''}
     ${posHTML(s)}
     <div class="card-tools">
@@ -4656,15 +4708,13 @@ function shapeHTML(s){
   const ff = s.shape || {pw: dims(s).w, ph: dims(s).h, c: blankCorners()};
   const slider = k => { const r = curveRange(ff, k); return `<input type="range" class="curve" data-skr="${k}" min="${-r.max}" max="${r.max}" step="${r.step}" value="${(f[k] || 0) / U().f}" aria-label="${k === 'l' ? 'Left' : 'Right'} end curve, in to out"><div class="crange"><span>in ${esc(fmtLen(r.max * U().f))}</span><span>0</span><span>out ${esc(fmtLen(r.max * U().f))}</span></div>`; };
   const corner = k => `<div class="crow"><span>${CORNER_NAMES[k]}</span>${box(k + 'x', 'Right', f.c[k][0], `Move the ${CORNER_NAMES[k].toLowerCase()} corner right (+) or left (−)`)}${box(k + 'y', 'Down', f.c[k][1], `Move the ${CORNER_NAMES[k].toLowerCase()} corner down (+) or up (−)`)}</div>`;
-  return `<details class="more shape" data-shaped${shapeOpen.has(s.id) ? ' open' : ''}><summary>Shape${sum ? ' · ' + esc(sum) : ': curved ends, corners'}</summary>
+  return `<details class="more shape" data-shaped${shapeOpen.has(s.id) ? ' open' : ''}><summary>Shape${sum ? ' · ' + esc(sum) : ': curved ends, corners'}${info('Ends: + curves out, − curves in, up to half the end\'s length. Width, height and pixels above are the flat face; the projector covers the box around the shape, and that raster is what the canvas and exports use.', 'About screen shapes')}</summary>
     <div class="row r2">
       <div class="endc">${box('l', `Left end (${uLabel()})`, f.l, 'How far the middle of the left end bows: + curves out, − curves in')}${slider('l')}</div>
       <div class="endc">${box('r', `Right end (${uLabel()})`, f.r, 'How far the middle of the right end bows: + curves out, − curves in')}${slider('r')}</div>
     </div>
-    <span class="hint">Ends: + curves out, − curves in, up to half the end's length.</span>
-    <div class="corners"><span class="hint">Corners (${uLabel()}), moved from the flat face:</span>${CORNERS.map(corner).join('')}</div>
+    <div class="corners"><span class="hint sw-row">Corners (${uLabel()})${info('How far each corner is moved from the flat face: Right + / left −, Down + / up −. Or tick Corner handles and drag the corners on the layout.', 'About corners')}</span>${CORNERS.map(corner).join('')}</div>
     <div class="cut-foot"><label class="chkrow"><input type="checkbox" data-act="corners"${cornerEd === s.id ? ' checked' : ''}> Corner handles on the layout</label>${s.shape ? '<button type="button" class="btn" data-act="flat">Make flat</button>' : ''}</div>
-    <span class="hint">Width, height and pixels above are the flat face. The projector covers the box around the shape.</span>
   </details>`;
 }
 function derivedHTML(s){
@@ -4680,12 +4730,13 @@ function derivedHTML(s){
 function renderList(){
   // Front screen first: the list reads like a stack of layers.
   $('#list').innerHTML = zOrder().reverse().map(cardHTML).join('');
-  $('#zHint').hidden = S.screens.length < 2;
   S.screens.forEach(updateDerived);
   $('#count').value = S.screens.length;
 }
 // Run something that rebuilds the screen cards, then put the cursor back in the same box (same card,
 // same field, same caret spot) and keep the page scrolled where it was, so typing carries on.
+// Circled "i" with its text in a tip shown on hover, keyboard focus or tap. `t` may hold simple markup (already escaped).
+const info = (t, label) => `<button type="button" class="info" data-tip="${String(t).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')}" aria-label="${label || 'More info'}">i</button>`;
 function keepPlace(fn){
   const a = document.activeElement, card = a && a.closest && a.closest('.card');
   const attr = a && a.dataset ? (a.dataset.k ? 'k' : a.dataset.sk ? 'sk' : a.dataset.skr ? 'skr' : null) : null;
@@ -5132,7 +5183,6 @@ function objCardHTML(o){
 function renderObjects(){
   $('#objPanel').hidden = !S.objects.length;
   $('#objList').innerHTML = S.objects.slice().reverse().map(objCardHTML).join(''); // top card = front (drawn last)
-  $('#objHint').hidden = S.objects.length < 2;
   if (edObj){ const o = getO(edObj); if (o) $('#stageEdBody').innerHTML = objCardHTML(o); else closeEditor(); }
 }
 // Keep an object's position boxes in step after it's dragged or nudged (unless you're typing in one).
@@ -8050,13 +8100,13 @@ function renderEDID(){
       const x = cols ? k * px.w : 0, y = cols ? 0 : k * px.h, w = cols ? Math.max(0, Math.min(px.w, full.w - x)) : full.w, h = cols ? full.h : Math.max(0, Math.min(px.h, full.h - y));
       return `<tr><td>${k + 1}</td><td>${x}</td><td>${y}</td><td>${w} × ${h}${w * h < px.w * px.h ? ` of ${px.w} × ${px.h}` : ''}</td></tr>`;
     }).join('')}</tbody></table>
-    <p class="hint">Every output loads the same EDID file. Map each output to its part of the screen in your media server or processor.</p>` : ''}
+    <p class="hint sw-row">Same file on every output${info('Every output loads the same EDID file. Map each output to its part of the screen in your media server or processor.', 'About split outputs')}</p>` : ''}
     <h4 class="ed-h">Connectors that can carry ${px.w} × ${px.h} at ${+(+o.rate).toFixed(3)} Hz</h4>
     <table class="ed-t ed-conn"><thead><tr><th></th><th>Connector</th><th>Version</th><th>Max pixel clock</th></tr></thead><tbody>${fams.map(f => EDID_CONN.filter(c => c.fam === f).map(c => {
       const ok = t.clk <= c.mhz;
       return `<tr class="${c.id === conn.id ? 'on' : ''}"><td>${ok ? '<span class="ed-ok" title="Supports this">✓</span>' : '<span class="ed-no" title="Not enough bandwidth">✕</span>'}</td><td>${c.fam}</td><td>${c.ver}</td><td>${c.mhz.toLocaleString()} MHz</td></tr>`;
     }).join('')).join('')}</tbody></table>
-    <p class="hint">Checks compare the pixel clock with each connector's bandwidth at 8-bit RGB 4:4:4 without compression (DSC). Devices may support less than their version allows.</p>`;
+    <p class="hint sw-row">How this is checked${info('Checks compare the pixel clock with each connector\'s bandwidth at 8-bit RGB 4:4:4 without compression (DSC). Devices may support less than their version allows.', 'How connectors are checked')}</p>`;
 }
 function openEDID(){
   if (!live().length){ toast('Add a screen with a size first.'); return; }

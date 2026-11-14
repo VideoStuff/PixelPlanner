@@ -42,7 +42,7 @@ It is a single web page (`index.html`). Nothing to install: open it in a current
 3. Arrange them on the layout, then switch to **Preset Guide** to plan PiPs.
 4. Use the **Export** tab under the layout for files, and **Options → Save .json** to keep your work.
 
-Press **?** (or **Options → Keyboard shortcuts**) for every shortcut, and use **Options → Layout text size** to make the labels on both layouts smaller or larger.
+Hover over (or tap) a circled **i** to see what a section does. Press **?** (or **Options → Keyboard shortcuts**) for every shortcut, and use **Options → Layout text size** to make the labels on both layouts smaller or larger.
 
 **Options → Reset app** clears everything PixelPlanner has saved in this browser.
 
