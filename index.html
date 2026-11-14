@@ -3665,8 +3665,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.72.html). Bump it with every release.
-const APP_VERSION = '3.72';
+// (pixelplanner-v3.73.html). Bump it with every release.
+const APP_VERSION = '3.73';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
@@ -4633,7 +4633,11 @@ function cardHTML(s){
 const shapeOpen = new Set(); // screens whose Shape section is open
 const shapeSum = f => !f ? '' : [f.l ? `left ${f.l > 0 ? 'out' : 'in'} ${fmtLen(Math.abs(f.l))}` : '', f.r ? `right ${f.r > 0 ? 'out' : 'in'} ${fmtLen(Math.abs(f.r))}` : '',
   CORNERS.some(k => f.c && (f.c[k][0] || f.c[k][1])) ? 'corners moved' : ''].filter(Boolean).join(' · ');
-let cornerEd = null; // the screen whose corner handles are showing on the layout
+let cornerEd = null; // the screen whose corner handles are showing on the layout (only while it's the one selected)
+function setCornerEd(id){
+  cornerEd = id;
+  document.querySelectorAll('[data-act="corners"]').forEach(i => { i.checked = !!id && id === i.closest('.card').dataset.id; });
+}
 function shapeHTML(s){
   const f = s.shape || {l: 0, r: 0, c: blankCorners()}, sum = shapeSum(s.shape);
   const box = (k, lbl, v, title) => `<label class="f" title="${title}">${lbl}<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" data-sk="${k}" value="${v ? val(v) : ''}" placeholder="0"></label>`;
@@ -4948,7 +4952,7 @@ document.addEventListener('click', e => {
   }
   if (act === 'cutclear'){ delete s.led.off; afterCut(s, true); toast('All cabinets restored'); return; }
   if (act === 'ref'){ S.match.ref = s.id; refreshAll(); }
-  if (act === 'corners'){ cornerEd = b.checked ? s.id : null; document.querySelectorAll('[data-act="corners"]').forEach(i => { i.checked = cornerEd === i.closest('.card').dataset.id; }); renderStage(); return; }
+  if (act === 'corners'){ setCornerEd(b.checked ? s.id : null); renderStage(); return; }
   if (act === 'flat'){ setShape(s, f => { f.l = f.r = 0; f.c = blankCorners(); }); cornerEd = cornerEd === s.id ? null : cornerEd; refreshAll(); maybeFit(); toast('Screen is flat again'); return; }
   if (act === 'rot'){
     const d = dims(s), cx = s.x + d.w / 2, cy = s.y + d.h / 2;
@@ -5390,6 +5394,8 @@ function cornerHandles(s, ut, u){
   return CORNERS.map(k => `<g class="chandle" data-corner="${k}" data-csid="${s.id}"><circle cx="${q[k][0]}" cy="${q[k][1]}" r="${r * 2}" fill="transparent"/><rect x="${q[k][0] - r / 2}" y="${q[k][1] - r / 2}" width="${r}" height="${r}" fill="#fff" stroke="${s.color}" stroke-width="${u * .25}"><title>${CORNER_NAMES[k]} corner: drag to move it</title></rect></g>`).join('');
 }
 function renderStage(){
+  // Corner handles go away once their screen isn't the one selected (another screen, an object, a note or a group).
+  if (cornerEd && (S.sel !== cornerEd || selObj || multi.size || !getS(cornerEd))) setCornerEd(null);
   keepObjCentered();
   if (!view) fitView();
   if (rafId){ cancelAnimationFrame(rafId); rafId = 0; }
@@ -6203,7 +6209,9 @@ function endDrag(){
     }
     renderStage(); return;
   }
-  if (pan){ const p = pan; pan = null; svg.classList.remove('panning'); if (!p.moved && !p.locked && multi.size){ multi.clear(); renderStage(); } return; }
+  if (pan){ const p = pan; pan = null; svg.classList.remove('panning');
+    if (!p.moved && !p.locked && (multi.size || cornerEd)){ multi.clear(); setCornerEd(null); renderStage(); } // a click on the background drops the group and the corner handles
+    return; }
   if (!drag) return;
   if (drag.corner){ const s = drag.s, moved = drag.moved; drag = null; svg.classList.remove('dragging'); if (moved){ shapeOpen.add(s.id); keepPlace(() => refreshAll()); maybeFit(); save(); } return; }
   if (drag.gnd || drag.note){ const moved = drag.moved; drag = null; svg.classList.remove('dragging'); if (moved){ maybeFit(); renderTable(); save(); } return; }
