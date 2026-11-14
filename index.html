@@ -535,6 +535,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
           <button type="button" data-ts="0.75" title="Small">S</button><button type="button" data-ts="1" title="Normal">M</button><button type="button" data-ts="1.3" title="Large">L</button><button type="button" data-ts="1.6" title="Extra large">XL</button></span></div>
         <div class="optsep builder-only" role="separator"></div>
         <button class="optitem builder-only" id="btnExample" type="button">Load example</button>
+        <button class="optitem builder-only danger" id="btnClearLay" type="button" title="Remove every screen, object and note from the layout you're on">Clear layout…</button>
         <button class="optitem danger" id="btnResetApp" type="button" title="Erase everything PixelPlanner has saved in this browser and start fresh">Reset app</button>
         <div class="optsep" role="separator"></div>
         <button class="optitem" id="btnReadme" type="button" aria-haspopup="dialog" title="What PixelPlanner does and how to use it">Help &amp; README</button>
@@ -761,7 +762,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <p>Your work is saved in your browser and can be saved to and opened from a <code>.json</code> file.</p>
 <h2>What it does</h2>
 <h3>Screen Builder</h3>
-<ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>Curved and reshaped projection screens</strong>: in a screen's <strong>Shape</strong> section, bow each end out (+) or in (−) by typing an amount or using its slider (from fully in to fully out: half the end's length, so ±7.5 ft on a 15 ft high screen), and move any corner by an exact amount. Or turn on <strong>Corner handles</strong> (also in the screen's right-click menu) and drag the corners on the layout, to the nearest inch. The width, height and pixels you type are the flat face; PixelPlanner works out the projector raster (the upright box around the shape, at the face's pixel density) and uses it for the canvas and every export, with the part off the screen face shaded.</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
+<ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>Curved and reshaped projection screens</strong>: in a screen's <strong>Shape</strong> section, bow each end out (+) or in (−) by typing an amount or using its slider (from fully in to fully out: half the end's length, so ±7.5 ft on a 15 ft high screen), and move any corner by an exact amount. Or turn on <strong>Corner handles</strong> (also in the screen's right-click menu) and drag the corners on the layout, to the nearest inch. The width, height and pixels you type are the flat face; PixelPlanner works out the projector raster (the upright box around the shape, at the face's pixel density) and uses it for the canvas and every export, with the part off the screen face shaded.</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li><strong>Options → Clear layout…</strong> (or right-click the layout or its tab) removes every screen, object and note from the open layout after you confirm, so you can build it again from the first screen. A layout can have no screens.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
 <h3>Preset Guide</h3>
 <ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock. <strong>+ New</strong> and <strong>Duplicate</strong> ask for the preset's name; leave it blank for "Preset" and its number.</li><li>Quick layouts: right-click a screen and choose <strong>Create… → Quick layout</strong> to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.</li><li>Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.</li><li><strong>Page Up / Page Down</strong> step through presets.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li>Exports to PowerPoint and Excel.</li></ul>
 <h3>Exports</h3>
@@ -3531,9 +3532,10 @@ async function exportPptx(){
 /* ---------- screens from the Screen Builder ---------- */
 /* The chosen layout's pixel canvas, read the same way as an imported guide file (front screen first in the file). */
 function builderScreens(){
-  const C=PP.canvases.filter(c=>c&&Array.isArray(c.screens)&&c.screens.length);
+  const C=PP.canvases.filter(c=>c&&Array.isArray(c.screens));   /* a layout with no screens yet counts too: it shows none */
   const c=C.find(c=>c.layoutId===S.srcLayout)||C.find(c=>c.current)||C[0];
   if(!c) return null;
+  if(!c.screens.length) return {screens:[],layout:c,objects:[]};
   const list=[...c.screens].reverse(), r=parseScreens({screens:list},'name',true);
   r.screens.forEach((s,i)=>{s.ppId=list[i].id;});
   /* every Screen Builder object, moved by the same offset as the screens */
@@ -3543,9 +3545,9 @@ function builderScreens(){
   return {screens:r.screens,layout:c,objects};
 }
 function renderSrcLine(b){
-  const n=PP.canvases.filter(c=>c&&c.screens&&c.screens.length).length;
-  $('srcLine').textContent=b?`Screens from the Screen Builder${n>1?'':' · '+(b.layout.layout||'Layout 1')}`:'No finished screens in the Screen Builder yet';
-  const ls=$('laySel'), opts=PP.canvases.filter(c=>c&&c.screens&&c.screens.length);
+  const n=PP.canvases.filter(c=>c&&Array.isArray(c.screens)).length;
+  $('srcLine').textContent=b&&b.screens.length?`Screens from the Screen Builder${n>1?'':' · '+(b.layout.layout||'Layout 1')}`:b?`No screens in ${b.layout.layout||'this layout'} yet`:'No finished screens in the Screen Builder yet';
+  const ls=$('laySel'), opts=PP.canvases.filter(c=>c&&Array.isArray(c.screens));
   $('layWrap').hidden=opts.length<2;
   ls.innerHTML=opts.map(c=>`<option value="${esc(c.layoutId)}">${esc(c.layout||'Layout')} · ${c.screens.length} screen${c.screens.length===1?'':'s'}</option>`).join('');
   if(b) ls.value=b.layout.layoutId;
@@ -3569,7 +3571,7 @@ function enterLayout(id){
 /* When the Screen Builder moves to another layout, the Preset Guide follows it the next time it opens.
    (Picking a layout here still works; it holds until the Screen Builder's layout changes again.) */
 function followBuilder(){
-  const c=PP.canvases.find(c=>c&&c.current&&Array.isArray(c.screens)&&c.screens.length); if(!c||!c.layoutId) return false;
+  const c=PP.canvases.find(c=>c&&c.current&&Array.isArray(c.screens)); if(!c||!c.layoutId) return false;
   const prev=S.builderCur; S.builderCur=c.layoutId;
   if(prev&&prev!==c.layoutId&&c.layoutId!==S.srcLayout){commitEdit(); enterLayout(c.layoutId); return true;}
   return false;
@@ -3725,6 +3727,17 @@ picTx('readonly',st=>st.getAll()).then(list=>{
     </div>
   </div>
 </div>
+<div id="clearDlg" class="cdlg-back" hidden>
+  <div class="cdlg" role="alertdialog" aria-modal="true" aria-labelledby="clrTitle" aria-describedby="clrText">
+    <h3 id="clrTitle">Clear this layout?</h3>
+    <p id="clrText"></p>
+    <div class="cdlg-actions">
+      <span style="flex:1"></span>
+      <button class="btn" type="button" id="clrCancel">Cancel</button>
+      <button class="btn danger arm" type="button" id="clrOk">Clear layout</button>
+    </div>
+  </div>
+</div>
 <div id="confirmDlg" class="cdlg-back" hidden>
   <div class="cdlg" role="alertdialog" aria-modal="true" aria-labelledby="cdlgTitle" aria-describedby="cdlgText">
     <h3 id="cdlgTitle">Replace your layout with the example?</h3>
@@ -3742,8 +3755,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.77.html). Bump it with every release.
-const APP_VERSION = '3.77';
+// (pixelplanner-v3.78.html). Bump it with every release.
+const APP_VERSION = '3.78';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
@@ -4100,7 +4113,7 @@ function sanitize(o){
   return Object.assign(base, {layouts, cur});
 }
 function sanitizeBase(o){
-  if (!o || !Array.isArray(o.screens) || !o.screens.length) return null;
+  if (!o || !Array.isArray(o.screens)) return null; // a layout may have no screens yet
   const num = (v, d) => (typeof v === 'number' && isFinite(v)) ? v : d;
   const screens = o.screens.slice(0, 24).map((s, i) => {
     const t = {id: typeof s.id === 'string' ? s.id : nid(), label: String(s.label ?? 'Screen').slice(0, 80),
@@ -4223,13 +4236,13 @@ function parseLen(v){
 const gcd = (a, b) => b ? gcd(b, a % b) : a;
 function aspect(w, h){ const g = gcd(w, h), a = w/g, b = h/g; return (a <= 64 && b <= 64) ? a + ':' + b : (w/h).toFixed(2) + ':1'; }
 const getS = id => S.screens.find(s => s.id === id);
-function refScreen(){ const r = getS(S.match.ref); return (r && ready(r)) ? r : (live()[0] || S.screens[0]); }
+function refScreen(){ const r = getS(S.match.ref); return (r && ready(r)) ? r : (live()[0] || S.screens[0] || null); } // null only on an empty layout
 function density(s){ const d = dims(s); return {x: s.rw / d.w, y: s.rh / d.h}; } // px per mm
 function roundTo(v, step){ return Math.max(step, Math.round(v / step) * step); }
 function content(s){
   if (!S.match.on) return {w:s.rw, h:s.rh};
   const ref = refScreen();
-  if (s.id === ref.id) return {w:s.rw, h:s.rh};
+  if (!ref || s.id === ref.id) return {w:s.rw, h:s.rh};
   const d = dims(s), rd = density(ref);
   return {w: roundTo(d.w * rd.x, S.match.round), h: roundTo(d.h * rd.y, S.match.round)};
 }
@@ -4254,6 +4267,10 @@ function bboxAll(list, noNotes){
   if (S.ground.on){ b.y0 = Math.min(b.y0, S.ground.y); b.y1 = Math.max(b.y1, S.ground.y); }
   for (const r of supportRects(list)) b.y1 = Math.max(b.y1, r.y + r.h);
   if (!noNotes && (!list || S.exp.notes)) for (const n of S.notes){ const h = noteBox(n).h; b.x0 = Math.min(b.x0, n.x); b.y0 = Math.min(b.y0, n.y); b.x1 = Math.max(b.x1, n.x + n.w); b.y1 = Math.max(b.y1, n.y + h); }
+  if (!isFinite(b.x0)){ // nothing on the layout yet: a 40 × 20 ft area, resting on the ground line when there is one
+    const cy = S.ground.on && S.ground.placed ? S.ground.y - 2000 : 0;
+    Object.assign(b, {x0: -6096, x1: 6096, y0: cy - 3048, y1: cy + 3048});
+  }
   b.w = b.x1 - b.x0; b.h = b.y1 - b.y0; return b;
 }
 // Ground line: the floor, as a layout y position. Heights above ground are measured up from it.
@@ -4703,7 +4720,7 @@ function cardHTML(s){
       ${isLed || s.shape ? '' : '<button type="button" class="btn ghost" data-act="rot">Rotate 90°</button>'}
       <button type="button" class="btn ghost" data-act="lock">${s.locked ? 'Unlock' : 'Lock'}</button>
       <button type="button" class="btn ghost" data-act="dup">Duplicate</button>
-      <button type="button" class="btn ghost danger" data-act="del"${S.screens.length < 2 ? ' disabled' : ''}>Delete</button>
+      <button type="button" class="btn ghost danger" data-act="del">Delete</button>
     </div>
   </article>`;
 }
@@ -5074,20 +5091,23 @@ document.addEventListener('click', e => {
 });
 function nextColor(){ const used = S.screens.map(s => s.color); return COLORS.find(c => !used.includes(c)) || COLORS[S.screens.length % COLORS.length]; }
 function removeScreen(id){
-  if (S.screens.length < 2) return;
   S.screens = S.screens.filter(x => x.id !== id);
-  if (S.match.ref === id) S.match.ref = S.screens[0].id;
-  if (S.sel === id) S.sel = S.screens[0].id;
+  if (S.match.ref === id) S.match.ref = S.screens[0] ? S.screens[0].id : null;
+  if (S.sel === id) S.sel = S.screens[0] ? S.screens[0].id : null;
+  if (cornerEd === id) cornerEd = null;
   refreshAll(); fitView(); renderStage();
 }
 function addScreen(p){
   const b = bbox(), s = mkScreen(p, {color: nextColor(), z: topZ()});
-  const d = dims(s); s.x = b.x1 + S.gap; s.y = b.y1 - d.h;
+  const d = dims(s);
+  if (S.screens.length){ s.x = b.x1 + S.gap; s.y = b.y1 - d.h; }
+  else { s.x = 0; s.y = (S.ground.on && S.ground.placed ? S.ground.y : 0) - d.h; if (!S.match.ref) S.match.ref = s.id; } // the first screen: on the ground line when there is one
   S.screens.push(s); S.sel = s.id; refreshAll(); fitView(); renderStage();
 }
 function setCount(n){
-  n = Math.max(1, Math.min(24, Math.round(n) || 1));
+  n = Math.max(0, Math.min(24, Math.round(n) || 0));
   while (S.screens.length < n){
+    if (!S.screens.length){ addScreen(PRESETS.find(q => q.mode === 'dims') || PRESETS[0]); continue; } // first screen: a standard projection screen
     const L = S.screens[S.screens.length - 1], last = L.shape ? Object.assign({}, L, L.shape) : L, label = L.label.replace(/ copy$/, ''); // a shaped screen adds a flat one its face's size
     addScreen(last.mode === 'led' ? {label, mode:'led', led:Object.assign({}, last.led)}
       : last.mode === 'diag' ? {label, rw:last.rw, rh:last.rh, mode:'diag', diagIn:last.diag/25.4}
@@ -5247,14 +5267,13 @@ function dupObj(o){
 function deleteGroup(){
   const items = groupItems(), keep = items.filter(o => o.locked), del = items.filter(o => !o.locked);
   let scr = del.filter(o => getS(o.id));
-  if (scr.length >= S.screens.length) scr = scr.slice(0, S.screens.length - 1);
   const objs = del.filter(o => getO(o.id)), n = scr.length + objs.length;
   if (!n){ toast('Locked items can\'t be deleted. Unlock them first.'); return; }
   const gone = new Set(scr.concat(objs).map(o => o.id));
   if (gone.has(edId) || gone.has(edObj)) closeEditor();
   S.screens = S.screens.filter(o => !gone.has(o.id)); S.objects = S.objects.filter(o => !gone.has(o.id));
-  if (gone.has(S.match.ref)) S.match.ref = S.screens[0].id;
-  if (gone.has(S.sel)) S.sel = S.screens[0].id;
+  if (gone.has(S.match.ref)) S.match.ref = S.screens[0] ? S.screens[0].id : null;
+  if (gone.has(S.sel)) S.sel = S.screens[0] ? S.screens[0].id : null;
   if (gone.has(selObj)) selObj = null;
   multi.clear();
   refreshAll(); fitView(); renderStage();
@@ -5374,7 +5393,7 @@ oaForm.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.tagN
 /* ---------- matching ---------- */
 function renderSelects(){
   const opts = live().map(s => `<option value="${s.id}">${esc(s.label || 'Untitled')}</option>`).join('');
-  $('#refSel').innerHTML = opts; $('#refSel').value = refScreen().id;
+  $('#refSel').innerHTML = opts; $('#refSel').value = refScreen() ? refScreen().id : '';
   // Test pattern target: one screen, or the full canvas when matching is on.
   const keepCanvas = $('#oneSel').value === '__canvas';
   const canvasOpt = S.match.on && live().length > 1 ? '<option value="__canvas">Full canvas (all screens)</option>' : '';
@@ -5383,8 +5402,8 @@ function renderSelects(){
   if (!$('#oneSel').value && $('#oneSel').options.length) $('#oneSel').selectedIndex = canvasOpt ? 1 : 0;
 }
 function renderRef(){
-  const r = refScreen(), d = density(r);
-  $('#refLine').innerHTML = `Content density: <b>${(d.x * 25.4).toFixed(2)} px per inch</b> · ${(1 / d.x).toFixed(3)} mm per pixel, taken from <b>${esc(r.label)}</b>.`;
+  const r = refScreen(), d = r && density(r);
+  $('#refLine').innerHTML = r ? `Content density: <b>${(d.x * 25.4).toFixed(2)} px per inch</b> · ${(1 / d.x).toFixed(3)} mm per pixel, taken from <b>${esc(r.label)}</b>.` : 'Add a screen to set the content density.';
   $('#matchBody').setAttribute('aria-disabled', S.match.on ? 'false' : 'true');
   $('#oneRes').disabled = !S.match.on;
   $('#btnCanvas').disabled = !S.match.on;
@@ -5586,6 +5605,10 @@ function renderStage(){
     if (s.locked) onTop += lockSVG(s.x + d.w - ut * 1.3, s.y - ut * 2.4, ut * 0.11);
     if (sel || S.allDims) onTop += dimLines(s, d, c, ut, u);
     if (cornerEd === s.id) onTop += cornerHandles(s, ut, u);
+  }
+  if (!S.screens.length){ // empty layout: say how to start
+    out += `<text x="${vx + vw / 2}" y="${vy + vh / 2 - ut * 1.2}" text-anchor="middle" font-size="${ut * 2.2}" font-weight="700" fill="var(--stage-ink)" font-family="Barlow Semi Condensed, Arial Narrow, sans-serif" pointer-events="none">No screens yet</text>`
+      + `<text x="${vx + vw / 2}" y="${vy + vh / 2 + ut * 1.4}" text-anchor="middle" font-size="${ut * 1.2}" fill="var(--stage-muted)" font-family="Barlow, sans-serif" pointer-events="none">Use Add screen on the left, or right-click here and choose Add screen here…</text>`;
   }
   ovList = computeOverlaps();
   for (const o of S.objects) out += objSVG(o, u, ut); // objects always sit in front of every screen
@@ -5934,9 +5957,10 @@ function supportSVG(s, d, u){
   return o;
 }
 function renderFoot(){
+  if (!S.screens.length){ $('#stageFoot').innerHTML = '<span>No screens yet. Use <b>Add screen</b>, or right-click the layout and choose <b>Add screen here…</b></span>'; return; }
   const b = bbox();
   let h = `<span>Layout span <b>${fmtLen2(b.w, b.h)}</b></span><span>Screens <b>${S.screens.length}</b></span>`;
-  if (S.match.on){ const L = canvasLayout(); h = `<span>Content canvas <b>${L.W} × ${L.H} px</b></span>` + h + `<span>Reference <b>${esc(refScreen().label)}</b></span>`; }
+  if (S.match.on && refScreen()){ const L = canvasLayout(); h = `<span>Content canvas <b>${L.W} × ${L.H} px</b></span>` + h + `<span>Reference <b>${esc(refScreen().label)}</b></span>`; }
   else h += `<span>Density matching off</span>`;
   $('#stageFoot').innerHTML = h;
 }
@@ -6340,7 +6364,6 @@ svg.addEventListener('keydown', e => {
     const ob = selObj && getO(selObj);
     if (ob){ removeObj(ob.id); toast('Deleted ' + (ob.label || 'object')); svg.focus({preventScroll:true}); return; }
     const s = getS(S.sel); if (!s) return;
-    if (S.screens.length < 2){ toast('A guide needs at least one screen.'); return; }
     removeScreen(s.id); toast('Deleted ' + (s.label || 'screen'));
     svg.focus({preventScroll:true}); return;
   }
@@ -6545,7 +6568,6 @@ svg.addEventListener('contextmenu', e => {
       {label: 'Change color…', run: () => pickColor(s.id)},
       {sep: true},
       {label: 'Delete screen', danger: true, run: () => {
-        if (S.screens.length < 2){ toast('A guide needs at least one screen.'); return; }
         const name = s.label || 'screen'; if (edId === s.id) closeEditor(); removeScreen(s.id); toast('Deleted ' + name);
       }},
     ]);
@@ -6569,6 +6591,7 @@ svg.addEventListener('contextmenu', e => {
       {label: 'Add note here…', run: () => addNote({x: p.x + noteTextSize() * 8, y: p.y + noteTextSize()})},
       {sep: true},
       {label: 'Fit view', run: () => { fitView(); renderStage(); }},
+      ...(S.screens.length || S.objects.length || S.notes.length ? [{label: 'Clear layout…', danger: true, run: askClearLayout}] : []),
     ];
     openCtx(e, items);
   }
@@ -6934,7 +6957,7 @@ function renderTable(){
   let h = `<thead><tr><th>Screen</th><th>Native px</th><th>Physical</th><th>Aspect</th><th>Density</th><th>Pitch</th><th>Content px</th><th>Scale to native</th><th>Canvas X, Y</th>${S.ground.on ? '<th>Bottom above ground</th><th>Top above ground</th>' : ''}</tr></thead><tbody>`;
   for (const r of rows) h += `<tr data-id="${r.s.id}"${r.s.id === S.sel ? ' class="sel"' : ''}><td class="nm" title="Double-click to rename"><i style="background:${r.s.color}"></i>${esc(r.label)}</td><td>${r.native}</td><td>${r.phys}</td><td>${r.aspect}</td><td>${r.ppi}</td><td>${r.pitch}</td><td class="acc">${r.content}</td><td>${r.scale}</td><td>${r.offset}</td>${S.ground.on ? `<td>${r.bottom}</td><td>${r.top}</td>` : ''}</tr>`;
   h += '</tbody>';
-  if (S.match.on){ const L = canvasLayout(); h += `<tfoot><tr><td class="nm">Full canvas</td><td colspan="5"></td><td class="acc">${L.W} × ${L.H}</td><td></td><td>0, 0</td>${S.ground.on ? '<td></td><td></td>' : ''}</tr></tfoot>`; }
+  if (S.match.on && live().length){ const L = canvasLayout(); h += `<tfoot><tr><td class="nm">Full canvas</td><td colspan="5"></td><td class="acc">${L.W} × ${L.H}</td><td></td><td>0, 0</td>${S.ground.on ? '<td></td><td></td>' : ''}</tr></tfoot>`; }
   $('#tbl').innerHTML = h;
 }
 $('#tbl').addEventListener('click', e => {
@@ -7116,6 +7139,27 @@ $('#rdlgOk').addEventListener('click', async () => {
   setTimeout(() => { freshStart(); view = null; pgState = null; if (pgFrame){ pgFrame.remove(); pgFrame = null; } setSection('builder'); window.__ppResetting = false; refreshAll(); toast('PixelPlanner was reset.'); }, 2500);
 });
 cdlg.addEventListener('click', e => { if (e.target === cdlg) closeConfirm(); });
+// Clear layout: empties the open layout (screens, objects, notes) after asking. Other layouts and the settings stay; Undo brings it back.
+const clrDlg = $('#clearDlg');
+function askClearLayout(){
+  const n = S.screens.length, o = S.objects.length, m = S.notes.length;
+  if (!n && !o && !m){ toast('This layout is already empty.'); return; }
+  const parts = [`${n} screen${n === 1 ? '' : 's'}`].concat(o ? [`${o} object${o === 1 ? '' : 's'}`] : [], m ? [`${m} note${m === 1 ? '' : 's'}`] : []);
+  $('#clrTitle').textContent = `Clear ${layName() || 'this layout'}?`;
+  $('#clrText').textContent = `This removes ${parts.length > 1 ? parts.slice(0, -1).join(', ') + ' and ' + parts[parts.length - 1] : parts[0]} from this layout, so you can build it again from the first screen. Other layouts aren't affected. Undo (Ctrl+Z) brings it back.`;
+  cdlgReturn = document.activeElement; clrDlg.hidden = false; $('#clrCancel').focus({preventScroll:true});
+}
+const closeClear = () => { clrDlg.hidden = true; if (cdlgReturn && cdlgReturn.focus) cdlgReturn.focus({preventScroll:true}); };
+function clearLayout(){
+  closeEditor(); multi.clear(); selObj = null; cornerEd = null; meas = null;
+  S.screens = []; S.objects = []; S.notes = []; S.sel = null; S.match.ref = null;
+  view = null; refreshAll(); renderStage(); save(); toast('Layout cleared. Add a screen to start again.');
+}
+$('#btnClearLay').addEventListener('click', () => { setOpt(false); askClearLayout(); });
+$('#clrCancel').addEventListener('click', closeClear);
+$('#clrOk').addEventListener('click', () => { closeClear(); clearLayout(); });
+clrDlg.addEventListener('click', e => { if (e.target === clrDlg) closeClear(); });
+clrDlg.addEventListener('keydown', e => { if (e.key === 'Escape'){ e.stopPropagation(); closeClear(); } });
 cdlg.addEventListener('keydown', e => {
   if (e.key === 'Escape'){ e.stopPropagation(); closeConfirm(); }
   if (e.key === 'Tab'){ // keep keyboard focus inside the dialog
@@ -8208,6 +8252,11 @@ function showBlob(b, title, foot){
     if ($('#ov').hidden){ $('#ov').hidden = false; $('#ovClose').focus({preventScroll:true}); } // redraws keep focus on the checkbox
   }
 }
+// Exports and copies need at least one finished screen; on an empty layout they say so instead.
+document.addEventListener('click', e => {
+  const b = e.target.closest && e.target.closest('#pnExp button, #pnAdv button, #specActs button'); if (!b || b.classList.contains('info') || live().length) return;
+  e.stopImmediatePropagation(); e.preventDefault(); toast('Add a screen to the layout first.');
+}, true);
 $('#btnCanvas').addEventListener('click', () => { setOvOpts(['labels', 'native', 'cross', 'seams', 'gaps', 'overlaps', 'objects', 'grid'], canvasGuide); canvasGuide(); });
 function canvasGuide(){
   const L = canvasLayout();
@@ -8965,7 +9014,8 @@ function addLayout(copy){
     const map = {};
     data.screens.forEach(o => { const id = nid(); map[o.id] = id; o.id = id; });
     data.objects.forEach(o => o.id = 'o' + nid()); data.notes.forEach(o => o.id = 'n' + nid());
-    data.match.ref = map[data.match.ref] || data.screens[0].id; data.sel = map[data.sel] || data.screens[0].id;
+    const first = data.screens[0] ? data.screens[0].id : null;
+    data.match.ref = map[data.match.ref] || first; data.sel = map[data.sel] || first;
   } else {
     const sc = mkScreen(PRESETS.find(p => p.mode === 'dims') || PRESETS[0], {color: COLORS[0]});
     data = {screens: [sc], objects: [], notes: [], ground: {on: false, placed: false, y: 0}, match: {on: src.match.on, ref: sc.id, round: src.match.round}, gap: src.gap, sel: sc.id};
@@ -9008,6 +9058,7 @@ function layoutMenu(e, id){
     ...(id !== S.cur ? [{label: 'Open', run: () => switchLayout(id)}] : []),
     {label: 'Rename', run: () => renameLayout(id)},
     {label: 'Duplicate', run: () => { switchLayout(id); addLayout(true); }},
+    {label: 'Clear layout…', danger: true, run: () => { switchLayout(id); askClearLayout(); }},
     ...(i > 0 ? [{label: 'Move left', run: () => moveLayout(id, -1)}] : []),
     ...(i < S.layouts.length - 1 ? [{label: 'Move right', run: () => moveLayout(id, 1)}] : []),
     ...(S.layouts.length > 1 ? [{sep: true}, {label: 'Delete layout', danger: true, run: () => deleteLayout(id)}] : []),

@@ -15,6 +15,7 @@ It is a single web page (`index.html`). Nothing to install: open it in a current
 - Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.
 - Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.
 - Notes, multiple layouts per guide, undo and redo.
+- **Options → Clear layout…** (or right-click the layout or its tab) removes every screen, object and note from the open layout after you confirm, so you can build it again from the first screen. A layout can have no screens.
 - Units in feet, feet and inches, inches or meters.
 
 ### Preset Guide
