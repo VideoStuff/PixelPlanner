@@ -39,7 +39,7 @@ It is a single web page (`index.html`). Nothing to install: open it in a current
 ## Using it
 
 1. Open the app link above.
-2. You start with a blank layout. The first time, a welcome box offers to load an example layout instead (it's also in **Options → Load example**). Add your screens on the left.
+2. You start with a blank layout. The first time, a welcome box offers to load an example layout instead (it's also in **Options → Load example**): an LED wall standing on its ground support on the ground line, with a projection screen each side. Add your screens on the left.
 3. Arrange them on the layout, then switch to **Preset Guide** to plan PiPs.
 4. Use the **Export** tab under the layout for files, and **Options → Save .json** to keep your work.
 

@@ -768,7 +768,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <h3>Exports</h3>
 <ul><li>Canvas export PNG at exact pixel size, layout snapshot, layout summary and test patterns.</li><li>PDF spec pack, PowerPoint template, layered PSD and SVG.</li><li>Spec sheet as CSV.</li><li>Switcher planning <code>.xml</code> (screens, layers and auxes).</li><li><strong>Advanced → EDID (experimental):</strong> an EDID <code>.bin</code> for a screen, with connector, refresh rate, CVT blanking and a split across outputs. Check results on your hardware before you rely on them.</li></ul>
 <h2>Using it</h2>
-<ol><li>You start with a blank layout. The first time, a welcome box offers to load an example layout instead (it's also in <strong>Options → Load example</strong>). Add your screens on the left.</li><li>Arrange them on the layout, then switch to <strong>Preset Guide</strong> to plan PiPs.</li><li>Use the <strong>Export</strong> tab under the layout for files, and <strong>Options → Save .json</strong> to keep your work.</li></ol>
+<ol><li>You start with a blank layout. The first time, a welcome box offers to load an example layout instead (it's also in <strong>Options → Load example</strong>): an LED wall standing on its ground support on the ground line, with a projection screen each side. Add your screens on the left.</li><li>Arrange them on the layout, then switch to <strong>Preset Guide</strong> to plan PiPs.</li><li>Use the <strong>Export</strong> tab under the layout for files, and <strong>Options → Save .json</strong> to keep your work.</li></ol>
 <p>Hover over (or tap) a circled <strong>i</strong> to see what a section does. Press <strong>?</strong> (or <strong>Options → Keyboard shortcuts</strong>) for every shortcut, and use <strong>Options → Layout text size</strong> to make the labels on both layouts smaller or larger.</p>
 <p><strong>Options → Reset app</strong> clears everything PixelPlanner has saved in this browser and starts again with a blank layout and the welcome box.</p>
 <!-- README:END -->
@@ -3766,8 +3766,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.79.html). Bump it with every release.
-const APP_VERSION = '3.79';
+// (pixelplanner-v3.80.html). Bump it with every release.
+const APP_VERSION = '3.80';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
@@ -7133,7 +7133,7 @@ function openConfirm(){ cdlgReturn = document.activeElement; cdlg.hidden = false
 function closeConfirm(){ cdlg.hidden = true; if (cdlgReturn && cdlgReturn.focus) cdlgReturn.focus({preventScroll:true}); }
 $('#btnExample').addEventListener('click', openConfirm);
 $('#cdlgCancel').addEventListener('click', closeConfirm);
-$('#cdlgOk').addEventListener('click', () => { closeConfirm(); S = example(); view = null; refreshAll(); toast('Example loaded'); });
+$('#cdlgOk').addEventListener('click', () => { closeConfirm(); exampleOnGround(); view = null; refreshAll(); save(); toast('Example loaded'); });
 $('#cdlgSaveFirst').addEventListener('click', () => $('#btnSaveJson').click());
 // Reset app: erase everything this app keeps in the browser (its storage, and any cached files it made), then reload.
 const rdlg = $('#resetDlg');
