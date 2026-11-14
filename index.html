@@ -762,7 +762,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <p>Your work is saved in your browser and can be saved to and opened from a <code>.json</code> file.</p>
 <h2>What it does</h2>
 <h3>Screen Builder</h3>
-<ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>LED wall cutouts</strong>: remove cabinets in a wall's <strong>Cutouts</strong> map (or right-click a cabinet). They become holes, as if the cabinets weren't there: a screen placed behind the wall (lower in the Screens list) shows through them on the layout, in every export and in the Preset Guide, and PiPs in the hole count on the screen behind. Overlaps only count where the screen behind tucks under the remaining cabinets, each strip measured on its own.</li><li><strong>Curved and reshaped projection screens</strong>: in a screen's <strong>Shape</strong> section, bow each end out (+) or in (−) by typing an amount or using its slider (from fully in to fully out: half the end's length, so ±7.5 ft on a 15 ft high screen), and move any corner by an exact amount. Or turn on <strong>Corner handles</strong> (also in the screen's right-click menu) and drag the corners on the layout, to the nearest inch. The width, height and pixels you type are the flat face; PixelPlanner works out the projector raster (the upright box around the shape, at the face's pixel density) and uses it for the canvas and every export, with the part off the screen face shaded.</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li><strong>Options → Clear layout…</strong> (or right-click the layout or its tab) removes every screen, object and note from the open layout after you confirm, so you can build it again from the first screen. A layout can have no screens.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
+<ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>LED wall cutouts</strong>: remove cabinets in a wall's <strong>Cutouts</strong> map (or right-click a cabinet). They become holes, as if the cabinets weren't there: a screen placed behind the wall (lower in the Screens list) shows through them on the layout, in every export and in the Preset Guide, and PiPs in the hole count on the screen behind. Overlaps leave out the holes in either wall: only the strips where the screen behind tucks under remaining cabinets count, each measured across its narrow side, with one label per pair of screens.</li><li><strong>Curved and reshaped projection screens</strong>: in a screen's <strong>Shape</strong> section, bow each end out (+) or in (−) by typing an amount or using its slider (from fully in to fully out: half the end's length, so ±7.5 ft on a 15 ft high screen), and move any corner by an exact amount. Or turn on <strong>Corner handles</strong> (also in the screen's right-click menu) and drag the corners on the layout, to the nearest inch. The width, height and pixels you type are the flat face; PixelPlanner works out the projector raster (the upright box around the shape, at the face's pixel density) and uses it for the canvas and every export, with the part off the screen face shaded.</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li><strong>Options → Clear layout…</strong> (or right-click the layout or its tab) removes every screen, object and note from the open layout after you confirm, so you can build it again from the first screen. A layout can have no screens.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
 <h3>Preset Guide</h3>
 <ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock. <strong>+ New</strong> and <strong>Duplicate</strong> ask for the preset's name; leave it blank for "Preset" and its number.</li><li>Quick layouts: right-click a screen and choose <strong>Create… → Quick layout</strong> to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.</li><li>Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.</li><li><strong>Page Up / Page Down</strong> step through presets.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li>Exports to PowerPoint and Excel.</li></ul>
 <h3>Exports</h3>
@@ -1584,8 +1584,14 @@ function computeOverlaps(){
   const out=[], L=S.screens;
   for(let i=0;i<L.length;i++) for(let j=i+1;j<L.length;j++){
     const back=L[i], front=L[j]; let r=intersect(back,front); if(!r) continue;
-    if(front.holes&&front.holes.length){   /* a cutout covers nothing: each strip of remaining cabinets over the screen behind is its own overlap, measured across its narrow side */
-      for(const q of solidOf(front).map(q=>intersect(r,q)).filter(Boolean)){const dir=q.w<=q.h?'h':'v'; out.push({back,front,r:q,dir,amt:round(Math.min(q.w,q.h))});}
+    /* Cutouts: where either wall has a hole there is nothing to overlap. If a hole touches this overlap, what is left are
+       strips (each measured across its narrow side), worked out exactly as the Screen Builder does so the pixels match. */
+    const hs=holesOf(front).concat(holesOf(back));
+    if(hs.some(q=>Math.min(q.x+q.w,r.x+r.w)-Math.max(q.x,r.x)>0.5&&Math.min(q.y+q.h,r.y+r.h)-Math.max(q.y,r.y)>0.5)){
+      let ps=[r]; for(const q of hs) ps=subtractRect(ps,{x:Math.round(q.x),y:Math.round(q.y),w:Math.round(q.x+q.w)-Math.round(q.x),h:Math.round(q.y+q.h)-Math.round(q.y)});
+      ps=ps.filter(q=>q.w>=2&&q.h>=2); if(!ps.length) continue;   /* a 1 px sliver is canvas rounding, not an overlap */
+      const x0=Math.min(...ps.map(q=>q.x)), y0=Math.min(...ps.map(q=>q.y)), x1=Math.max(...ps.map(q=>q.x+q.w)), y1=Math.max(...ps.map(q=>q.y+q.h)), amts=ps.map(q=>round(Math.min(q.w,q.h)));
+      out.push({back,front,r:{x:x0,y:y0,w:x1-x0,h:y1-y0},pieces:ps,amts,dir:ps.length===1&&ps[0].w>ps[0].h?'v':'h',amt:Math.max(...amts)});
       continue;
     }
     const fx=r.w/Math.min(back.w,front.w), fy=r.h/Math.min(back.h,front.h), dir=fy<fx-1e-6?'v':'h';
@@ -1622,10 +1628,11 @@ function overlaysSVG(scale,vb){
       <text class="t2" x="${sp.x}" y="${sp.y-th/2+fs*1.5+fs2*1.05}" font-size="${fs2}">${esc(t2)}</text></g></g>`;
   };
   for(const o of computeOverlaps()){
-    const {r,back,front}=o;
-    g+=hatch(r,'ov-hatch')+`<rect class="ov-edge" x="${r.x}" y="${r.y}" width="${r.w}" height="${r.h}"/>`+
-      `<rect class="ov-front" x="${front.x}" y="${front.y}" width="${front.w}" height="${front.h}"/>`;
-    lb+=label(r,`${o.amt} px overlap`,`${sname(front)} in front`,'',Math.min(back.y,front.y),Math.max(back.y+back.h,front.y+front.h));
+    const {r,back,front}=o, lo=o.amts?Math.min(...o.amts):o.amt;
+    for(const q of o.pieces||[r]) g+=hatch(q,'ov-hatch')+`<rect class="ov-edge" x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}"/>`;
+    g+=`<rect class="ov-front" x="${front.x}" y="${front.y}" width="${front.w}" height="${front.h}"/>`;
+    const t1=o.pieces&&o.pieces.length>1?`${lo===o.amt?o.amt:lo+'–'+o.amt} px overlap · ${o.pieces.length} areas`:`${o.amt} px overlap`;   /* several strips around a cutout: one label */
+    lb+=label(r,t1,`${sname(front)} in front`,'',Math.min(back.y,front.y),Math.max(back.y+back.h,front.y+front.h));
   }
   /* Screen Builder objects: a dark area with red hatching and a dashed red outline, in front of every screen and PiP */
   (S.bObjects||[]).forEach((o,k)=>{   /* an ADA ramp is a triangle (its high end against the stage) */
@@ -1664,14 +1671,23 @@ function renderStage(){
   const faceSVG=s=>{const d=s.outline.map((p,i)=>`${i?'L':'M'}${+(s.x+p[0]*s.w).toFixed(2)} ${+(s.y+p[1]*s.h).toFixed(2)}`).join('')+'Z';
     return `<path class="scr-off" d="M${s.x} ${s.y}H${s.x+s.w}V${s.y+s.h}H${s.x}Z${d}" fill-rule="evenodd" pointer-events="none"/><path class="scr-face" d="${d}" pointer-events="none"/>`;};
   for(const s of S.screens){
-    const nm=sname(s), fs=Math.max(24,s.h*0.085)*TS, mod=screenMod(s);
+    const nm=sname(s), mod=screenMod(s);
+    /* with cutouts involved, the name goes in the top-left of the part of this screen you can see (not in its own holes,
+       not behind a wall in front), so it never sits under another wall or inside a hole */
+    let LB=s; const fronts=S.screens.slice(S.screens.indexOf(s)+1);
+    if((s.holes&&s.holes.length)||fronts.some(f=>f.holes&&f.holes.length)){
+      let vis=solidOf(s); for(const f of fronts) for(const q of solidOf(f)) vis=subtractRect(vis,q);
+      const room=q=>Math.min(q.w/Math.max(6,nm.length*0.7),q.h*0.25);   /* the visible part where the name fits biggest */
+      const big=vis.sort((a,b)=>room(b)-room(a))[0]; if(big&&big.w*big.h<s.w*s.h*0.999) LB=big;
+    }
+    const fs=LB===s?Math.max(24,s.h*0.085)*TS:Math.min(Math.max(24,s.h*0.085)*TS,Math.max(10,Math.min(LB.h*0.25,(LB.w-8)/(Math.max(nm.length,4)*0.78+0.6))));   /* in a visible part: fits its width too */
     const isSel=sel&&sel.kind==='screen'&&sel.id===s.id;
     const hs=holesOf(s), body=hs.length   /* cutouts are holes: the screen behind shows through them */
       ?`<path class="scr" style="stroke:none" fill-rule="evenodd" d="M${s.x} ${s.y}h${s.w}v${s.h}h${-s.w}Z${hs.map(h=>`M${h.x} ${h.y}h${h.w}v${h.h}h${-h.w}Z`).join('')}"/><rect class="scr ${isSel?'sel':''}" style="fill:none" x="${s.x}" y="${s.y}" width="${s.w}" height="${s.h}"/>`
       :`<rect class="scr ${s.kind==='custom'?'custom':''} ${isSel?'sel':''}" x="${s.x}" y="${s.y}" width="${s.w}" height="${s.h}"/>`;
     g+=`<g data-kind="screen" data-id="${s.id}">${body}${s.outline?faceSVG(s):''}
-      <text class="scr-name" x="${s.x+fs*.6}" y="${s.y+fs*1.5}" font-size="${fs}">${esc(nm)}</text>
-      <text class="scr-dim ${mod?'mod':''}" x="${s.x+fs*.6}" y="${s.y+fs*2.7}" font-size="${fs*.6}">${[s.kind==='custom'?'custom':'',mod?mod+' here':''].filter(Boolean).join(' · ')}</text>${s.locked?lockBadge(s,scale):''}</g>`;
+      <text class="scr-name" x="${LB.x+fs*.6}" y="${LB.y+fs*1.5}" font-size="${fs}">${esc(nm)}</text>
+      <text class="scr-dim ${mod?'mod':''}" x="${LB.x+fs*.6}" y="${LB.y+fs*2.7}" font-size="${fs*.6}">${[s.kind==='custom'?'custom':'',mod?mod+' here':''].filter(Boolean).join(' · ')}</text>${s.locked?lockBadge(s,scale):''}</g>`;
   }
   const ovl=overlaysSVG(scale,vb); g+=ovl.shapes;
   const labs=[];   /* every PiP and mirror copy, back to front, for the names drawn on top */
@@ -3782,8 +3798,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.84.html). Bump it with every release.
-const APP_VERSION = '3.84';
+// (pixelplanner-v3.85.html). Bump it with every release.
+const APP_VERSION = '3.85';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
@@ -4387,14 +4403,17 @@ function computeOverlaps(){
     let x0 = Math.max(back.x, front.x), x1 = Math.min(back.x + a.w, front.x + b.w);
     let y0 = Math.max(back.y, front.y), y1 = Math.min(back.y + a.h, front.y + b.h);
     if (x1 - x0 < 0.5 || y1 - y0 < 0.5) continue;
-    if (offCount(front)){
-      // A cutout in the front wall covers nothing: only its remaining cabinets count. Each covered strip around the
-      // hole is its own overlap, measured across its narrow side (how far the screen behind tucks in there).
-      const ps = solidParts(front).map(q => ({x0: Math.max(q.x, x0), y0: Math.max(q.y, y0), x1: Math.min(q.x + q.w, x1), y1: Math.min(q.y + q.h, y1)})).filter(q => q.x1 - q.x0 >= 0.5 && q.y1 - q.y0 >= 0.5);
-      for (const q of ps){
-        const w = q.x1 - q.x0, h = q.y1 - q.y0, dir = w <= h ? 'h' : 'v', loFirst = dir === 'h' ? back.x <= front.x : back.y <= front.y;
-        out.push({back, front, x: q.x0, y: q.y0, w, h, dir, amt: Math.min(w, h), lo: loFirst ? back : front, hi: loFirst ? front : back, full: false, cut: true});
-      }
+    // Cutouts: where either wall has a hole there is nothing to overlap. If a hole touches this overlap, what is left
+    // are strips (each measured across its narrow side); several strips of one pair share one label.
+    const holesMm = s => { const d = dims(s); return mergedHoles(s).map(q => ({x: s.x + d.w * q.fx0, y: s.y + d.h * q.fy0, w: d.w * (q.fx1 - q.fx0), h: d.h * (q.fy1 - q.fy0)})); };
+    const hs = holesMm(front).concat(holesMm(back)), r = {x: x0, y: y0, w: x1 - x0, h: y1 - y0};
+    if (hs.some(q => Math.min(q.x + q.w, x1) - Math.max(q.x, x0) > 0.5 && Math.min(q.y + q.h, y1) - Math.max(q.y, y0) > 0.5)){
+      let ps = [r]; for (const q of hs) ps = cutRect(ps, q);
+      ps = ps.filter(q => q.w >= 0.5 && q.h >= 0.5); if (!ps.length) continue;
+      const bx0 = Math.min(...ps.map(q => q.x)), by0 = Math.min(...ps.map(q => q.y)), bx1 = Math.max(...ps.map(q => q.x + q.w)), by1 = Math.max(...ps.map(q => q.y + q.h));
+      const one = ps.length === 1 ? ps[0] : null, dir = one ? (one.w <= one.h ? 'h' : 'v') : 'h', loFirst = dir === 'h' ? back.x <= front.x : back.y <= front.y;
+      out.push({back, front, x: bx0, y: by0, w: bx1 - bx0, h: by1 - by0, dir, amt: Math.max(...ps.map(q => Math.min(q.w, q.h))), amts: ps.map(q => Math.min(q.w, q.h)), pieces: ps,
+        lo: loFirst ? back : front, hi: loFirst ? front : back, full: false, cut: true});
       continue;
     }
     // Measure across the direction the screens are offset in. Side by side, one screen's height sits inside the
@@ -4412,20 +4431,24 @@ function overlapPx(o){
   if (!S.match.on) return null;
   const L = canvasLayout(), A = L.items.find(i => i.s === o.back), B = L.items.find(i => i.s === o.front);
   if (!A || !B) return null;
-  if (o.cut){ const r = ovCanvasRect(o); return o.dir === 'h' ? r.w : r.h; } // a strip beside a front wall's cutout
+  if (o.cut){ const ps = ovCanvasPieces(o); return ps.length ? Math.max(...ps.map(q => Math.min(q.w, q.h))) : 0; } // beside a cutout: the widest strip
   return Math.max(0, o.dir === 'h' ? Math.min(A.x + A.w, B.x + B.w) - Math.max(A.x, B.x) : Math.min(A.y + A.h, B.y + B.h) - Math.max(A.y, B.y));
 }
-// A strip overlap's area on the content canvas, in whole canvas pixels: each edge comes from the screen it belongs to
-// (the back screen's own edges from its canvas box, the rest from the front wall's, where its cutouts are).
-function ovCanvasRect(o){
-  const L = canvasLayout(), A = L.items.find(i => i.s === o.back), B = L.items.find(i => i.s === o.front);
-  const a = dims(o.back), b = dims(o.front);
-  const map = (v, s0, sLen, P0, PLen, f0, fLen, F0, FLen) => Math.abs(v - s0) < 0.5 ? P0 : Math.abs(v - s0 - sLen) < 0.5 ? P0 + PLen : Math.round(F0 + (v - f0) / fLen * FLen);
-  const x0 = map(o.x, o.back.x, a.w, A.x, A.w, o.front.x, b.w, B.x, B.w), x1 = map(o.x + o.w, o.back.x, a.w, A.x, A.w, o.front.x, b.w, B.x, B.w);
-  const y0 = map(o.y, o.back.y, a.h, A.y, A.h, o.front.y, b.h, B.y, B.h), y1 = map(o.y + o.h, o.back.y, a.h, A.y, A.h, o.front.y, b.h, B.y, B.h);
-  return {x: x0, y: y0, w: x1 - x0, h: y1 - y0};
+// A cutout overlap's strips on the content canvas, in whole pixels: the two screens' canvas boxes overlapped, less both
+// walls' holes (rounded as the canvas draws them). The Preset Guide works them out the same way, so the numbers match.
+function ovCanvasPieces(o){
+  const L = canvasLayout(), A = L.items.find(i => i.s === o.back), B = L.items.find(i => i.s === o.front); if (!A || !B) return [];
+  const x0 = Math.max(A.x, B.x), y0 = Math.max(A.y, B.y), x1 = Math.min(A.x + A.w, B.x + B.w), y1 = Math.min(A.y + A.h, B.y + B.h); if (x1 - x0 <= 0 || y1 - y0 <= 0) return [];
+  const hp = it => mergedHoles(it.s).map(q => { const hx = Math.round(it.x + q.fx0 * it.w), hy = Math.round(it.y + q.fy0 * it.h); return {x: hx, y: hy, w: Math.round(it.x + q.fx1 * it.w) - hx, h: Math.round(it.y + q.fy1 * it.h) - hy}; });
+  let ps = [{x: x0, y: y0, w: x1 - x0, h: y1 - y0}]; for (const q of hp(B).concat(hp(A))) ps = cutRect(ps, q);
+  return ps.filter(q => q.w >= 2 && q.h >= 2); // a 1 px sliver is canvas rounding, not an overlap
 }
-const overlapText = o => { const px = overlapPx(o); return `${fmtLen(o.amt)}${px != null ? ` · ${px} px` : ''} overlap${o.full ? ` (full ${o.dir === 'h' ? 'width' : 'height'})` : ''}`; };
+const rangeText = (vs, f) => { const lo = Math.min(...vs), hi = Math.max(...vs); return f(lo) === f(hi) ? f(lo) : `${f(lo)}–${f(hi)}`; };
+const overlapText = o => {
+  if (o.cut && o.pieces.length > 1){ // several strips around a cutout: one label with the range
+    const ps = S.match.on ? ovCanvasPieces(o) : [];
+    return `${rangeText(o.amts, fmtLen)}${ps.length ? ` · ${rangeText(ps.map(q => Math.min(q.w, q.h)), v => String(v))} px` : ''} overlap · ${o.pieces.length} areas`;
+  } const px = overlapPx(o); return `${fmtLen(o.amt)}${px != null ? ` · ${px} px` : ''} overlap${o.full ? ` (full ${o.dir === 'h' ? 'width' : 'height'})` : ''}`; };
 /* ---------- objects over screens ---------- */
 // Where an object overlaps a finished screen: the shared area, its physical size, and the same area in pixels
 // on the screen's content (and where it sits on the content canvas).
@@ -5662,7 +5685,21 @@ function renderStage(){
       continue;
     }
     const d = dims(s), c = content(s), sel = s.id === S.sel && !selObj;
-    const cx = s.x + d.w / 2, cy = s.y + d.h / 2;
+    // With cutouts involved, the name and specs go on the part of this screen you can actually see (not in its own
+    // holes, not behind a wall in front of it), so a wall's labels and those of a screen behind its cutout don't collide.
+    let LB = {x: s.x, y: s.y, w: d.w, h: d.h}, hideName = false;
+    const fronts = order.slice(order.indexOf(s) + 1).filter(ready);
+    if (offCount(s) || fronts.some(f => offCount(f))){
+      // The visible part where the name can be biggest; if none is at least 40% as big as the whole screen allows, stay centred.
+      const nameFs = q => Math.min(q.w * 0.9 / (Math.max((s.label || 'Untitled').length, 5) * 0.52), q.h / 4.6);
+      let vis = solidParts(s); for (const f of fronts) for (const q of solidParts(f)) vis = cutRect(vis, q);
+      const best = vis.sort((a, b) => nameFs(b) - nameFs(a))[0];
+      if (best && best.w * best.h < d.w * d.h * 0.999 && nameFs(best) >= nameFs(LB) * 0.3) LB = best;
+      // No good spot, and most of this screen is behind walls in front: its name would only show in scraps, so leave it off
+      // the layout (it is still in the spec sheet and its card).
+      else hideName = vis.reduce((a, q) => a + q.w * q.h, 0) < d.w * d.h * 0.5;
+    }
+    const cx = LB.x + LB.w / 2, cy = LB.y + LB.h / 2;
     const label = s.label || 'Untitled';
     const lines = s.shape ? [`${s.rw} × ${s.rh} px raster`, `face ${fmtLen2(s.shape.pw, s.shape.ph)}`] : [
       `${s.rw} × ${s.rh} px native`,
@@ -5671,16 +5708,17 @@ function renderStage(){
     if (S.match.on) lines.push(s.id === ref.id ? 'reference density' : `content ${c.w} × ${c.h} px`);
     const maxLen = Math.max(...lines.map(l => l.length));
     // When dimensions are drawn inside this screen, keep the name block clear of the bottom and right edges.
-    const dimsOn = sel || S.allDims, kw = dimsOn ? 0.74 : 0.9, kh = dimsOn ? 0.72 : 1, cyL = dimsOn ? cy - d.h * 0.05 : cy;
-    let fs = Math.min(ut * 2.4, d.w * kw / (Math.max(label.length, 5) * 0.52), d.h * kh / 4.6);
-    let fs2 = Math.min(fs * 0.6, d.w * kw / (maxLen * 0.62), ut * 1.5);
-    const showLines = fs2 > u * 0.75 && d.h * kh > fs * 1.2 + fs2 * 4.2;
+    const dimsOn = sel || S.allDims, kw = dimsOn ? 0.74 : 0.9, kh = dimsOn ? 0.72 : 1, cyL = dimsOn ? cy - LB.h * 0.05 : cy;
+    let fs = Math.min(ut * 2.4, LB.w * kw / (Math.max(label.length, 5) * 0.52), LB.h * kh / 4.6);
+    let fs2 = Math.min(fs * 0.6, LB.w * kw / (maxLen * 0.62), ut * 1.5);
+    const showLines = fs2 > u * 0.75 && LB.h * kh > fs * 1.2 + fs2 * 4.2;
     const blockH = showLines ? fs + lines.length * fs2 * 1.45 : fs;
     let t = `<text x="${cx}" y="${cyL - blockH / 2 + fs * 0.8}" text-anchor="middle" font-size="${fs}" font-weight="700" fill="var(--stage-ink)" font-family="Barlow Semi Condensed, Arial Narrow, sans-serif">${esc(label)}</text>`;
     if (showLines) lines.forEach((l, i) => {
       const accent = S.match.on && i === 2 && s.id !== ref.id;
       t += `<text x="${cx}" y="${cyL - blockH / 2 + fs + fs2 * 1.45 * (i + 0.8)}" text-anchor="middle" font-size="${fs2}" fill="${accent ? s.color : 'var(--stage-muted)'}" font-family="JetBrains Mono, monospace">${esc(l)}</text>`;
     });
+    if (hideName) t = '';
     if (lay){
       const it = lay.items.find(i => i.s === s), cs = Math.min(ut * 1.1, d.h / 10);
       if (cs > u * 0.6) t += `<text x="${s.x + ut * 0.8}" y="${s.y + cs * 1.6}" font-size="${cs}" fill="var(--stage-muted)" font-family="JetBrains Mono, monospace">@ ${it.x}, ${it.y}</text>`;
@@ -5830,10 +5868,9 @@ function clearSVG(s, ut){
 let ovList = [];
 function overlapSVG(o, i, u, ut){
   const {back, front} = o, fd = dims(front), sw = u * .22;
-  const step = Math.max(ut * 0.7, Math.min(o.w, o.h) / 10);
-  let out = `<g pointer-events="none">
-    <g stroke="${back.color}" stroke-opacity=".6" stroke-width="${u * .1}">${hatchLines(o.x, o.y, o.w, o.h, step)}</g>
-    <rect x="${o.x}" y="${o.y}" width="${o.w}" height="${o.h}" fill="none" stroke="${back.color}" stroke-width="${sw}" stroke-dasharray="${u * .9} ${u * .6}"/>
+  let out = `<g pointer-events="none">${(o.pieces || [o]).map(q => `
+    <g stroke="${back.color}" stroke-opacity=".6" stroke-width="${u * .1}">${hatchLines(q.x, q.y, q.w, q.h, Math.max(ut * 0.7, Math.min(q.w, q.h) / 10))}</g>
+    <rect x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}" fill="none" stroke="${back.color}" stroke-width="${sw}" stroke-dasharray="${u * .9} ${u * .6}"/>`).join('')}
     <rect x="${front.x}" y="${front.y}" width="${fd.w}" height="${fd.h}" fill="none" stroke="${front.color}" stroke-width="${sw}"/>
   </g>`;
   const t1 = overlapText(o), t2 = `${front.label || 'Untitled'} in front`;
@@ -6141,7 +6178,7 @@ function popMode(kind, ok, swap){
   $('#gpSwapRow').hidden = !swap; if (swap) $('#gpSwap').textContent = swap;
 }
 function openOverlapEditor(o, el){
-  if (o.cut){ toast(`This is where ${o.back.label || 'the screen'} tucks behind ${o.front.label || 'the wall'} beside its cutout. Move the screens to change it.`); return; }
+  if (o.cut){ toast(`This overlap is around a cutout in ${offCount(o.front) ? o.front.label || 'the front wall' : o.back.label || 'the wall behind'}. Move the screens to change it.`); return; }
   const rd = density(refScreen()), per = o.dir === 'h' ? rd.x : rd.y;
   gapEdit = {ov: true, dir: o.dir, loId: o.lo.id, hiId: o.hi.id, backId: o.back.id, per};
   popMode('Overlap', 'Set overlap', `Put ${o.back.label || 'the other screen'} in front`);
@@ -7468,15 +7505,19 @@ function drawOverlaps(ctx, items, W, H, st){
   ctx.save();
   for (const o of computeOverlaps()){
     const A = byId.get(o.back.id), B = byId.get(o.front.id); if (!A || !B) continue;
-    const cr = o.cut ? ovCanvasRect(o) : null; // beside a front wall's cutout: just that strip
-    const x0 = cr ? cr.x : Math.max(A.x, B.x), y0 = cr ? cr.y : Math.max(A.y, B.y), x1 = cr ? cr.x + cr.w : Math.min(A.x + A.w, B.x + B.w), y1 = cr ? cr.y + cr.h : Math.min(A.y + A.h, B.y + B.h);
-    if (x1 - x0 <= 0 || y1 - y0 <= 0) continue;
-    const w = x1 - x0, h = y1 - y0, step = Math.max(base * 0.6, Math.min(w, h) / 10);
-    ctx.save(); ctx.beginPath(); ctx.rect(x0, y0, w, h); ctx.clip();
-    ctx.strokeStyle = rgba(o.back.color, .6); ctx.lineWidth = Math.max(1, lw / 2); ctx.beginPath();
-    for (let k = step; k < w + h; k += step){ ctx.moveTo(x0 + k, y0); ctx.lineTo(x0 + k - h, y0 + h); }
-    ctx.stroke(); ctx.restore();
-    ctx.strokeStyle = o.back.color; ctx.lineWidth = lw; ctx.setLineDash([lw * 4, lw * 3]); ctx.strokeRect(x0, y0, w, h); ctx.setLineDash([]);
+    // Beside a cutout only the strips are overlapped: each is hatched, and the label goes by the box around them.
+    const pcs = o.cut ? ovCanvasPieces(o) : [{x: Math.max(A.x, B.x), y: Math.max(A.y, B.y), w: Math.min(A.x + A.w, B.x + B.w) - Math.max(A.x, B.x), h: Math.min(A.y + A.h, B.y + B.h) - Math.max(A.y, B.y)}];
+    if (!pcs.length || pcs[0].w <= 0 || pcs[0].h <= 0) continue;
+    const x0 = Math.min(...pcs.map(q => q.x)), y0 = Math.min(...pcs.map(q => q.y)), x1 = Math.max(...pcs.map(q => q.x + q.w)), y1 = Math.max(...pcs.map(q => q.y + q.h));
+    const w = x1 - x0, h = y1 - y0;
+    for (const q of pcs){
+      const step = Math.max(base * 0.6, Math.min(q.w, q.h) / 10);
+      ctx.save(); ctx.beginPath(); ctx.rect(q.x, q.y, q.w, q.h); ctx.clip();
+      ctx.strokeStyle = rgba(o.back.color, .6); ctx.lineWidth = Math.max(1, lw / 2); ctx.beginPath();
+      for (let k = step; k < q.w + q.h; k += step){ ctx.moveTo(q.x + k, q.y); ctx.lineTo(q.x + k - q.h, q.y + q.h); }
+      ctx.stroke(); ctx.restore();
+      ctx.strokeStyle = o.back.color; ctx.lineWidth = lw; ctx.setLineDash([lw * 4, lw * 3]); ctx.strokeRect(q.x, q.y, q.w, q.h); ctx.setLineDash([]);
+    }
     ctx.strokeStyle = st.front || o.front.color; ctx.strokeRect(B.x + lw / 2, B.y + lw / 2, B.w - lw, B.h - lw);
     // Label: inside the overlap if it fits, otherwise in clear space above or below the two screens.
     const t1 = overlapText(o), t2 = `${o.front.label || 'Untitled'} in front`;
