@@ -762,7 +762,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <p>Your work is saved in your browser and can be saved to and opened from a <code>.json</code> file.</p>
 <h2>What it does</h2>
 <h3>Screen Builder</h3>
-<ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>LED wall cutouts</strong>: remove cabinets in a wall's <strong>Cutouts</strong> map (or right-click a cabinet). They become holes, as if the cabinets weren't there: a screen placed behind the wall (lower in the Screens list) shows through them on the layout, in every export and in the Preset Guide, and PiPs in the hole count on the screen behind.</li><li><strong>Curved and reshaped projection screens</strong>: in a screen's <strong>Shape</strong> section, bow each end out (+) or in (−) by typing an amount or using its slider (from fully in to fully out: half the end's length, so ±7.5 ft on a 15 ft high screen), and move any corner by an exact amount. Or turn on <strong>Corner handles</strong> (also in the screen's right-click menu) and drag the corners on the layout, to the nearest inch. The width, height and pixels you type are the flat face; PixelPlanner works out the projector raster (the upright box around the shape, at the face's pixel density) and uses it for the canvas and every export, with the part off the screen face shaded.</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li><strong>Options → Clear layout…</strong> (or right-click the layout or its tab) removes every screen, object and note from the open layout after you confirm, so you can build it again from the first screen. A layout can have no screens.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
+<ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>LED wall cutouts</strong>: remove cabinets in a wall's <strong>Cutouts</strong> map (or right-click a cabinet). They become holes, as if the cabinets weren't there: a screen placed behind the wall (lower in the Screens list) shows through them on the layout, in every export and in the Preset Guide, and PiPs in the hole count on the screen behind. Overlaps only count where the screen behind tucks under the remaining cabinets, each strip measured on its own.</li><li><strong>Curved and reshaped projection screens</strong>: in a screen's <strong>Shape</strong> section, bow each end out (+) or in (−) by typing an amount or using its slider (from fully in to fully out: half the end's length, so ±7.5 ft on a 15 ft high screen), and move any corner by an exact amount. Or turn on <strong>Corner handles</strong> (also in the screen's right-click menu) and drag the corners on the layout, to the nearest inch. The width, height and pixels you type are the flat face; PixelPlanner works out the projector raster (the upright box around the shape, at the face's pixel density) and uses it for the canvas and every export, with the part off the screen face shaded.</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li><strong>Options → Clear layout…</strong> (or right-click the layout or its tab) removes every screen, object and note from the open layout after you confirm, so you can build it again from the first screen. A layout can have no screens.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
 <h3>Preset Guide</h3>
 <ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock. <strong>+ New</strong> and <strong>Duplicate</strong> ask for the preset's name; leave it blank for "Preset" and its number.</li><li>Quick layouts: right-click a screen and choose <strong>Create… → Quick layout</strong> to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.</li><li>Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.</li><li><strong>Page Up / Page Down</strong> step through presets.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li>Exports to PowerPoint and Excel.</li></ul>
 <h3>Exports</h3>
@@ -1527,7 +1527,8 @@ function parseScreens(data,field,useLabels){
     /* Multiscreen Guide Builder files also give each screen's native resolution, and any object covering it */
     const nw=parseFloat(f.nativeWidth), nh=parseFloat(f.nativeHeight);
     if(nw>0&&nh>0&&(round(nw)!==sc.w||round(nh)!==sc.h)) sc.res={w:round(nw),h:round(nh)};
-    if(Array.isArray(items[i].removedCabinets)&&sc.w>0&&sc.h>0) sc.holes=items[i].removedCabinets.filter(c=>c&&c.width>0&&c.height>0)
+    const cuts=Array.isArray(items[i].cutoutAreas)?items[i].cutoutAreas:items[i].removedCabinets;
+    if(Array.isArray(cuts)&&sc.w>0&&sc.h>0) sc.holes=cuts.filter(c=>c&&c.width>0&&c.height>0)
       .map(c=>({x:(round(c.x-mx)-sc.x)/sc.w,y:(round(c.y-my)-sc.y)/sc.h,w:round(c.width)/sc.w,h:round(c.height)/sc.h}));   /* LED wall cutouts, as shares of the screen */
     if(items[i].shape&&Array.isArray(items[i].shape.outline)&&items[i].shape.outline.length>2) sc.outline=items[i].shape.outline.slice(0,400).map(p=>[Math.min(1,Math.max(0,+p[0]||0)),Math.min(1,Math.max(0,+p[1]||0))]);   /* curved or angled screen face, 0–1 of the box */
     if(Array.isArray(items[i].coveredBy)) sc.covers=items[i].coveredBy.filter(c=>c&&c.width>0&&c.height>0)
@@ -1583,10 +1584,9 @@ function computeOverlaps(){
   const out=[], L=S.screens;
   for(let i=0;i<L.length;i++) for(let j=i+1;j<L.length;j++){
     const back=L[i], front=L[j]; let r=intersect(back,front); if(!r) continue;
-    if(front.holes&&front.holes.length){   /* only the front wall's remaining cabinets cover the screen behind */
-      const ps=solidOf(front).map(q=>intersect(r,q)).filter(Boolean); if(!ps.length) continue;
-      const x0=Math.min(...ps.map(q=>q.x)), y0=Math.min(...ps.map(q=>q.y)), x1=Math.max(...ps.map(q=>q.x+q.w)), y1=Math.max(...ps.map(q=>q.y+q.h));
-      r={x:x0,y:y0,w:x1-x0,h:y1-y0};
+    if(front.holes&&front.holes.length){   /* a cutout covers nothing: each strip of remaining cabinets over the screen behind is its own overlap, measured across its narrow side */
+      for(const q of solidOf(front).map(q=>intersect(r,q)).filter(Boolean)){const dir=q.w<=q.h?'h':'v'; out.push({back,front,r:q,dir,amt:round(Math.min(q.w,q.h))});}
+      continue;
     }
     const fx=r.w/Math.min(back.w,front.w), fy=r.h/Math.min(back.h,front.h), dir=fy<fx-1e-6?'v':'h';
     out.push({back,front,r,dir,amt:round(dir==='h'?r.w:r.h)});
@@ -3782,8 +3782,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.83.html). Bump it with every release.
-const APP_VERSION = '3.83';
+// (pixelplanner-v3.84.html). Bump it with every release.
+const APP_VERSION = '3.84';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
@@ -3981,8 +3981,27 @@ function cutRect(rects, b){
   return out;
 }
 const holeRects = s => { const d = dims(s); return offCells(s).map(o => ({x: s.x + d.w * o.fx0, y: s.y + d.h * o.fy0, w: d.w * (o.fx1 - o.fx0), h: d.h * (o.fy1 - o.fy0), c: o.c, r: o.r})); };
+// Removed cabinets joined into as few rectangles as possible (runs along a row, stretched down while the rows match),
+// as fractions of the wall: {fx0, fx1, fy0, fy1}. A 4 × 4 block of removed cabinets is one hole.
+function mergedHoles(s){
+  if (!offCount(s)) return [];
+  const g = ledGrid(s), off = offKeys(s), rects = []; let open = [];
+  for (let r = 0; r < g.ys.length - 1; r++){
+    const runs = []; let c0 = null;
+    for (let c = 0; c <= g.xs.length - 1; c++){
+      const isOff = c < g.xs.length - 1 && off.has(c + ',' + r);
+      if (isOff && c0 === null) c0 = c; if (!isOff && c0 !== null){ runs.push([c0, c]); c0 = null; }
+    }
+    open = runs.map(([a, b]) => { const o = open.find(q => q.a === a && q.b === b); if (o){ o.r1 = r + 1; return o; } const n = {a, b, r0: r, r1: r + 1}; rects.push(n); return n; });
+  }
+  return rects.map(q => ({fx0: g.xs[q.a], fx1: g.xs[q.b], fy0: g.ys[q.r0], fy1: g.ys[q.r1]}));
+}
 // The parts of a screen that are really there: its box less any removed cabinets.
-function solidParts(s){ const d = dims(s); let r = [{x: s.x, y: s.y, w: d.w, h: d.h}]; for (const h of holeRects(s)) r = cutRect(r, h); return r; }
+function solidParts(s){
+  const d = dims(s); let r = [{x: s.x, y: s.y, w: d.w, h: d.h}];
+  for (const o of mergedHoles(s)) r = cutRect(r, {x: s.x + d.w * o.fx0, y: s.y + d.h * o.fy0, w: d.w * (o.fx1 - o.fx0), h: d.h * (o.fy1 - o.fy0)});
+  return r;
+}
 // On a canvas: clip so nothing is drawn in a wall's holes (whatever is behind stays visible there).
 function clipHoles(ctx, it){
   const cells = offCells(it.s); if (!cells.length) return;
@@ -4368,10 +4387,15 @@ function computeOverlaps(){
     let x0 = Math.max(back.x, front.x), x1 = Math.min(back.x + a.w, front.x + b.w);
     let y0 = Math.max(back.y, front.y), y1 = Math.min(back.y + a.h, front.y + b.h);
     if (x1 - x0 < 0.5 || y1 - y0 < 0.5) continue;
-    if (offCount(front)){ // a cutout in the front wall doesn't cover anything: only its remaining cabinets count
+    if (offCount(front)){
+      // A cutout in the front wall covers nothing: only its remaining cabinets count. Each covered strip around the
+      // hole is its own overlap, measured across its narrow side (how far the screen behind tucks in there).
       const ps = solidParts(front).map(q => ({x0: Math.max(q.x, x0), y0: Math.max(q.y, y0), x1: Math.min(q.x + q.w, x1), y1: Math.min(q.y + q.h, y1)})).filter(q => q.x1 - q.x0 >= 0.5 && q.y1 - q.y0 >= 0.5);
-      if (!ps.length) continue;
-      x0 = Math.min(...ps.map(q => q.x0)); x1 = Math.max(...ps.map(q => q.x1)); y0 = Math.min(...ps.map(q => q.y0)); y1 = Math.max(...ps.map(q => q.y1));
+      for (const q of ps){
+        const w = q.x1 - q.x0, h = q.y1 - q.y0, dir = w <= h ? 'h' : 'v', loFirst = dir === 'h' ? back.x <= front.x : back.y <= front.y;
+        out.push({back, front, x: q.x0, y: q.y0, w, h, dir, amt: Math.min(w, h), lo: loFirst ? back : front, hi: loFirst ? front : back, full: false, cut: true});
+      }
+      continue;
     }
     // Measure across the direction the screens are offset in. Side by side, one screen's height sits inside the
     // other's (its vertical share is 100%), so the overlap is a width, however wide it gets; and the reverse for stacked.
@@ -4388,7 +4412,18 @@ function overlapPx(o){
   if (!S.match.on) return null;
   const L = canvasLayout(), A = L.items.find(i => i.s === o.back), B = L.items.find(i => i.s === o.front);
   if (!A || !B) return null;
+  if (o.cut){ const r = ovCanvasRect(o); return o.dir === 'h' ? r.w : r.h; } // a strip beside a front wall's cutout
   return Math.max(0, o.dir === 'h' ? Math.min(A.x + A.w, B.x + B.w) - Math.max(A.x, B.x) : Math.min(A.y + A.h, B.y + B.h) - Math.max(A.y, B.y));
+}
+// A strip overlap's area on the content canvas, in whole canvas pixels: each edge comes from the screen it belongs to
+// (the back screen's own edges from its canvas box, the rest from the front wall's, where its cutouts are).
+function ovCanvasRect(o){
+  const L = canvasLayout(), A = L.items.find(i => i.s === o.back), B = L.items.find(i => i.s === o.front);
+  const a = dims(o.back), b = dims(o.front);
+  const map = (v, s0, sLen, P0, PLen, f0, fLen, F0, FLen) => Math.abs(v - s0) < 0.5 ? P0 : Math.abs(v - s0 - sLen) < 0.5 ? P0 + PLen : Math.round(F0 + (v - f0) / fLen * FLen);
+  const x0 = map(o.x, o.back.x, a.w, A.x, A.w, o.front.x, b.w, B.x, B.w), x1 = map(o.x + o.w, o.back.x, a.w, A.x, A.w, o.front.x, b.w, B.x, B.w);
+  const y0 = map(o.y, o.back.y, a.h, A.y, A.h, o.front.y, b.h, B.y, B.h), y1 = map(o.y + o.h, o.back.y, a.h, A.y, A.h, o.front.y, b.h, B.y, B.h);
+  return {x: x0, y: y0, w: x1 - x0, h: y1 - y0};
 }
 const overlapText = o => { const px = overlapPx(o); return `${fmtLen(o.amt)}${px != null ? ` · ${px} px` : ''} overlap${o.full ? ` (full ${o.dir === 'h' ? 'width' : 'height'})` : ''}`; };
 /* ---------- objects over screens ---------- */
@@ -6106,6 +6141,7 @@ function popMode(kind, ok, swap){
   $('#gpSwapRow').hidden = !swap; if (swap) $('#gpSwap').textContent = swap;
 }
 function openOverlapEditor(o, el){
+  if (o.cut){ toast(`This is where ${o.back.label || 'the screen'} tucks behind ${o.front.label || 'the wall'} beside its cutout. Move the screens to change it.`); return; }
   const rd = density(refScreen()), per = o.dir === 'h' ? rd.x : rd.y;
   gapEdit = {ov: true, dir: o.dir, loId: o.lo.id, hiId: o.hi.id, backId: o.back.id, per};
   popMode('Overlap', 'Set overlap', `Put ${o.back.label || 'the other screen'} in front`);
@@ -7131,6 +7167,8 @@ function contentCanvasJSON(id){
       if (s.mode === 'led'){
         out.cabinets = {columns: s.led.cols, rows: s.led.rows};
         const cells = offCells(s);
+        if (cells.length) out.cutoutAreas = mergedHoles(s).map(q => { const x0 = Math.round(it.x + q.fx0 * it.w), y0 = Math.round(it.y + q.fy0 * it.h);
+          return {x: x0, y: y0, width: Math.round(it.x + q.fx1 * it.w) - x0, height: Math.round(it.y + q.fy1 * it.h) - y0}; }); // removed cabinets joined into rectangles
         if (cells.length) out.removedCabinets = cells.map(c => {
           const x0 = Math.round(it.x + c.fx0 * it.w), y0 = Math.round(it.y + c.fy0 * it.h);
           return {column: c.c + 1, row: c.r + 1, x: x0, y: y0, width: Math.round(it.x + c.fx1 * it.w) - x0, height: Math.round(it.y + c.fy1 * it.h) - y0};
@@ -7430,7 +7468,8 @@ function drawOverlaps(ctx, items, W, H, st){
   ctx.save();
   for (const o of computeOverlaps()){
     const A = byId.get(o.back.id), B = byId.get(o.front.id); if (!A || !B) continue;
-    const x0 = Math.max(A.x, B.x), y0 = Math.max(A.y, B.y), x1 = Math.min(A.x + A.w, B.x + B.w), y1 = Math.min(A.y + A.h, B.y + B.h);
+    const cr = o.cut ? ovCanvasRect(o) : null; // beside a front wall's cutout: just that strip
+    const x0 = cr ? cr.x : Math.max(A.x, B.x), y0 = cr ? cr.y : Math.max(A.y, B.y), x1 = cr ? cr.x + cr.w : Math.min(A.x + A.w, B.x + B.w), y1 = cr ? cr.y + cr.h : Math.min(A.y + A.h, B.y + B.h);
     if (x1 - x0 <= 0 || y1 - y0 <= 0) continue;
     const w = x1 - x0, h = y1 - y0, step = Math.max(base * 0.6, Math.min(w, h) / 10);
     ctx.save(); ctx.beginPath(); ctx.rect(x0, y0, w, h); ctx.clip();
