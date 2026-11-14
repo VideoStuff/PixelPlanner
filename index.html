@@ -178,6 +178,9 @@ details.more summary{cursor:pointer;font-size:12px;color:var(--muted);font-weigh
 details.more summary::before{content:"▸ ";}
 details.more[open] summary::before{content:"▾ ";}
 details.more .row{margin-top:8px}
+.endc{display:grid;gap:4px;min-width:0}
+input.curve{width:100%;margin:2px 0 0;accent-color:var(--accent)}
+.crange{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-family:var(--f-mono)}
 .corners{display:grid;gap:6px;margin-top:10px}
 .crow{display:grid;grid-template-columns:minmax(0,92px) minmax(0,1fr) minmax(0,1fr);gap:6px;align-items:end}
 .crow>span{font-size:12px;font-weight:600;color:var(--muted);padding-bottom:8px}
@@ -726,7 +729,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <p>Your work is saved in your browser and can be saved to and opened from a <code>.json</code> file.</p>
 <h2>What it does</h2>
 <h3>Screen Builder</h3>
-<ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>Curved and reshaped projection screens</strong>: in a screen's <strong>Shape</strong> section, bow each end out (+) or in (−), and move any corner by an exact amount. Or turn on <strong>Corner handles</strong> (also in the screen's right-click menu) and drag the corners on the layout, to the nearest inch. The width, height and pixels you type are the flat face; PixelPlanner works out the projector raster (the upright box around the shape, at the face's pixel density) and uses it for the canvas and every export, with the part off the screen face shaded.</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
+<ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>Curved and reshaped projection screens</strong>: in a screen's <strong>Shape</strong> section, bow each end out (+) or in (−) by typing an amount or using its slider (from fully in to fully out: half the end's length, so ±7.5 ft on a 15 ft high screen), and move any corner by an exact amount. Or turn on <strong>Corner handles</strong> (also in the screen's right-click menu) and drag the corners on the layout, to the nearest inch. The width, height and pixels you type are the flat face; PixelPlanner works out the projector raster (the upright box around the shape, at the face's pixel density) and uses it for the canvas and every export, with the part off the screen face shaded.</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
 <h3>Preset Guide</h3>
 <ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock.</li><li>Quick layouts: right-click a screen and choose <strong>Create… → Quick layout</strong> to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.</li><li>Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.</li><li><strong>Page Up / Page Down</strong> step through presets.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li>Exports to PowerPoint and Excel.</li></ul>
 <h3>Exports</h3>
@@ -3665,8 +3668,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.73.html). Bump it with every release.
-const APP_VERSION = '3.73';
+// (pixelplanner-v3.74.html). Bump it with every release.
+const APP_VERSION = '3.74';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
@@ -4631,6 +4634,14 @@ function cardHTML(s){
   </article>`;
 }
 const shapeOpen = new Set(); // screens whose Shape section is open
+// Slider limits for an end, in the current unit: ± half the end's length, in steps of an inch (or a centimetre).
+function curveRange(f, side){ const step = S.unit === 'm' ? 0.01 : 25.4 / U().f, max = Math.floor(maxCurve(f, side) / U().f / step + 1e-9) * step; return {max: +max.toFixed(6), step: +step.toFixed(8)}; }
+function syncCurveSliders(s){
+  const ff = s.shape || {pw: dims(s).w, ph: dims(s).h, c: blankCorners()}, f = s.shape || {l: 0, r: 0};
+  document.querySelectorAll(`.card[data-id="${s.id}"] [data-skr]`).forEach(i => { const k = i.dataset.skr, r = curveRange(ff, k);
+    if (+i.max !== r.max){ i.min = -r.max; i.max = r.max; const lab = i.nextElementSibling; if (lab) lab.innerHTML = `<span>in ${esc(fmtLen(r.max * U().f))}</span><span>0</span><span>out ${esc(fmtLen(r.max * U().f))}</span>`; }
+    if (document.activeElement !== i) i.value = (f[k] || 0) / U().f; });
+}
 const shapeSum = f => !f ? '' : [f.l ? `left ${f.l > 0 ? 'out' : 'in'} ${fmtLen(Math.abs(f.l))}` : '', f.r ? `right ${f.r > 0 ? 'out' : 'in'} ${fmtLen(Math.abs(f.r))}` : '',
   CORNERS.some(k => f.c && (f.c[k][0] || f.c[k][1])) ? 'corners moved' : ''].filter(Boolean).join(' · ');
 let cornerEd = null; // the screen whose corner handles are showing on the layout (only while it's the one selected)
@@ -4641,11 +4652,14 @@ function setCornerEd(id){
 function shapeHTML(s){
   const f = s.shape || {l: 0, r: 0, c: blankCorners()}, sum = shapeSum(s.shape);
   const box = (k, lbl, v, title) => `<label class="f" title="${title}">${lbl}<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" data-sk="${k}" value="${v ? val(v) : ''}" placeholder="0"></label>`;
+  // Slider from curving all the way in to all the way out (a half circle: half the end's length), in the current unit.
+  const ff = s.shape || {pw: dims(s).w, ph: dims(s).h, c: blankCorners()};
+  const slider = k => { const r = curveRange(ff, k); return `<input type="range" class="curve" data-skr="${k}" min="${-r.max}" max="${r.max}" step="${r.step}" value="${(f[k] || 0) / U().f}" aria-label="${k === 'l' ? 'Left' : 'Right'} end curve, in to out"><div class="crange"><span>in ${esc(fmtLen(r.max * U().f))}</span><span>0</span><span>out ${esc(fmtLen(r.max * U().f))}</span></div>`; };
   const corner = k => `<div class="crow"><span>${CORNER_NAMES[k]}</span>${box(k + 'x', 'Right', f.c[k][0], `Move the ${CORNER_NAMES[k].toLowerCase()} corner right (+) or left (−)`)}${box(k + 'y', 'Down', f.c[k][1], `Move the ${CORNER_NAMES[k].toLowerCase()} corner down (+) or up (−)`)}</div>`;
   return `<details class="more shape" data-shaped${shapeOpen.has(s.id) ? ' open' : ''}><summary>Shape${sum ? ' · ' + esc(sum) : ': curved ends, corners'}</summary>
     <div class="row r2">
-      ${box('l', `Left end (${uLabel()})`, f.l, 'How far the middle of the left end bows: + curves out, − curves in')}
-      ${box('r', `Right end (${uLabel()})`, f.r, 'How far the middle of the right end bows: + curves out, − curves in')}
+      <div class="endc">${box('l', `Left end (${uLabel()})`, f.l, 'How far the middle of the left end bows: + curves out, − curves in')}${slider('l')}</div>
+      <div class="endc">${box('r', `Right end (${uLabel()})`, f.r, 'How far the middle of the right end bows: + curves out, − curves in')}${slider('r')}</div>
     </div>
     <span class="hint">Ends: + curves out, − curves in, up to half the end's length.</span>
     <div class="corners"><span class="hint">Corners (${uLabel()}), moved from the flat face:</span>${CORNERS.map(corner).join('')}</div>
@@ -4674,12 +4688,13 @@ function renderList(){
 // same field, same caret spot) and keep the page scrolled where it was, so typing carries on.
 function keepPlace(fn){
   const a = document.activeElement, card = a && a.closest && a.closest('.card');
-  const where = card ? {id: card.dataset.id, k: a.dataset.k, inEd: !!a.closest('#stageEd'), caret: a.selectionStart} : null;
+  const attr = a && a.dataset ? (a.dataset.k ? 'k' : a.dataset.sk ? 'sk' : a.dataset.skr ? 'skr' : null) : null;
+  const where = card ? {id: card.dataset.id, k: attr && a.dataset[attr], attr: {k: 'data-k', sk: 'data-sk', skr: 'data-skr'}[attr], inEd: !!a.closest('#stageEd'), caret: a.selectionStart} : null;
   const sx = window.scrollX, sy = window.scrollY, listTop = $('#list').scrollTop, sideTop = side.scrollTop;
   fn();
   window.scrollTo(sx, sy); $('#list').scrollTop = listTop; side.scrollTop = sideTop;
   if (!where || !where.k) return;
-  const box = document.querySelector(`${where.inEd ? '#stageEd' : '#list'} .card[data-id="${where.id}"] [data-k="${where.k}"]`);
+  const box = document.querySelector(`${where.inEd ? '#stageEd' : '#list'} .card[data-id="${where.id}"] [${where.attr}="${where.k}"]`);
   if (!box) return;
   box.focus({preventScroll: true});
   try { if (where.caret != null) box.setSelectionRange(where.caret, where.caret); } catch (e) {}
@@ -4687,7 +4702,7 @@ function keepPlace(fn){
 // A screen's card can appear twice: in the left pane and in the layout's edit panel. Update both.
 function updateDerived(s){
   document.querySelectorAll(`.card[data-id="${s.id}"] [data-derived]`).forEach(el => { el.innerHTML = derivedHTML(s); });
-  drawCutMaps(s);
+  drawCutMaps(s); if (s.mode !== 'led' && ready(s)) syncCurveSliders(s);
 }
 // The cabinet map in a wall's Cutouts section.
 function drawCutMaps(s){
@@ -4792,11 +4807,22 @@ function revealCard(id){
 function shapeChanged(s, rebuild){
   if (rebuild) keepPlace(() => { refreshAll(); });
   else {
+    syncCurveSliders(s);
     document.querySelectorAll(`.card[data-id="${s.id}"] [data-shaped] summary`).forEach(el => { el.textContent = 'Shape · ' + shapeSum(s.shape); });
     S.screens.forEach(updateDerived); S.screens.forEach(syncPosInputs); renderSelects(); renderRef(); renderTable(); maybeFit(); renderStage();
   }
   save();
 }
+document.addEventListener('input', e => {
+  const t = e.target, k = t.dataset && t.dataset.skr; if (!k || !t.closest('#list, #stageEd')) return;
+  const s = getS(t.closest('.card').dataset.id); if (!s) return;
+  const mm = Math.abs(+t.value) < 1e-9 ? 0 : +t.value * U().f;
+  setShape(s, f => { f[k] = mm; }); shapeOpen.add(s.id);
+  document.querySelectorAll(`.card[data-id="${s.id}"] [data-sk="${k}"]`).forEach(i => { i.value = mm ? val(mm) : ''; i.classList.remove('bad'); });
+  document.querySelectorAll(`.card[data-id="${s.id}"] [data-skr="${k}"]`).forEach(i => { if (i !== t) i.value = t.value; });
+  shapeChanged(s, false); // the card is rebuilt when the slider is let go, so the drag isn't cut short
+});
+document.addEventListener('change', e => { if (e.target.dataset && e.target.dataset.skr && e.target.closest('#list, #stageEd')) keepPlace(() => { refreshAll(); }); });
 document.addEventListener('input', e => {
   const t = e.target, k = t.dataset && t.dataset.sk; if (!k || !t.closest('#list, #stageEd')) return;
   const s = getS(t.closest('.card').dataset.id); if (!s) return;
@@ -4911,6 +4937,7 @@ document.addEventListener('input', e => {
     if (k === 'diag' || ((k === 'rw' || k === 'rh') && s.mode === 'diag')){ const r = Math.hypot(f.rw, f.rh); f.pw = f.diag * f.rw / r; f.ph = f.diag * f.rh / r; }
     if (k === 'pw' || k === 'ph') f.diag = Math.hypot(f.pw, f.ph);
     applyShape(s, at); // curves too deep for the new size are cut back to a half circle
+    syncCurveSliders(s);
     S.screens.forEach(updateDerived); S.screens.forEach(syncPosInputs);
     maybeFit(); renderStage(); renderTable(); renderRef(); save(); return;
   }
