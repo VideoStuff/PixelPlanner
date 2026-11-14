@@ -3798,8 +3798,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.85.html). Bump it with every release.
-const APP_VERSION = '3.85';
+// (pixelplanner-v3.86.html). Bump it with every release.
+const APP_VERSION = '3.86';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
@@ -8415,14 +8415,14 @@ document.addEventListener('click', e => {
 $('#btnCanvas').addEventListener('click', () => { setOvOpts(['labels', 'native', 'cross', 'seams', 'gaps', 'overlaps', 'objects', 'grid'], canvasGuide); canvasGuide(); });
 function canvasGuide(){
   const L = canvasLayout();
-  makePNG(L.W, L.H, L.items, `${expBase()}-canvas-export-${L.W}x${L.H}.png`, `Canvas export ${L.W} × ${L.H} px · ${S.screens.length} screens at ${(density(refScreen()).x * 25.4).toFixed(2)} PPI`, {safe:false});
+  makePNG(L.W, L.H, L.items, `${expBase()}-canvas-export-${L.W}x${L.H}.png`, `Canvas export ${L.W} × ${L.H} px · ${S.screens.length} screen${S.screens.length === 1 ? '' : 's'} at ${(density(refScreen()).x * 25.4).toFixed(2)} PPI`, {safe:false});
 }
 /* Layout drawing: a to-scale, print-style picture of the arrangement on white,
    with labels, physical sizes, gaps and overall dimensions. */
 async function makeLayoutDrawing(){
   await fontsReady();
   const cv = layoutDrawingCanvas();
-  showPreview(cv, `${expBase()}-layout-summary.png`, `Layout summary ${cv.width} × ${cv.height} px · ${S.screens.length} screens`);
+  showPreview(cv, `${expBase()}-layout-summary.png`, `Layout summary ${cv.width} × ${cv.height} px · ${S.screens.length} screen${S.screens.length === 1 ? '' : 's'}`);
 }
 // The layout drawing as a canvas (fonts must already be loaded).
 function layoutDrawingCanvas(){
