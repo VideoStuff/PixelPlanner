@@ -759,6 +759,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <!-- README:START -->
 <h1>PixelPlanner</h1>
 <p>Plan multiscreen video layouts for live events: LED walls, projection screens and monitors. PixelPlanner works out each screen's pixels, builds the content canvas, and exports the guides and templates your content, playback and switcher teams need.</p>
+<p><strong>Disclaimer:</strong> PixelPlanner was created by AI and tested by live event industry professionals. Check its numbers against your equipment's specifications before you rely on them for a show.</p>
 <p>Your work is saved in your browser and can be saved to and opened from a <code>.json</code> file.</p>
 <h2>What it does</h2>
 <h3>Screen Builder</h3>
@@ -3976,8 +3977,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.88.html). Bump it with every release.
-const APP_VERSION = '3.88';
+// (pixelplanner-v3.89.html). Bump it with every release.
+const APP_VERSION = '3.89';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.

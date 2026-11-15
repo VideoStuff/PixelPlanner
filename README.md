@@ -2,6 +2,8 @@
 
 Plan multiscreen video layouts for live events: LED walls, projection screens and monitors. PixelPlanner works out each screen's pixels, builds the content canvas, and exports the guides and templates your content, playback and switcher teams need.
 
+**Disclaimer:** PixelPlanner was created by AI and tested by live event industry professionals. Check its numbers against your equipment's specifications before you rely on them for a show.
+
 **Open the app:** https://videostuff.github.io/PixelPlanner/
 
 It is a single web page (`index.html`). Nothing to install: open it in a current Chrome, Edge, Firefox or Safari. Your work is saved in your browser and can be saved to and opened from a `.json` file.
