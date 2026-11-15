@@ -764,7 +764,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <h3>Screen Builder</h3>
 <ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>LED wall cutouts</strong>: remove cabinets in a wall's <strong>Cutouts</strong> map (or right-click a cabinet). They become holes, as if the cabinets weren't there: a screen placed behind the wall (lower in the Screens list) shows through them on the layout, in every export and in the Preset Guide, and PiPs in the hole count on the screen behind. Overlaps leave out the holes in either wall: only the strips where the screen behind tucks under remaining cabinets count, each measured across its narrow side, with one label per pair of screens.</li><li><strong>Curved and reshaped projection screens</strong>: in a screen's <strong>Shape</strong> section, bow each end out (+) or in (−) by typing an amount or using its slider (from fully in to fully out: half the end's length, so ±7.5 ft on a 15 ft high screen), and move any corner by an exact amount. Or turn on <strong>Corner handles</strong> (also in the screen's right-click menu) and drag the corners on the layout, to the nearest inch. The width, height and pixels you type are the flat face; PixelPlanner works out the projector raster (the upright box around the shape, at the face's pixel density) and uses it for the canvas and every export, with the part off the screen face shaded.</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li><strong>Options → Clear layout…</strong> (or right-click the layout or its tab) removes every screen, object and note from the open layout after you confirm, so you can build it again from the first screen. A layout can have no screens.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
 <h3>Preset Guide</h3>
-<ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock. <strong>+ New</strong> and <strong>Duplicate</strong> ask for the preset's name; leave it blank for "Preset" and its number.</li><li>Quick layouts: right-click a screen and choose <strong>Create… → Quick layout</strong> to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.</li><li>Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.</li><li><strong>Page Up / Page Down</strong> step through presets.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li>Exports to PowerPoint and Excel, a PNG sheet with every preset of the layout one under the other, and a PDF summary: a cover listing every preset (PiPs, screens used, notes), then a page per preset with its picture, notes and a table of its PiPs in each screen's pixels.</li></ul>
+<ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock. <strong>+ New</strong> and <strong>Duplicate</strong> ask for the preset's name; leave it blank for "Preset" and its number.</li><li>Quick layouts: right-click a screen and choose <strong>Create… → Quick layout</strong> to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.</li><li>Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.</li><li><strong>Page Up / Page Down</strong> step through presets.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li><strong>Export…</strong> lets you choose: Excel, PowerPoint, a PNG sheet with every preset of the layout one under the other, or a PDF summary: a cover listing every preset (PiPs, screens used, notes), then a page per preset with its picture, notes and a table of its PiPs in each screen's pixels.</li></ul>
 <h3>Exports</h3>
 <ul><li>Canvas export PNG at exact pixel size, layout snapshot, layout summary and test patterns.</li><li>PDF spec pack, PowerPoint template, layered PSD and SVG.</li><li>Spec sheet as CSV.</li><li>Switcher planning <code>.xml</code> (screens, layers and auxes).</li><li><strong>Advanced → EDID (experimental):</strong> an EDID <code>.bin</code> for a screen, with connector, refresh rate, CVT blanking and a split across outputs. Check results on your hardware before you rely on them.</li></ul>
 <h2>Using it</h2>
@@ -940,6 +940,13 @@ h2{font-family:var(--f-display);font-size:15px;font-weight:600;letter-spacing:.0
 .count{font:500 11px var(--f-mono);color:var(--muted)}
 .tag{font:600 10px var(--f-body);letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line);border-radius:4px;padding:0 5px;color:var(--muted)}
 .hint{color:var(--muted);font-size:12px;margin:0}
+.expfmt{display:grid;gap:6px;margin:4px 0 6px}
+.expfmt .fmt{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer}
+.expfmt .fmt:has(input:checked){border-color:var(--focus,#4db8e4);background:rgba(77,184,228,.08)}
+.expfmt .fmt input{margin-top:3px}
+.expfmt .fmt span{display:flex;flex-direction:column;gap:1px}
+.expfmt .fmt b{color:var(--ink);font-weight:600}
+.expfmt .fmt small{color:var(--muted);font-size:12px}
 .info{display:inline-grid;place-items:center;flex:none;width:16px;height:16px;padding:0;margin:0 0 0 6px;border:1.5px solid currentColor;border-radius:50%;background:none;
   color:var(--muted);font:italic 700 10.5px/1 Georgia,"Times New Roman",serif;letter-spacing:0;text-transform:none;cursor:help;vertical-align:middle;opacity:.85;min-height:0}
 .info:hover,.info:focus-visible,.info.on{color:var(--focus,#4db8e4);opacity:1}
@@ -1082,10 +1089,7 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
   <button class="btn" id="btnOpen" hidden>Open project</button>
   <button class="btn" id="btnRefresh" title="Bring in the Screen Builder's screens as they are now, including any you moved here">Refresh screens</button>
   <button class="btn danger" id="btnResetAll" title="Remove every preset and PiP and start again with the Screen Builder screens">Reset presets</button>
-  <button class="btn primary" id="btnPptx" title="One slide per preset, with every screen and its measurements">Export PowerPoint</button>
-  <button class="btn primary" id="btnXlsx">Export Excel</button>
-  <button class="btn primary" id="btnPng" title="One PNG with every preset of this layout, one under the other">Export PNG</button>
-  <button class="btn primary" id="btnPdf" title="A PDF summary: a cover listing every preset, then a page per preset with its picture and its PiPs in pixels">Export PDF</button>
+  <button class="btn primary" id="btnExport" aria-haspopup="dialog" title="Excel, PowerPoint, a PNG sheet of every preset, or a PDF summary">Export…</button>
   <input type="file" id="fileProject" accept=".json,application/json" hidden>
 </div>
 <div class="status" id="status" role="status"></div>
@@ -1191,7 +1195,13 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
 </dialog>
 <dialog id="dlgExport">
   <div class="dlg">
-    <h2 id="expTitle" style="font-size:20px;color:var(--ink);display:block;text-transform:none;letter-spacing:.01em">Export Excel</h2>
+    <h2 id="expTitle" style="font-size:20px;color:var(--ink);display:block;text-transform:none;letter-spacing:.01em">Export</h2>
+    <div class="expfmt" id="expFmt" role="radiogroup" aria-label="What to export">
+      <label class="fmt"><input type="radio" name="expFmt" value="xlsx"><span><b>Excel</b><small>The presets sheet: a row per preset, a column per screen, and the notes</small></span></label>
+      <label class="fmt"><input type="radio" name="expFmt" value="pptx"><span><b>PowerPoint</b><small>One slide per preset, with every screen and its measurements</small></span></label>
+      <label class="fmt"><input type="radio" name="expFmt" value="png"><span><b>PNG sheet</b><small>Every preset of this layout on one image, one under the other</small></span></label>
+      <label class="fmt"><input type="radio" name="expFmt" value="pdf"><span><b>PDF summary</b><small>A cover listing every preset, then a page per preset with its PiPs in pixels</small></span></label>
+    </div>
     <div id="optThumbsRow" style="display:flex;flex-direction:column;gap:4px">
       <div style="display:flex;align-items:center"><label class="chk"><input type="checkbox" id="optThumbs" checked> Screen thumbnails</label><button type="button" class="info" data-tip="Adds a picture of each screen, with its PiPs, to the preset columns on the Presets sheet. The PiP names stay as text under each picture." aria-label="About screen thumbnails">i</button></div>
     </div>
@@ -3412,16 +3422,23 @@ async function buildWorkbook(){
 /* Excel and PowerPoint share one export dialog; "Include objects" is remembered with the project */
 let expKind='xlsx';
 const expObjects=()=>S.expObjects!==false;
+/* One Export… button: the window asks what to export and shows only that format's options (the last choice is remembered). */
+const EXP_NAMES={xlsx:'Excel',pptx:'PowerPoint',png:'PNG sheet',pdf:'PDF summary'};
+function setExpKind(kind){
+  expKind=EXP_NAMES[kind]?kind:'xlsx';
+  for(const r of document.querySelectorAll('input[name="expFmt"]')) r.checked=r.value===expKind;
+  $('optThumbsRow').hidden=expKind!=='xlsx'; $('optPageRow').hidden=expKind!=='pdf';
+  $('expGo').textContent='Export '+EXP_NAMES[expKind];
+}
+document.querySelectorAll('input[name="expFmt"]').forEach(r=>r.onchange=()=>{ if(r.checked){ setExpKind(r.value); S.expKind=r.value; touch(); } });
+$('btnExport').onclick=()=>openExport(S.expKind||'xlsx');
 function openExport(kind){
-  expKind=kind; $('expTitle').textContent=kind==='pptx'?'Export PowerPoint':kind==='png'?'Export PNG of every preset':kind==='pdf'?'Export PDF summary of the presets':'Export Excel';
-  $('optPageRow').hidden=kind!=='pdf'; $('optPage').value=S.pdfPage||'letter';
-  $('optThumbsRow').hidden=kind!=='xlsx'; $('optObjs').checked=expObjects();
+  $('optPage').value=S.pdfPage||'letter'; setExpKind(kind);
+  $('optObjs').checked=expObjects();
   $('dlgExport').showModal(); $('expGo').focus();
 }
 $('optObjs').onchange=e=>{S.expObjects=e.target.checked; touch();};
-$('btnXlsx').onclick=()=>openExport('xlsx');
-$('btnPng').onclick=()=>openExport('png');
-$('btnPdf').onclick=()=>openExport('pdf');
+
 $('optPage').onchange=e=>{S.pdfPage=e.target.value; touch();};
 $('expCancel').onclick=()=>$('dlgExport').close();
 $('expGo').onclick=async()=>{
@@ -3559,7 +3576,7 @@ async function buildPptx(){
   ts.addTable(trs,{x:0.4,y:1.1,w:12.53,colW:[4.6,2.6,3.2,2.13],fontFace:FONT,fontSize:14,border:{type:'solid',pt:0.75,color:'C3CBD6'},rowH:0.42});
   return pptx;
 }
-$('btnPptx').onclick=()=>openExport('pptx');
+
 /* A preset drawn on a canvas: the screens back to front (cutouts open and outlined, curved faces outlined), the PiPs with
    their names and pictures, then the objects in front. X and Y map the layout to the drawing; sc is its scale. */
 function presetArea(objs){
@@ -3959,8 +3976,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v3.87.html). Bump it with every release.
-const APP_VERSION = '3.87';
+// (pixelplanner-v3.88.html). Bump it with every release.
+const APP_VERSION = '3.88';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Every font face the exported images draw with. Canvas text only uses a face once it has loaded (otherwise the
 // browser fakes the weight from another one), so exports wait for all of these first.
