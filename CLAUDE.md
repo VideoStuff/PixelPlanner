@@ -5,6 +5,12 @@ Notes for Claude sessions working on PixelPlanner.
 ## About the owner
 The owner is not a programmer and doesn't know networking or GitHub well. Explain changes in plain language and in detail, define technical terms when you use them, and say what to click or check rather than assuming knowledge.
 
+## Working branch
+**Always work on the `pixelplanner-v4` branch**, even if the session was started on a different (for example `claude/...`) branch. At the start of a session, fetch and check out `pixelplanner-v4`, then commit and push there.
+
+- Push to `main` (which makes the change live) only when the owner says so, for example "push to main" or "make it live".
+- This rule stays until the owner starts v5. When they do, create a `pixelplanner-v5` branch from the latest `main` and change this section to name `pixelplanner-v5`.
+
 ## The project
 PixelPlanner is a single-page web app for planning multiscreen video layouts at live events (LED walls, projection screens, monitors, PiP presets and exports).
 
@@ -27,7 +33,7 @@ PixelPlanner is a single-page web app for planning multiscreen video layouts at 
    - any related `data-tip` info tooltips or the keyboard shortcuts list
 3. **Test in the browser.** Load `index.html` with the pre-installed Playwright/Chromium, check there are no console errors, and try the feature you changed. Test both the Screen Builder and the Preset Guide if shared code changed.
 4. **Commit** with the message `vX.YY: Short plain description` (sentence case, no full stop). Example: `v3.89: AI disclaimer in the README and Help`. One version per commit.
-5. **Push** to the session's `claude/...` branch, not `main`, unless the owner says otherwise.
+5. **Push** to the working branch named above, not `main`, unless the owner says otherwise.
 
 ## Style
 - Wording in the app and README is plain, short and direct, in American English, using live event terms (LED wall, cabinet, PiP, preset, switcher, raster).
