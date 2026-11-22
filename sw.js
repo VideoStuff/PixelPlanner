@@ -3,7 +3,7 @@
 //   If the network is down or too slow, the saved copy is used.
 // - Fonts, icons and the export libraries (ExcelJS, PptxGenJS) are kept after their first download and reused.
 // Bump VERSION with every release (it matches APP_VERSION in index.html): the new version replaces the old saved copy.
-const VERSION = '3.90';
+const VERSION = '4.00';
 const CACHE = 'pixelplanner-' + VERSION;
 const CORE = ['./', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png',
   'icons/apple-touch-icon.png', 'icons/favicon-32.png'];

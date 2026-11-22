@@ -10,6 +10,7 @@ The owner is not a programmer and doesn't know networking or GitHub well. Explai
 
 - Push to `main` (which makes the change live) only when the owner says so, for example "push to main" or "make it live".
 - This rule stays until the owner starts v5. When they do, create a `pixelplanner-v5` branch from the latest `main` and change this section to name `pixelplanner-v5`.
+- The version number follows the branch: v4 started at `4.00` (then 4.01, 4.02 and so on). Starting v5 means setting the version to `5.00` and the `<title>` to `PixelPlanner v5`.
 
 ## The project
 PixelPlanner is a single-page web app for planning multiscreen video layouts at live events (LED walls, projection screens, monitors, PiP presets and exports).
@@ -32,13 +33,13 @@ PixelPlanner is a single-page web app for planning multiscreen video layouts at 
 - **External libraries**: load only from cdnjs with exact versions (for example, ExcelJS 4.4.0).
 
 ## Every change (release checklist)
-1. **Bump the version.** Raise `const APP_VERSION = 'X.YY'` by 0.01 and update the matching file name in the comment above it (`pixelplanner-vX.YY.html`). Set `const VERSION` in `sw.js` to the same number, so installed copies replace their saved copy. The `<title>` stays `PixelPlanner v3`.
+1. **Bump the version.** Raise `const APP_VERSION = 'X.YY'` by 0.01 and update the matching file name in the comment above it (`pixelplanner-vX.YY.html`). Set `const VERSION` in `sw.js` to the same number, so installed copies replace their saved copy. The `<title>` stays `PixelPlanner v4`.
 2. **Update the docs** when a feature or behaviour the user can see changes:
    - `README.md`
    - the README copy in the Help dialog in `index.html` (between `README:START` and `README:END`), kept matching `README.md`
    - any related `data-tip` info tooltips or the keyboard shortcuts list
 3. **Test in the browser.** Serve the folder (for example `python3 -m http.server`) and load it with the pre-installed Playwright/Chromium, check there are no console errors, and try the feature you changed. Test both the Screen Builder and the Preset Guide if shared code changed.
-4. **Commit** with the message `vX.YY: Short plain description` (sentence case, no full stop). Example: `v3.89: AI disclaimer in the README and Help`. One version per commit.
+4. **Commit** with the message `vX.YY: Short plain description` (sentence case, no full stop). Example: `v4.01: AI disclaimer in the README and Help`. One version per commit.
 5. **Push** to the working branch named above, not `main`, unless the owner says otherwise.
 6. **Send the owner the HTML to try.** After every change, copy `index.html` to the scratchpad as `pixelplanner-vX.YY.html` and send it with SendUserFile (`display: "attach"`), so they can download it and open it in their browser. Mention anything that only works on the live site (for example, installing as an app and offline use need a web server, so they don't work from a downloaded file).
 
