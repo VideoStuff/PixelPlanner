@@ -8,6 +8,16 @@ Plan multiscreen video layouts for live events: LED walls, projection screens an
 
 It is a single web page (`index.html`). Nothing to install: open it in a current Chrome, Edge, Firefox or Safari. Your work is saved in your browser and can be saved to and opened from a `.json` file.
 
+## Install it
+
+PixelPlanner can be installed as an app, so it opens in its own window with its own icon and works without internet:
+
+- **Chrome or Edge (Windows, Mac, Android):** click the install icon at the right end of the address bar, or open the browser's menu and choose **Install PixelPlanner** (on Android: **Add to Home screen** or **Install app**).
+- **Safari on iPhone or iPad:** tap **Share**, then **Add to Home Screen**.
+- **Safari on Mac:** choose **File → Add to Dock**.
+
+Once it has been opened with internet at least once, PixelPlanner, its fonts and its Excel and PowerPoint exports work offline. When you're online it picks up the latest version by itself. Your work is saved in the browser the same way as on the website.
+
 ## What it does
 
 ### Screen Builder
@@ -52,4 +62,4 @@ Hover over (or tap) a circled **i** to see what a section does. Press **?** (or 
 
 ## Hosting
 
-The repository serves `index.html` with GitHub Pages (Settings → Pages → deploy from branch `main`, folder `/ (root)`). To run it elsewhere, put `index.html` on any web server or open the file directly.
+The repository serves the app with GitHub Pages (Settings → Pages → deploy from branch `main`, folder `/ (root)`). The app is `index.html`. Next to it, `manifest.webmanifest`, `sw.js` and the `icons` folder make it installable and let it work offline. To run it elsewhere, put these files on any web server, or open `index.html` directly (it works, but can't be installed that way).
