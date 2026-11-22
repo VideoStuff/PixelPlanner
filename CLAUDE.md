@@ -1,0 +1,36 @@
+# CLAUDE.md
+
+Notes for Claude sessions working on PixelPlanner.
+
+## About the owner
+The owner is not a programmer and doesn't know networking or GitHub well. Explain changes in plain language and in detail, define technical terms when you use them, and say what to click or check rather than assuming knowledge.
+
+## The project
+PixelPlanner is a single-page web app for planning multiscreen video layouts at live events (LED walls, projection screens, monitors, PiP presets and exports).
+
+- **`index.html` is the whole app**: HTML, CSS and JavaScript in one file, about 700 KB. There is no build step, no package manager and no test suite. Keep it a single self-contained file.
+- **`README.md`** is the user-facing documentation, shown on GitHub.
+- **Live site:** https://videostuff.github.io/PixelPlanner/, served by GitHub Pages from the `main` branch. Anything merged into `main` goes live, so don't push to `main` unless the owner asks.
+
+### Layout of `index.html`
+- **Help & README dialog** (`#readme`): it holds an HTML copy of the README between `<!-- README:START -->` and `<!-- README:END -->`.
+- **Preset Guide**: its own page inside `<template id="pgSrc">`, run in an iframe so its styles and code stay separate from the Screen Builder. The two talk through `postMessage` (`pgPost`).
+- **Main script**: `APP_VERSION` sits near the top of the last big `<script>` block.
+- **Saved state**: kept in `localStorage` under `mcg-state-v2`, and saved and opened as `.json` (`format: 'multiscreen-guide-builder', version: 2`). Keep older saved files and browser state loading after any change to the data shape.
+- **External libraries**: load only from cdnjs with exact versions (for example, ExcelJS 4.4.0).
+
+## Every change (release checklist)
+1. **Bump the version.** Raise `const APP_VERSION = 'X.YY'` by 0.01 and update the matching file name in the comment above it (`pixelplanner-vX.YY.html`). The `<title>` stays `PixelPlanner v3`.
+2. **Update the docs** when a feature or behaviour the user can see changes:
+   - `README.md`
+   - the README copy in the Help dialog in `index.html` (between `README:START` and `README:END`), kept matching `README.md`
+   - any related `data-tip` info tooltips or the keyboard shortcuts list
+3. **Test in the browser.** Load `index.html` with the pre-installed Playwright/Chromium, check there are no console errors, and try the feature you changed. Test both the Screen Builder and the Preset Guide if shared code changed.
+4. **Commit** with the message `vX.YY: Short plain description` (sentence case, no full stop). Example: `v3.89: AI disclaimer in the README and Help`. One version per commit.
+5. **Push** to the session's `claude/...` branch, not `main`, unless the owner says otherwise.
+
+## Style
+- Wording in the app and README is plain, short and direct, in American English, using live event terms (LED wall, cabinet, PiP, preset, switcher, raster).
+- Measurements support feet, feet and inches, inches and meters, so don't assume a unit.
+- Code comments explain why, in full sentences, matching the existing style.
+- Pixel values are whole numbers. Make sure exports (PNG, PDF, PPTX, PSD, SVG, CSV, XML, EDID) stay consistent with what the layout shows.
