@@ -40,6 +40,7 @@ PixelPlanner is a single-page web app for planning multiscreen video layouts at 
 3. **Test in the browser.** Serve the folder (for example `python3 -m http.server`) and load it with the pre-installed Playwright/Chromium, check there are no console errors, and try the feature you changed. Test both the Screen Builder and the Preset Guide if shared code changed.
 4. **Commit** with the message `vX.YY: Short plain description` (sentence case, no full stop). Example: `v3.89: AI disclaimer in the README and Help`. One version per commit.
 5. **Push** to the working branch named above, not `main`, unless the owner says otherwise.
+6. **Send the owner the HTML to try.** After every change, copy `index.html` to the scratchpad as `pixelplanner-vX.YY.html` and send it with SendUserFile (`display: "attach"`), so they can download it and open it in their browser. Mention anything that only works on the live site (for example, installing as an app and offline use need a web server, so they don't work from a downloaded file).
 
 ## Style
 - Wording in the app and README is plain, short and direct, in American English, using live event terms (LED wall, cabinet, PiP, preset, switcher, raster).
