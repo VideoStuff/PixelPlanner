@@ -769,7 +769,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <h3>Screen Builder</h3>
 <ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>LED wall cutouts</strong>: remove cabinets in a wall's <strong>Cutouts</strong> map (or right-click a cabinet). They become holes, as if the cabinets weren't there: a screen placed behind the wall (lower in the Screens list) shows through them on the layout, in every export and in the Preset Guide, and PiPs in the hole count on the screen behind. Overlaps leave out the holes in either wall: only the strips where the screen behind tucks under remaining cabinets count, each measured across its narrow side, with one label per pair of screens.</li><li><strong>Curved and reshaped projection screens</strong>: in a screen's <strong>Shape</strong> section, bow each end out (+) or in (−) by typing an amount or using its slider (from fully in to fully out: half the end's length, so ±7.5 ft on a 15 ft high screen), and move any corner by an exact amount. Or turn on <strong>Corner handles</strong> (also in the screen's right-click menu) and drag the corners on the layout, to the nearest inch. The width, height and pixels you type are the flat face; PixelPlanner works out the projector raster (the upright box around the shape, at the face's pixel density) and uses it for the canvas and every export, with the part off the screen face shaded.</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li><strong>Options → Clear layout…</strong> (or right-click the layout or its tab) removes every screen, object and note from the open layout after you confirm, so you can build it again from the first screen. A layout can have no screens.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
 <h3>Preset Guide</h3>
-<ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock. <strong>+ New</strong> and <strong>Duplicate</strong> ask for the preset's name; leave it blank for "Preset" and its number.</li><li>Quick layouts: right-click a screen and choose <strong>Create… → Quick layout</strong> to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.</li><li>Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.</li><li><strong>Page Up / Page Down</strong> step through presets.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li><strong>Export…</strong> lets you choose: Excel, PowerPoint, a PNG sheet with every preset of the layout one under the other, or a PDF summary: a cover listing every preset (PiPs, screens used, notes), then a page per preset with its picture, notes and a table of its PiPs in each screen's pixels.</li></ul>
+<ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock. <strong>+ New</strong> and <strong>Duplicate</strong> ask for the preset's name; leave it blank for "Preset" and its number.</li><li>Quick layouts: right-click a screen and choose <strong>Create… → Quick layout</strong> to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.</li><li>Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.</li><li><strong>Page Up / Page Down</strong> step through presets.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Ruler</strong> (or press <strong>M</strong>): drag on the layout to measure a distance in the screen's own pixels: its length, how far across and down, and where each end sits on the screen. Ends snap to screen and PiP edges, centres and other rulers; hold Shift for a straight line. Placed rulers stay in the preset: PiPs snap to their ends, and you can click one to move it, drag its ends, nudge it with the arrow keys or delete it. Each preset has its own rulers (Duplicate copies them), and they don't show in exports.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li><strong>Export…</strong> lets you choose: Excel, PowerPoint, a PNG sheet with every preset of the layout one under the other, or a PDF summary: a cover listing every preset (PiPs, screens used, notes), then a page per preset with its picture, notes and a table of its PiPs in each screen's pixels.</li></ul>
 <h3>Exports</h3>
 <ul><li>Canvas export PNG at exact pixel size, layout snapshot, layout summary and test patterns.</li><li>PDF spec pack, PowerPoint template, layered PSD and SVG.</li><li>Spec sheet as CSV.</li><li>Switcher planning <code>.xml</code> (screens, layers and auxes).</li><li><strong>Advanced → EDID (experimental):</strong> an EDID <code>.bin</code> for a screen, with connector, refresh rate, CVT blanking and a split across outputs. Check results on your hardware before you rely on them.</li></ul>
 <h2>Using it</h2>
@@ -1038,6 +1038,14 @@ h2 .lockbtn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-co
 .axis-t{fill:var(--axis);font-family:var(--f-mono);opacity:.8;pointer-events:none}
 .pip{stroke-width:3;vector-effect:non-scaling-stroke;cursor:move}
 .snapg{stroke:#ff3d8b;stroke-width:1.5;stroke-dasharray:8 5;vector-effect:non-scaling-stroke;pointer-events:none}
+.rul{stroke:#5ef0c8;stroke-width:2;vector-effect:non-scaling-stroke;pointer-events:none;fill:none}
+.rul.sel{stroke-width:3.5}
+.rul-leg{stroke:#5ef0c8;stroke-opacity:.5;stroke-width:1;stroke-dasharray:4 3;vector-effect:non-scaling-stroke;pointer-events:none;fill:none}
+.rul-hit{stroke:#000;stroke-opacity:0;stroke-width:16;vector-effect:non-scaling-stroke;fill:none;cursor:move}
+.rul-end{fill:#5ef0c8;stroke:#111;stroke-width:1;vector-effect:non-scaling-stroke;cursor:crosshair}
+.rul-lab{fill:#0d1015;fill-opacity:.9;stroke:#5ef0c8;stroke-width:1;vector-effect:non-scaling-stroke;pointer-events:none}
+.rul-t{fill:#eef2f8;font-family:var(--f-mono);font-weight:600;pointer-events:none}
+.rul-t2{fill:#a9b4c6;font-family:var(--f-mono);pointer-events:none}
 .msel{fill:none;stroke:#fff;stroke-width:2;stroke-dasharray:7 4;vector-effect:non-scaling-stroke;pointer-events:none}
 .grp-row{gap:6px;flex-wrap:wrap}
 .pip-t{fill:#fff;font-family:var(--f-display);font-weight:600;text-anchor:middle;dominant-baseline:central;pointer-events:none;paint-order:stroke;stroke:rgba(0,0,0,.55);stroke-width:4px;stroke-linejoin:round}
@@ -1146,6 +1154,7 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
       </div>
       <div class="grp">
         <button class="btn" id="tAdd" title="Add a PiP in the middle of the first screen and type its name. Or right-click the layout and choose Create… → PiP to add one at that spot.">+ Add PiP</button>
+        <button class="btn" id="tRuler" type="button" aria-pressed="false" title="Ruler: drag on the layout to measure, in the screen's own pixels. Ends snap to screen and PiP edges and other rulers, and PiPs snap to rulers you place. Hold Shift for a straight line. Click a placed ruler to move it, drag its ends, or press Delete. (M)">Ruler</button>
       </div>
       <label class="chk" title="Snap to screen edges, centres and other PiPs. Hold Ctrl (Cmd on a Mac) while dragging to place freely."><input type="checkbox" id="snap" checked> Snap</label>
       <label class="chk" title="Aspect ratio for new PiPs. Lock and change the ratio of an existing PiP in the side panel."><select id="newAR" class="field" style="width:auto" aria-label="Aspect ratio for new PiPs"><option value="16:9">16:9</option><option value="3:1">3:1</option></select> new PiPs</label>
@@ -1157,7 +1166,7 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
         <span class="count" id="zVal">100%</span>
         <button class="btn sm" id="zIn" aria-label="Zoom in">+</button>
         <button class="btn sm" id="zFit">Fit</button>
-        <button class="btn sm" id="pgFull" aria-pressed="false" title="Full screen layout (F)">Full screen</button><button type="button" class="info" data-tip="Right-click the layout to add a PiP or screen at that spot. Double-click a PiP to type its name. Drag to move, use the white handles to resize. Hold Ctrl (Cmd on a Mac) while dragging to skip snapping. Scroll the mouse wheel over the layout to zoom. Delete removes it, arrow keys nudge. On a phone or tablet: pinch to zoom, drag the background (or a screen you haven&#x27;t selected) to scroll, tap a screen to select it before dragging it, double-tap the background to fit, and press and hold for the menu. Press ? for every shortcut." aria-label="Layout tips">i</button>
+        <button class="btn sm" id="pgFull" aria-pressed="false" title="Full screen layout (F)">Full screen</button><button type="button" class="info" data-tip="Right-click the layout to add a PiP or screen at that spot. Double-click a PiP to type its name. Drag to move, use the white handles to resize. Hold Ctrl (Cmd on a Mac) while dragging to skip snapping. Ruler (M) measures in a screen&#x27;s own pixels: drag on the layout to place one. Scroll the mouse wheel over the layout to zoom. Delete removes it, arrow keys nudge. On a phone or tablet: pinch to zoom, drag the background (or a screen you haven&#x27;t selected) to scroll, tap a screen to select it before dragging it, double-tap the background to fit, and press and hold for the menu. Press ? for every shortcut." aria-label="Layout tips">i</button>
       </div>
     </div>
     <div class="stage-scroll" id="scroll">
@@ -1666,6 +1675,7 @@ function overlaysSVG(scale,vb){
   return {shapes:`<g class="overlays">${g}</g>`,objects:`<g class="overlays">${ob}</g>`,labels:`<g class="overlays">${lb}</g>`};
 }
 function renderStage(){
+  if(sel||multi.size||(selRuler&&!rulerById(selRuler))) selRuler=null;   /* a ruler is picked on its own, apart from PiPs and screens */
   const vb=lockVB||computeVB(); curVB=vb;
   if(sFit==null) sFit=computeFitScale();
   if(!sFit){svg.innerHTML='';return;}   /* no size yet: drawn once the viewer has one */
@@ -1721,8 +1731,8 @@ function renderStage(){
     if(m){g+=`<g data-kind="pip" data-id="${p.id}" data-mirror="1">${picSvg(m,'m')}${pipShape(p,m,'pip',fill,p.color)}${p.locked?lockBadge(m,scale):''}</g>`; if(named) labs.push({txt,r:m});}
   });
   /* snap guides: a line across the view for each edge or centre the dragged item snapped to (and still sits on) */
-  if(drag&&snapGuides.length){const t=drag.proxy||selTarget();
-    if(t){const on=(g)=>{const a=g.axis==='x'?[t.x,t.x+t.w/2,t.x+t.w]:[t.y,t.y+t.h/2,t.y+t.h]; return a.some(v=>Math.abs(v-g.at)<0.75);};
+  if(drag&&snapGuides.length){const isR=drag.type==='rend'||drag.type==='rmove', t=isR?null:drag.proxy||selTarget();
+    if(t||isR){const on=(g)=>{if(isR) return true; const a=g.axis==='x'?[t.x,t.x+t.w/2,t.x+t.w]:[t.y,t.y+t.h/2,t.y+t.h]; return a.some(v=>Math.abs(v-g.at)<0.75);};
       const seen=new Set();
       for(const gd of snapGuides){const k=gd.axis+Math.round(gd.at); if(seen.has(k)||!on(gd)) continue; seen.add(k);
         g+=gd.axis==='x'?`<line class="snapg" x1="${gd.at}" y1="${vb.y}" x2="${gd.at}" y2="${vb.y+vb.h}"/>`:`<line class="snapg" x1="${vb.x}" y1="${gd.at}" x2="${vb.x+vb.w}" y2="${gd.at}"/>`;}}}
@@ -1736,6 +1746,7 @@ function renderStage(){
   }
   g+=ovl.objects;   /* objects from the imported JSON sit above every screen and PiP */
   g+=ovl.labels;
+  g+=rulersSVG(scale);
   /* bold outline on the PiP (and its mirror copy) that the current drag would replace */
   const rh=replaceHint&&pipById(replaceHint);
   if(rh) for(const z of [rh,mirrorRect(rh)]) if(z) g+=`<rect class="rep-hl" x="${z.x}" y="${z.y}" width="${z.w}" height="${z.h}" rx="${Math.min(6,z.h/10)}"/>`;
@@ -1752,7 +1763,8 @@ function renderStage(){
     g+=H.map(([k,i,j])=>`<rect class="handle" data-kind="handle" data-h="${k}" x="${xs[i]-hs/2}" y="${ys[j]-hs/2}" width="${hs}" height="${hs}" style="pointer-events:none"/>`).join('');
   }
   svg.innerHTML=g;
-  svg.classList.toggle('draw-cursor',tool==='draw');
+  svg.classList.toggle('draw-cursor',tool==='draw'||tool==='ruler');
+  {const b=$('tRuler'); b.classList.toggle('on',tool==='ruler'); b.setAttribute('aria-pressed',tool==='ruler');}
   $('zVal').textContent=Math.round(zoom*100)+'%';
 }
 function selTarget(){
@@ -1966,8 +1978,14 @@ function renderInspector(){
         <label class="lbl" for="oY">Y<input id="oY" class="field num" type="number" value="${round(o.y)}"></label>
       </div>
       <div class="row"><button class="btn sm" id="oDup">Duplicate</button><button class="btn sm danger" id="oDel">Delete</button></div>`;
+  }else if(selRuler&&rulerById(selRuler)){
+    const r=rulerById(selRuler), I=rulerInfo(r), u=I.s?'px':'px on the canvas', row=(k,v)=>`<div class="est-row"><span class="est-k">${k}</span><span class="mono">${v}</span></div>`;
+    el.innerHTML=`<h2>Ruler${info('Drag the ruler to move it, or drag the round handle at either end. Ends snap to screen and PiP edges, centres and other rulers; hold Shift for a straight line and Ctrl (Cmd on a Mac) to place freely. PiPs snap to its ends. Arrow keys nudge it, Delete removes it. Each preset has its own rulers. They are for planning and don\'t show in exports.','About rulers')}</h2>
+      <div class="est">${row('Length',`${I.len} ${u}`)}${row('Across',`${I.dx} ${u}`)}${row('Down',`${I.dy} ${u}`)}
+        ${I.s?row('On',esc(sname(I.s))+` (${I.n.w} × ${I.n.h})`)+row('From',`X ${I.a.x}, Y ${I.a.y}`)+row('To',`X ${I.b.x}, Y ${I.b.y}`):'<p class="hint">Not on a screen: measured in canvas pixels.</p>'}</div>
+      <div class="row"><button class="btn sm danger" id="rDel">Delete ruler</button>${rulers().length>1?`<button class="btn sm danger" id="rDelAll">Delete all ${rulers().length} rulers</button>`:''}</div>`;
   }else{
-    el.innerHTML=`<h2>Inspector${info('Use <b>+ Add PiP</b>, or right-click a screen and choose <b>Create… → PiP</b> to add one there. Double-click a PiP to type its name.','About the inspector')}</h2><p class="hint">Select a PiP, a screen or an object to edit it.</p>
+    el.innerHTML=`<h2>Inspector${info('Use <b>+ Add PiP</b>, or right-click a screen and choose <b>Create… → PiP</b> to add one there. Double-click a PiP to type its name. Use <b>Ruler</b> (M) to measure distances on a screen.','About the inspector')}</h2><p class="hint">Select a PiP, a screen, an object or a ruler to edit it.</p>
       ${S.example?'<div class="banner">This is an example layout. Import your v2 video content guide JSON to replace the video screens, then edit or delete the example presets.</div>':''}`;
   }
   /* a locked PiP or screen: everything that could change it is switched off until it is unlocked */
@@ -2056,6 +2074,8 @@ function snapList(){
     if(sel.kind==='pip'&&(q.id===sel.id||multi.has(q.id))) continue;
     for(const r of [q,mirrorRect(q)]) if(r){xs.push(r.x,r.x+r.w/2,r.x+r.w);ys.push(r.y,r.y+r.h/2,r.y+r.h);}
   }
+  /* and to the ends of the rulers placed in this preset (a straight ruler is a line to snap to) */
+  for(const r of rulers()){xs.push(r.x1,r.x2);ys.push(r.y1,r.y2);}
   return {xs,ys};
 }
 /* holding Ctrl (Cmd on a Mac) while dragging turns snapping off for that drag */
@@ -2070,6 +2090,79 @@ function snapEdges(v,offs,list,thr,axis){
 }
 const snapOn=()=>$('snap').checked;
 const thr=()=>9/((inner.clientWidth||1)/curVB.w);
+
+/* ---------- rulers: measure distances on a screen, in that screen's own pixels ---------- */
+/* Each preset keeps its own rulers in P.rulers ({id, x1, y1, x2, y2}, layout units). Older files have none, and a
+   preset without rulers has no rulers key at all, so its saved shape doesn't change. */
+let selRuler=null;   /* the id of the ruler picked on the layout */
+const rulers=()=>preset().rulers||[];
+const rulerById=id=>rulers().find(r=>r.id===id);
+function setRuler(on){
+  commitEdit(); tool=on?'ruler':'select';
+  if(on){sel=null; multi.clear();}
+  renderAll();
+  say(on?'Drag on the layout to measure. Ends snap to edges; Shift keeps the ruler straight. Press M or Esc to finish.':'Ruler off. Click a ruler to move it or change its ends.');
+}
+function deleteRuler(id){
+  const P=preset(); if(!P.rulers) return;
+  const n=id?1:P.rulers.length;
+  P.rulers=id?P.rulers.filter(r=>r.id!==id):[]; if(!P.rulers.length) delete P.rulers;
+  selRuler=null; renderAll(); touch(); say(n===1?'Ruler deleted.':`Deleted ${n} rulers.`,'ok');
+}
+/* The screen a ruler measures on: the front-most one under its middle, or else under either end. */
+function rulerScreen(r){
+  for(const [x,y] of [[(r.x1+r.x2)/2,(r.y1+r.y2)/2],[r.x1,r.y1],[r.x2,r.y2]]){
+    const s=S.screens.slice().reverse().find(s=>inScreen(s,x,y)); if(s) return s;
+  }
+  return null;
+}
+/* Length, across and down in that screen's own pixels (an LED wall's 3840 is 3840 here, whatever its size on the layout),
+   and where each end sits on it, counted from its top-left corner (0, 0) as the PiP positions are. */
+function rulerInfo(r){
+  const s=rulerScreen(r), n=s?nativeRes(s):null, kx=s?n.w/s.w:1, ky=s?n.h/s.h:1, ax=(r.x2-r.x1)*kx, ay=(r.y2-r.y1)*ky;
+  return {s,n,dx:Math.round(Math.abs(ax)),dy:Math.round(Math.abs(ay)),len:Math.round(Math.hypot(ax,ay)),
+    a:s?pipAt({x:r.x1,y:r.y1},s):null,b:s?pipAt({x:r.x2,y:r.y2},s):null};
+}
+/* What a ruler's ends snap to: every screen's edges and centre, the PiPs in this preset (and their mirror copies),
+   objects, the canvas centre and the ends of the other rulers. */
+function rulerSnapLists(exceptId){
+  const c=center(), xs=[c.x], ys=[c.y];
+  for(const o of [...S.screens,...S.objects,...preset().pips.flatMap(q=>[q,mirrorRect(q)]).filter(Boolean)]){xs.push(o.x,o.x+o.w/2,o.x+o.w); ys.push(o.y,o.y+o.h/2,o.y+o.h);}
+  for(const r of rulers()) if(r.id!==exceptId){xs.push(r.x1,r.x2); ys.push(r.y1,r.y2);}
+  return {xs,ys};
+}
+/* A ruler end under the pointer: kept level or upright with its other end when straight (Shift), then snapped. */
+function rulerPoint(p,exceptId,anchor,straight){
+  let x=p.x, y=p.y, lockX=false, lockY=false;
+  if(straight&&anchor){ if(Math.abs(x-anchor.x)>=Math.abs(y-anchor.y)){y=anchor.y; lockY=true;} else {x=anchor.x; lockX=true;} }
+  if(snapNow()){const L=rulerSnapLists(exceptId), T=thr(); if(!lockX) x=snapEdges(x,[0],L.xs,T,'x'); if(!lockY) y=snapEdges(y,[0],L.ys,T,'y');}
+  return {x:round(x),y:round(y)};
+}
+function rulersSVG(scale){
+  const list=rulers(); if(!list.length) return '';
+  const k=1/scale, fs1=12.5*k*TS, fs2=10.5*k*TS, tk=7*k, hs=(matchMedia('(pointer: coarse)').matches?14:10)*k;
+  let o='';
+  for(const r of list){
+    const on=r.id===selRuler, dx=r.x2-r.x1, dy=r.y2-r.y1, L=Math.hypot(dx,dy)||1, nx=-dy/L*tk, ny=dx/L*tk, I=rulerInfo(r);
+    o+=`<g data-kind="ruler" data-id="${r.id}"${tool==='ruler'?' style="pointer-events:none"':''}><title>Ruler · ${I.len} px</title>`;
+    o+=`<line class="rul-hit" x1="${r.x1}" y1="${r.y1}" x2="${r.x2}" y2="${r.y2}"/>`;
+    if(dx&&dy) o+=`<path class="rul-leg" d="M${r.x1} ${r.y1}H${r.x2}V${r.y2}"/>`;
+    o+=`<path class="rul ${on?'sel':''}" d="M${r.x1} ${r.y1}L${r.x2} ${r.y2}M${r.x1-nx} ${r.y1-ny}L${r.x1+nx} ${r.y1+ny}M${r.x2-nx} ${r.y2-ny}L${r.x2+nx} ${r.y2+ny}"/>`;
+    if(on&&tool!=='ruler'&&!(drag&&drag.fresh)) for(const e of ['1','2']){const x=r['x'+e], y=r['y'+e];
+      o+=`<circle data-kind="rend" data-id="${r.id}" data-end="${e}" cx="${x}" cy="${y}" r="${hs*1.4}" fill="#000" fill-opacity="0" style="cursor:crosshair"/><circle class="rul-end" cx="${x}" cy="${y}" r="${hs/2}" style="pointer-events:none"/>`;}
+    o+='</g>';
+    if(L>1){   /* the reading, beside the ruler's middle */
+      const lines=[`${I.len} px`];
+      if(Math.abs(dx)>0.5&&Math.abs(dy)>0.5) lines.push(`→ ${I.dx}  ↕ ${I.dy}`);
+      lines.push(I.s?`on ${sname(I.s)}`:'canvas px, not on a screen');
+      const w=Math.max(lines[0].length*fs1*0.62,...lines.slice(1).map(l=>l.length*fs2*0.62))+16*k, h=fs1*1.5+(lines.length-1)*fs2*1.45+6*k;
+      const cx=(r.x1+r.x2)/2+12*k, cy=(r.y1+r.y2)/2+12*k;
+      o+=`<rect class="rul-lab" x="${cx}" y="${cy}" width="${w}" height="${h}" rx="${5*k}"/><text class="rul-t" x="${cx+8*k}" y="${cy+fs1*1.25}" font-size="${fs1}">${esc(lines[0])}</text>`;
+      lines.slice(1).forEach((l,i)=>{o+=`<text class="rul-t2" x="${cx+8*k}" y="${cy+fs1*1.5+fs2*1.3+i*fs2*1.45}" font-size="${fs2}">${esc(l)}</text>`;});
+    }
+  }
+  return o;
+}
 
 /* ---------- touch: pinch to zoom, one finger to pan, long press for the menu ---------- */
 let bgTapAt=0, pinch=null, lpTimer=0, lpAt=0;
@@ -2126,6 +2219,17 @@ svg.addEventListener('pointerdown',e=>{
   commitEdit();
   const p=toSvg(e), t=e.target.closest('[data-kind]'), kind=t&&t.dataset.kind;
   lockVB=computeVB(); curVB=lockVB;
+  if(tool==='ruler'){   /* ruler mode: every drag draws a new ruler, starting from a snapped point */
+    const q=rulerPoint(p,null), P=preset(), r={id:uid(),x1:q.x,y1:q.y,x2:q.x,y2:q.y};
+    (P.rulers||(P.rulers=[])).push(r); sel=null; multi.clear(); selRuler=r.id;
+    drag={type:'rend',id:r.id,end:'2',fresh:true,start:p}; renderAll(); return;
+  }
+  if(kind==='ruler'||kind==='rend'){   /* a placed ruler: pick it, then drag it whole or by one end */
+    const r=rulerById(t.dataset.id); if(!r){lockVB=null;return;}
+    sel=null; multi.clear(); selRuler=r.id;
+    drag=kind==='rend'?{type:'rend',id:r.id,end:t.dataset.end,start:p}:{type:'rmove',id:r.id,start:p,sx:e.clientX,sy:e.clientY,orig:{...r}};
+    renderAll(); return;
+  }
   if(tool==='draw'&&kind!=='handle'){
     const np={id:uid(),text:'',x:p.x,y:p.y,w:1,h:1,ar:newAR(),shape:'rect',color:COLORS[preset().pips.length%COLORS.length],mirror:'none'};
     preset().pips.push(np); sel={kind:'pip',id:np.id};
@@ -2161,11 +2265,15 @@ svg.addEventListener('pointerdown',e=>{
         if(cx>=o.x&&cx<=o.x+o.w&&cy>=o.y&&cy<=o.y+o.h) followers.push({q,x:q.x,y:q.y});
       }
     }
+    const rfol=[];   /* rulers whose middle is on the screen come along too, in every preset */
+    if(kind==='screen'&&$('follow').checked) for(const P of S.presets) for(const r of (P.rulers||[])){
+      const cx=(r.x1+r.x2)/2, cy=(r.y1+r.y2)/2; if(cx>=o.x&&cx<=o.x+o.w&&cy>=o.y&&cy<=o.y+o.h) rfol.push({r,o:{...r}});
+    }
     if(kind==='pip'&&multi.size>1) for(const q of preset().pips) if(multi.has(q.id)&&q.id!==id&&!q.locked) followers.push({q,x:q.x,y:q.y});   /* the rest of the group comes along */
-    drag={type:'move',start:p,sx:e.clientX,sy:e.clientY,orig:{x:o.x,y:o.y,w:o.w,h:o.h},movable:true,followers,proxy:isMir?{x:o.x,y:o.y,w:o.w,h:o.h}:null};
+    drag={type:'move',start:p,sx:e.clientX,sy:e.clientY,orig:{x:o.x,y:o.y,w:o.w,h:o.h},movable:true,followers,rfol,proxy:isMir?{x:o.x,y:o.y,w:o.w,h:o.h}:null};
     renderAll(); return;
   }
-  sel=null; multi.clear(); lockVB=null; renderAll();
+  sel=null; selRuler=null; multi.clear(); lockVB=null; renderAll();
   if(e.pointerType==='touch') startPan(e,true);   /* a finger on the empty background pans the layout */
 });
 window.addEventListener('pointermove',e=>{
@@ -2180,6 +2288,20 @@ window.addEventListener('pointermove',e=>{
     o.x=dx<0?drag.start.x-o.w:drag.start.x; o.y=dy<0?drag.start.y-o.h:drag.start.y;
     if(snapNow()){o.x=round(o.x);o.y=round(o.y);}
     renderStage(); return;
+  }
+  if(drag.type==='rend'||drag.type==='rmove'){
+    const r=rulerById(drag.id); if(!r) return;
+    if(drag.type==='rend'){   /* one end follows the pointer; Shift keeps the ruler straight */
+      const k=drag.end, o=k==='1'?'2':'1', q=rulerPoint(p,r.id,{x:r['x'+o],y:r['y'+o]},e.shiftKey);
+      r['x'+k]=q.x; r['y'+k]=q.y;
+    }else{
+      if(!drag.live){ if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)<5) return; drag.live=true; }
+      const O=drag.orig; let ox=dx, oy=dy;
+      if(snapNow()){const R=rulerSnapLists(r.id);   /* either end can snap */
+        ox=snapEdges(O.x1+dx,[0,O.x2-O.x1],R.xs,T,'x')-O.x1; oy=snapEdges(O.y1+dy,[0,O.y2-O.y1],R.ys,T,'y')-O.y1;}
+      ox=round(ox); oy=round(oy); r.x1=O.x1+ox; r.x2=O.x2+ox; r.y1=O.y1+oy; r.y2=O.y2+oy;
+    }
+    renderStage(); renderInspector(); return;
   }
   const t=drag.proxy||selTarget(); if(!t) return;
   if(sel.kind==='screen'&&needsWarn(sel.id)){
@@ -2196,6 +2318,7 @@ window.addEventListener('pointermove',e=>{
     t.x=round(x);t.y=round(y);
     if(sel.kind==='pip'&&!drag.proxy) replaceHint=(findReplaceTarget(t,t.id)||{}).id||null;
     if(drag.followers&&drag.followers.length) for(const f of drag.followers){f.q.x=f.x+(t.x-drag.orig.x);f.q.y=f.y+(t.y-drag.orig.y);}
+    if(drag.rfol) for(const f of drag.rfol){const ox=t.x-drag.orig.x, oy=t.y-drag.orig.y; f.r.x1=f.o.x1+ox; f.r.x2=f.o.x2+ox; f.r.y1=f.o.y1+oy; f.r.y2=f.o.y2+oy;}
   }else if(drag.type==='resize'){
     const o=drag.orig, h=drag.h, MIN=24;
     let x0=o.x,y0=o.y,x1=o.x+o.w,y1=o.y+o.h;
@@ -2234,6 +2357,11 @@ window.addEventListener('pointerup',()=>{
     if(o){o.x=round(o.x);o.y=round(o.y);o.w=round(o.w);o.h=round(o.h);}
     tool='select'; lockVB=null; renderAll(); touch(); startEdit('pip',d.id); return;
   }
+  if(d.type==='rend'&&d.fresh){   /* a click without a drag places no ruler */
+    const r=rulerById(d.id), sc=(inner.clientWidth||1)/curVB.w;
+    if(r&&Math.hypot(r.x2-r.x1,r.y2-r.y1)*sc<4){const P=preset(); P.rulers=P.rulers.filter(x=>x!==r); if(!P.rulers.length) delete P.rulers; selRuler=null; lockVB=null; renderAll(); return;}
+  }
+  if(d.type==='rmove'&&!d.live){lockVB=null; renderAll(); return;}   /* just a click: the ruler is picked */
   lockVB=null; renderAll(); touch();
   /* dropped an original PiP onto one of about the same size: offer to swap it in */
   if(d.type==='move'&&sel&&sel.kind==='pip'&&!d.proxy){
@@ -2367,11 +2495,13 @@ window.addEventListener('keydown',e=>{
   if((e.ctrlKey||e.metaKey)&&(e.key==='y'||e.key==='Y')){e.preventDefault();redo();return;}
   if((e.ctrlKey||e.metaKey)&&(e.key==='c'||e.key==='C')){if(copySel()) e.preventDefault();return;}
   if((e.ctrlKey||e.metaKey)&&(e.key==='v'||e.key==='V')){if(clip){e.preventDefault();pasteClip();}return;}
-  if(e.key==='Escape'){ if(!sel&&!multi.size&&$('scroll').closest('.center').classList.contains('full')){setPgFull(false);return;} tool='select';sel=null;multi.clear();renderAll();return;}
+  if(e.key==='Escape'&&tool==='ruler'){setRuler(false);return;}
+  if(e.key==='Escape'){ selRuler=null; if(!sel&&!multi.size&&$('scroll').closest('.center').classList.contains('full')){setPgFull(false);return;} tool='select';sel=null;multi.clear();renderAll();return;}
   if(!e.ctrlKey&&!e.metaKey&&!e.altKey){
     if(e.key==='?'){e.preventDefault(); try{parent.postMessage({type:'pp-keys'},'*');}catch(err){} return;}
     if(e.key==='f'||e.key==='F'){e.preventDefault(); setPgFull(!$('scroll').closest('.center').classList.contains('full')); return;}
     if(e.key==='0'){e.preventDefault(); fitCanvas(); return;}
+    if(e.key==='m'||e.key==='M'){e.preventDefault(); setRuler(tool!=='ruler'); return;}
     if(e.key==='+'||e.key==='='){e.preventDefault(); zoomAtCentre(1.25); return;}
     if(e.key==='-'||e.key==='_'){e.preventDefault(); zoomAtCentre(1/1.25); return;}
   }
@@ -2381,6 +2511,13 @@ window.addEventListener('keydown',e=>{
     commitEdit(); S.cur=S.presets[j].id; sel=null; multi.clear(); renderAll(); touch();
     const row=document.querySelector(`[data-preset="${S.cur}"]`); if(row) row.scrollIntoView({block:'nearest'});
     say(`${presetNum(S.presets[j],j)} · ${S.presets[j].name||'Untitled'}`,'ok'); return;
+  }
+  if(!sel&&selRuler){   /* a picked ruler: Delete removes it, arrow keys nudge it */
+    const r=rulerById(selRuler); if(!r) return;
+    if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();deleteRuler(r.id);return;}
+    const st=e.shiftKey?10:1, k={ArrowLeft:[-st,0],ArrowRight:[st,0],ArrowUp:[0,-st],ArrowDown:[0,st]}[e.key];
+    if(k){e.preventDefault();r.x1+=k[0];r.x2+=k[0];r.y1+=k[1];r.y2+=k[1];renderAll();touch();}
+    return;
   }
   if(!sel) return;
   if(multi.size>1){
@@ -2436,6 +2573,7 @@ $('tAdd').onclick=()=>{
   const p={id:uid(),text:'',x:round(c.x-w/2+n*30),y:round(c.y-h/2+n*30),w,h,ar:newAR(),shape:'rect',color:COLORS[n%COLORS.length],mirror:'none'};
   P.pips.push(p); sel={kind:'pip',id:p.id}; tool='select'; renderAll(); touch(); startEdit('pip',p.id);
 };
+$('tRuler').onclick=()=>setRuler(tool!=='ruler');
 $('zIn').onclick=()=>zoomAtCentre(1.25);
 $('zOut').onclick=()=>zoomAtCentre(1/1.25);
 $('zFit').onclick=()=>fitCanvas();
@@ -2589,7 +2727,7 @@ function askPresetName(title,make){
 const addPreset=(name,extra)=>{const p={id:uid(),name:name||'Preset '+presetNum({},S.presets.length),...(name?{}:{auto:true}),pips:[],...extra};
   S.presets.push(p);S.cur=p.id;sel=null;renderAll();touch();};
 $('pNew').onclick=()=>askPresetName('New preset',v=>addPreset(v));
-$('pDup').onclick=()=>{const src=preset();askPresetName(`Duplicate ${src.name||'preset'}`,v=>addPreset(v,{notes:src.notes,pips:src.pips.map(x=>({...x,id:uid()}))}));};
+$('pDup').onclick=()=>{const src=preset();askPresetName(`Duplicate ${src.name||'preset'}`,v=>addPreset(v,{notes:src.notes,pips:src.pips.map(x=>({...x,id:uid()})),...(src.rulers&&src.rulers.length?{rulers:src.rulers.map(x=>({...x,id:uid()}))}:{})}));};
 $('pDel').onclick=()=>{if(S.presets.length<2) return;S.presets=S.presets.filter(p=>p.id!==S.cur);S.cur=S.presets[0].id;sel=null;renderAll();touch();};
 $('useLabels').onchange=e=>{S.useLabels=e.target.checked;renderAll();touch();};
 $('screenList').addEventListener('click',e=>{const b=e.target.closest('[data-screen]'); if(!b) return; sel={kind:'screen',id:b.dataset.screen}; renderAll();});
@@ -2943,6 +3081,12 @@ svg.addEventListener('contextmenu',e=>{
     ['Delay screen',()=>addScreenAt(pt,'Delay')],['Confidence screen',()=>addScreenAt(pt,'Confidence')]];
   const items=[['Create…',()=>showCtx(e.clientX,e.clientY,create)]];
   if(clip) items.push(['Paste '+(clip.kind==='pip'?'PiP':clip.kind==='object'?'object':'screen')+' here',()=>pasteClip(pt)]);
+  items.push([tool==='ruler'?'Stop measuring':'Measure with a ruler',()=>setRuler(tool!=='ruler')]);
+  if(kind==='ruler'||kind==='rend'){
+    sel=null; multi.clear(); selRuler=id; renderAll();
+    items.push('-',['Delete this ruler',()=>deleteRuler(id),'danger']);
+  }
+  if(rulers().length>1||(rulers().length&&kind!=='ruler'&&kind!=='rend')) items.push(['Delete all rulers in this preset',()=>deleteRuler(null),'danger']);
   if(kind==='pip'){
     sel={kind:'pip',id,...(t.dataset.mirror==='1'?{mirror:true}:{})}; renderAll();
     items.push('-',['Duplicate this PiP',()=>{copySel();pasteClip();}],['Copy this PiP',()=>copySel()],
@@ -3074,6 +3218,8 @@ insp.addEventListener('change',e=>{
   if(e.target.id==='iMirror'&&t){t.mirror=e.target.value;if(t.mirror==='none'&&sel) sel.mirror=false;renderAll();touch();}
 });
 insp.addEventListener('click',e=>{
+  if(e.target.id==='rDel'){deleteRuler(selRuler);return;}
+  if(e.target.id==='rDelAll'){deleteRuler(null);return;}
   const gb=e.target.closest('[data-grp]'); if(gb){groupDo(gb.dataset.grp);return;}
   if(e.target.id==='grpDel'){deleteGroup();return;}
   if(e.target.id==='grpClear'){multi.clear();renderAll();return;}
@@ -3825,6 +3971,13 @@ function applyBuilder(force){
       const wp=q.w/okx, hp=q.h/oky, xp=place((q.x-os.x)/okx,wp,on.w,nn.w), yp=place((q.y-os.y)/oky,hp,on.h,nn.h);
       q.x=ns.x+xp*nkx; q.y=ns.y+yp*nky; q.w=Math.max(1,wp*nkx); q.h=Math.max(1,hp*nky);
     }
+    /* a ruler on a screen that changed keeps each end at the same pixel on it, so it still measures the same thing */
+    for(const P of S.presets) for(const r of (P.rulers||[])){
+      const os=oldSrc.slice().reverse().find(s=>inScreen(s,(r.x1+r.x2)/2,(r.y1+r.y2)/2)); if(!os) continue;
+      const ns=merged.find(n=>n.id===os.id); if(!ns||(ns.x===os.x&&ns.y===os.y&&ns.w===os.w&&ns.h===os.h)) continue;
+      const on=os.res||{w:os.w,h:os.h}, nn=ns.res||{w:ns.w,h:ns.h}, fx=v=>ns.x+(v-os.x)/(os.w/on.w)*(ns.w/nn.w), fy=v=>ns.y+(v-os.y)/(os.h/on.h)*(ns.h/nn.h);
+      r.x1=round(fx(r.x1)); r.x2=round(fx(r.x2)); r.y1=round(fy(r.y1)); r.y2=round(fy(r.y2));
+    }
   }
   S.screens=[...merged,...customs]; S.imported=JSON.parse(JSON.stringify(merged)); S.srcSig=sig; S.srcLayout=b.layout.layoutId;
   if(b.objects) S.bObjects=b.objects; else delete S.bObjects;
@@ -3981,8 +4134,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v4.00.html). Bump it with every release, together with VERSION in sw.js.
-const APP_VERSION = '4.00';
+// (pixelplanner-v4.01.html). Bump it with every release, together with VERSION in sw.js.
+const APP_VERSION = '4.01';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Installable app: the service worker (sw.js) keeps a copy of PixelPlanner, its fonts and its export libraries so it can
 // be installed from the browser and opens without internet. It only runs from a web server, not a file opened directly.
@@ -7148,11 +7301,11 @@ const KEYS = {
     ['Shift-click or Ctrl-click', 'Add to the selection, or take out'], ['Shift-drag on the background', 'Select everything in a box'], ['Shift while dragging', 'Keep the movement straight'],
     ['Double-click', 'Edit a screen, object or note'], ['Enter / Backspace / Esc', 'While drawing a shape: finish it, remove the last corner, cancel'], ['Esc', 'Close the menu or editor, stop measuring, clear the selection, leave full screen'], ['?', 'This list']]],
   presets: ['Preset Guide layout', [
-    ['F', 'Full screen layout on or off'], ['+ / −', 'Zoom in or out'], ['0', 'Fit the canvas'], ['Page Down / Page Up', 'Next or previous preset'],
-    ['Arrow keys', 'Nudge the selected PiP or screen 1 px'], ['Shift + arrow keys', 'Nudge 10 px'], ['Delete', 'Delete what is selected'],
+    ['M', 'Ruler on or off'], ['F', 'Full screen layout on or off'], ['+ / −', 'Zoom in or out'], ['0', 'Fit the canvas'], ['Page Down / Page Up', 'Next or previous preset'],
+    ['Arrow keys', 'Nudge the selected PiP, screen or ruler 1 px'], ['Shift + arrow keys', 'Nudge 10 px'], ['Delete', 'Delete what is selected'],
     ['Ctrl + C / Ctrl + V', 'Copy and paste'], ['Ctrl + Z', 'Undo'], ['Ctrl + Shift + Z or Ctrl + Y', 'Redo'],
-    ['Shift-click or Ctrl-click', 'Pick several PiPs, to move, line up, space out or match them'], ['Ctrl while dragging', 'Place freely, without snapping'],
-    ['Double-click', 'Rename a PiP or screen'], ['Right-click or press and hold', 'Menu: create PiPs and quick layouts, layer order, lock'], ['Esc', 'Clear the selection, leave full screen'], ['?', 'This list']]],
+    ['Shift-click or Ctrl-click', 'Pick several PiPs, to move, line up, space out or match them'], ['Ctrl while dragging', 'Place freely, without snapping'], ['Shift while drawing a ruler', 'Keep the ruler straight'],
+    ['Double-click', 'Rename a PiP or screen'], ['Right-click or press and hold', 'Menu: create PiPs and quick layouts, layer order, lock'], ['Esc', 'Stop measuring, clear the selection, leave full screen'], ['?', 'This list']]],
 };
 function openKeys(){
   const first = document.body.classList.contains('tab-presets') ? 'presets' : 'builder', order = first === 'presets' ? ['presets', 'builder'] : ['builder', 'presets'];
