@@ -769,7 +769,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <h3>Screen Builder</h3>
 <ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>LED wall cutouts</strong>: remove cabinets in a wall's <strong>Cutouts</strong> map (or right-click a cabinet). They become holes, as if the cabinets weren't there: a screen placed behind the wall (lower in the Screens list) shows through them on the layout, in every export and in the Preset Guide, and PiPs in the hole count on the screen behind. Overlaps leave out the holes in either wall: only the strips where the screen behind tucks under remaining cabinets count, each measured across its narrow side, with one label per pair of screens.</li><li><strong>Curved and reshaped projection screens</strong>: in a screen's <strong>Shape</strong> section, bow each end out (+) or in (−) by typing an amount or using its slider (from fully in to fully out: half the end's length, so ±7.5 ft on a 15 ft high screen), and move any corner by an exact amount. Or turn on <strong>Corner handles</strong> (also in the screen's right-click menu) and drag the corners on the layout, to the nearest inch. The width, height and pixels you type are the flat face; PixelPlanner works out the projector raster (the upright box around the shape, at the face's pixel density) and uses it for the canvas and every export, with the part off the screen face shaded.</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li><strong>Options → Clear layout…</strong> (or right-click the layout or its tab) removes every screen, object and note from the open layout after you confirm, so you can build it again from the first screen. A layout can have no screens.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
 <h3>Preset Guide</h3>
-<ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock. <strong>+ New</strong> and <strong>Duplicate</strong> ask for the preset's name; leave it blank for "Preset" and its number.</li><li>Quick layouts: right-click a screen and choose <strong>Create… → Quick layout</strong> to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.</li><li>Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.</li><li><strong>Page Up / Page Down</strong> step through presets.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Ruler</strong> (or press <strong>M</strong>): drag on the layout to measure a distance in the screen's own pixels: its length, how far across and down, and where each end sits on the screen. Ends snap to screen and PiP edges, centres and other rulers; hold Shift for a straight line. Placed rulers stay in the preset: PiPs snap to their ends, and you can click one to move it, drag its ends, nudge it with the arrow keys or delete it. Each preset has its own rulers (Duplicate copies them), and they don't show in exports.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li><strong>Export…</strong> lets you choose: Excel, PowerPoint, a PNG sheet with every preset of the layout one under the other, or a PDF summary: a cover listing every preset (PiPs, screens used, notes), then a page per preset with its picture, notes and a table of its PiPs in each screen's pixels.</li></ul>
+<ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock. <strong>+ New</strong> and <strong>Duplicate</strong> ask for the preset's name; leave it blank for "Preset" and its number.</li><li>Quick layouts: right-click a screen and choose <strong>Create… → Quick layout</strong> to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.</li><li>Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.</li><li><strong>Page Up / Page Down</strong> step through presets.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Ruler</strong> (or press <strong>M</strong>): drag on the layout to measure a distance in the screen's own pixels: its length, how far across and down, and where each end sits on the screen. Ends snap to screen and PiP edges, centres and other rulers; hold Shift for a straight line. Placed rulers stay in the preset: PiPs snap to their ends, and you can click one to move it, drag its ends, nudge it with the arrow keys or delete it. Each preset has its own rulers (Duplicate copies them). Tick <strong>Include ruler measurements</strong> in the Export window to draw them, with their readings, on the Excel thumbnails, PowerPoint slides, PNG sheet and PDF pages.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li><strong>Export…</strong> lets you choose: Excel, PowerPoint, a PNG sheet with every preset of the layout one under the other, or a PDF summary: a cover listing every preset (PiPs, screens used, notes), then a page per preset with its picture, notes and a table of its PiPs in each screen's pixels.</li></ul>
 <h3>Exports</h3>
 <ul><li>Canvas export PNG at exact pixel size, layout snapshot, layout summary and test patterns.</li><li>PDF spec pack, PowerPoint template, layered PSD and SVG.</li><li>Spec sheet as CSV.</li><li>Switcher planning <code>.xml</code> (screens, layers and auxes).</li><li><strong>Advanced → EDID (experimental):</strong> an EDID <code>.bin</code> for a screen, with connector, refresh rate, CVT blanking and a split across outputs. Check results on your hardware before you rely on them.</li></ul>
 <h2>Using it</h2>
@@ -1221,6 +1221,7 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
     </div>
     <label class="lbl" id="optPageRow" hidden>Page size<select id="optPage" class="field"><option value="letter">Letter (landscape)</option><option value="tabloid">Tabloid 11 × 17 (landscape)</option><option value="a4">A4 (landscape)</option><option value="a3">A3 (landscape)</option></select></label>
     <div style="display:flex;align-items:center"><label class="chk"><input type="checkbox" id="optObjs" checked> Include objects</label><button type="button" class="info" data-tip="Every object from the Screen Builder. Leave it off for clean screens with only the PiPs." aria-label="About including objects">i</button></div>
+    <div style="display:flex;align-items:center"><label class="chk"><input type="checkbox" id="optRulers"> Include ruler measurements</label><button type="button" class="info" data-tip="Draws the rulers you placed in each preset, with their length in the screen&#x27;s own pixels, on the Excel thumbnails, the PowerPoint slides, the PNG sheet and the PDF pages." aria-label="About including ruler measurements">i</button></div>
     <div class="row" style="justify-content:flex-end">
       <button class="btn" id="expCancel">Cancel</button>
       <button class="btn primary" id="expGo">Export</button>
@@ -1980,7 +1981,7 @@ function renderInspector(){
       <div class="row"><button class="btn sm" id="oDup">Duplicate</button><button class="btn sm danger" id="oDel">Delete</button></div>`;
   }else if(selRuler&&rulerById(selRuler)){
     const r=rulerById(selRuler), I=rulerInfo(r), u=I.s?'px':'px on the canvas', row=(k,v)=>`<div class="est-row"><span class="est-k">${k}</span><span class="mono">${v}</span></div>`;
-    el.innerHTML=`<h2>Ruler${info('Drag the ruler to move it, or drag the round handle at either end. Ends snap to screen and PiP edges, centres and other rulers; hold Shift for a straight line and Ctrl (Cmd on a Mac) to place freely. PiPs snap to its ends. Arrow keys nudge it, Delete removes it. Each preset has its own rulers. They are for planning and don\'t show in exports.','About rulers')}</h2>
+    el.innerHTML=`<h2>Ruler${info('Drag the ruler to move it, or drag the round handle at either end. Ends snap to screen and PiP edges, centres and other rulers; hold Shift for a straight line and Ctrl (Cmd on a Mac) to place freely. PiPs snap to its ends. Arrow keys nudge it, Delete removes it. Each preset has its own rulers. Tick Include ruler measurements in the Export window to put them in the exports.','About rulers')}</h2>
       <div class="est">${row('Length',`${I.len} ${u}`)}${row('Across',`${I.dx} ${u}`)}${row('Down',`${I.dy} ${u}`)}
         ${I.s?row('On',esc(sname(I.s))+` (${I.n.w} × ${I.n.h})`)+row('From',`X ${I.a.x}, Y ${I.a.y}`)+row('To',`X ${I.b.x}, Y ${I.b.y}`):'<p class="hint">Not on a screen: measured in canvas pixels.</p>'}</div>
       <div class="row"><button class="btn sm danger" id="rDel">Delete ruler</button>${rulers().length>1?`<button class="btn sm danger" id="rDelAll">Delete all ${rulers().length} rulers</button>`:''}</div>`;
@@ -2138,6 +2139,36 @@ function rulerPoint(p,exceptId,anchor,straight){
   if(snapNow()){const L=rulerSnapLists(exceptId), T=thr(); if(!lockX) x=snapEdges(x,[0],L.xs,T,'x'); if(!lockY) y=snapEdges(y,[0],L.ys,T,'y');}
   return {x:round(x),y:round(y)};
 }
+/* The text beside a ruler: its length, then across and down when it slants, then the screen it measures on
+   (left out where the screen is already known, as on an Excel thumbnail). */
+function rulerLines(r,withScreen){
+  const I=rulerInfo(r), dx=r.x2-r.x1, dy=r.y2-r.y1, lines=[`${I.len} px`];
+  if(Math.abs(dx)>0.5&&Math.abs(dy)>0.5) lines.push(`→ ${I.dx}  ↕ ${I.dy}`);
+  if(withScreen!==false) lines.push(I.s?`on ${sname(I.s)}`:'canvas px, not on a screen');
+  return lines;
+}
+/* Rulers in an export drawn on a canvas: X and Y map the layout to the drawing, fs is the label size in canvas pixels.
+   Labels are kept inside the canvas. Only when Include ruler measurements is ticked. */
+function drawRulersCanvas(g,list,X,Y,fs,withScreen){
+  if(!expRulers()) return;
+  const MONO='"JetBrains Mono",Consolas,monospace', C='#5ef0c8', cw=g.canvas.width, ch=g.canvas.height;
+  for(const r of list){
+    const a=[X(r.x1),Y(r.y1)], b=[X(r.x2),Y(r.y2)], L=Math.hypot(b[0]-a[0],b[1]-a[1]); if(L<2) continue;
+    const tk=fs*0.45, nx=-(b[1]-a[1])/L*tk, ny=(b[0]-a[0])/L*tk;
+    g.save(); g.lineCap='round';
+    if(Math.abs(b[0]-a[0])>1&&Math.abs(b[1]-a[1])>1){ g.setLineDash([fs*.3,fs*.25]); g.strokeStyle='rgba(94,240,200,.5)'; g.lineWidth=Math.max(1,fs/14); g.beginPath(); g.moveTo(a[0],a[1]); g.lineTo(b[0],a[1]); g.lineTo(b[0],b[1]); g.stroke(); g.setLineDash([]); }
+    g.strokeStyle=C; g.lineWidth=Math.max(2,fs/7); g.beginPath(); g.moveTo(a[0],a[1]); g.lineTo(b[0],b[1]);
+    for(const p of [a,b]){ g.moveTo(p[0]-nx,p[1]-ny); g.lineTo(p[0]+nx,p[1]+ny); } g.stroke();
+    const lines=rulerLines(r,withScreen), f2=fs*0.82;
+    g.font=`600 ${fs}px ${MONO}`; let w=g.measureText(lines[0]).width; g.font=`500 ${f2}px ${MONO}`; for(const l of lines.slice(1)) w=Math.max(w,g.measureText(l).width);
+    w+=fs; const h=fs*1.45+(lines.length-1)*f2*1.35+fs*0.2;
+    const bx=Math.max(1,Math.min(cw-w-1,(a[0]+b[0])/2+fs*0.7)), by=Math.max(1,Math.min(ch-h-1,(a[1]+b[1])/2+fs*0.7));
+    g.fillStyle='rgba(13,16,21,.92)'; g.fillRect(bx,by,w,h); g.strokeStyle=C; g.lineWidth=Math.max(1,fs/14); g.strokeRect(bx,by,w,h);
+    g.textAlign='left'; g.textBaseline='alphabetic'; g.fillStyle='#eef2f8'; g.font=`600 ${fs}px ${MONO}`; g.fillText(lines[0],bx+fs*.5,by+fs*1.15);
+    g.fillStyle='#a9b4c6'; g.font=`500 ${f2}px ${MONO}`; lines.slice(1).forEach((l,i)=>g.fillText(l,bx+fs*.5,by+fs*1.45+f2*1.05+i*f2*1.35));
+    g.restore();
+  }
+}
 function rulersSVG(scale){
   const list=rulers(); if(!list.length) return '';
   const k=1/scale, fs1=12.5*k*TS, fs2=10.5*k*TS, tk=7*k, hs=(matchMedia('(pointer: coarse)').matches?14:10)*k;
@@ -2152,9 +2183,7 @@ function rulersSVG(scale){
       o+=`<circle data-kind="rend" data-id="${r.id}" data-end="${e}" cx="${x}" cy="${y}" r="${hs*1.4}" fill="#000" fill-opacity="0" style="cursor:crosshair"/><circle class="rul-end" cx="${x}" cy="${y}" r="${hs/2}" style="pointer-events:none"/>`;}
     o+='</g>';
     if(L>1){   /* the reading, beside the ruler's middle */
-      const lines=[`${I.len} px`];
-      if(Math.abs(dx)>0.5&&Math.abs(dy)>0.5) lines.push(`→ ${I.dx}  ↕ ${I.dy}`);
-      lines.push(I.s?`on ${sname(I.s)}`:'canvas px, not on a screen');
+      const lines=rulerLines(r);
       const w=Math.max(lines[0].length*fs1*0.62,...lines.slice(1).map(l=>l.length*fs2*0.62))+16*k, h=fs1*1.5+(lines.length-1)*fs2*1.45+6*k;
       const cx=(r.x1+r.x2)/2+12*k, cy=(r.y1+r.y2)/2+12*k;
       o+=`<rect class="rul-lab" x="${cx}" y="${cy}" width="${w}" height="${h}" rx="${5*k}"/><text class="rul-t" x="${cx+8*k}" y="${cy+fs1*1.25}" font-size="${fs1}">${esc(lines[0])}</text>`;
@@ -3485,6 +3514,8 @@ function makeThumb(P,s){
     g.fillStyle='#0d1015'; g.fillRect(tx,ty,tw,th); g.strokeStyle='#e5484d'; g.lineWidth=Math.max(2,fs*0.1); g.strokeRect(tx,ty,tw,th);
     g.fillStyle='#ff8f8f'; g.textAlign='center'; g.textBaseline='middle'; g.fillText('NOT USED',cw/2,ch/2); g.restore();
   }
+  {g.save(); g.beginPath(); g.rect(0,0,cw,ch); g.clip();   /* rulers that measure on this screen */
+   drawRulersCanvas(g,(P.rulers||[]).filter(r=>rulerScreen(r)===s),v=>(v-s.x)*sc,v=>(v-s.y)*sc,Math.max(14,Math.min(22,ch*0.09)),false); g.restore();}
   g.lineWidth=2; g.strokeStyle='#5b6a84'; g.strokeRect(1,1,cw-2,ch-2);
   return cv.toDataURL('image/png');
 }
@@ -3573,6 +3604,7 @@ async function buildWorkbook(){
 /* Excel and PowerPoint share one export dialog; "Include objects" is remembered with the project */
 let expKind='xlsx';
 const expObjects=()=>S.expObjects!==false;
+const expRulers=()=>S.expRulers===true;   /* off unless ticked, so exports look as they always have */
 /* One Export… button: the window asks what to export and shows only that format's options (the last choice is remembered). */
 const EXP_NAMES={xlsx:'Excel',pptx:'PowerPoint',png:'PNG sheet',pdf:'PDF summary'};
 function setExpKind(kind){
@@ -3585,10 +3617,11 @@ document.querySelectorAll('input[name="expFmt"]').forEach(r=>r.onchange=()=>{ if
 $('btnExport').onclick=()=>openExport(S.expKind||'xlsx');
 function openExport(kind){
   $('optPage').value=S.pdfPage||'letter'; setExpKind(kind);
-  $('optObjs').checked=expObjects();
+  $('optObjs').checked=expObjects(); $('optRulers').checked=expRulers();
   $('dlgExport').showModal(); $('expGo').focus();
 }
 $('optObjs').onchange=e=>{S.expObjects=e.target.checked; touch();};
+$('optRulers').onchange=e=>{S.expRulers=e.target.checked; touch();};
 
 $('optPage').onchange=e=>{S.pdfPage=e.target.value; touch();};
 $('expCancel').onclick=()=>$('dlgExport').close();
@@ -3645,6 +3678,8 @@ async function buildPptx(){
     const rs=S.screens.map(s=>({x:s.x,y:s.y,w:s.w,h:s.h}));
     P.pips.forEach(p=>{rs.push(p); const m=mirrorRect(p); if(m) rs.push(m);});
     if(expObjects()) allObjects().forEach(o=>rs.push(o));
+    const rul=expRulers()?(P.rulers||[]):[];
+    for(const r of rul) rs.push({x:Math.min(r.x1,r.x2),y:Math.min(r.y1,r.y2),w:Math.abs(r.x2-r.x1),h:Math.abs(r.y2-r.y1)});
     const x0=Math.min(...rs.map(r=>r.x)), y0=Math.min(...rs.map(r=>r.y)), x1=Math.max(...rs.map(r=>r.x+r.w)), y1=Math.max(...rs.map(r=>r.y+r.h));
     const pad=0.25, lab=0.3;                              /* lab: room above the top screens for their name and measurements */
     const sc=Math.min((area.w-2*pad)/(x1-x0),(area.h-2*pad-lab)/(y1-y0));
@@ -3703,6 +3738,19 @@ async function buildPptx(){
       sl.addText([{text:sname(s),options:{bold:true,color:'EEF2F8'}},{text:'   '+meas,options:{color:'9AA7B8'}}],
         {x:X(s.x),y:Y(s.y)-0.24,w:wi,h:0.22,fontSize:fs,align:'left',valign:'bottom',margin:0,wrap:false,fontFace:FONT});
     }
+    /* rulers (when Include ruler measurements is ticked): a line with a tick at each end, and its reading beside it */
+    for(const r of rul){
+      const ax=X(r.x1), ay=Y(r.y1), bx=X(r.x2), by=Y(r.y2), L=Math.hypot(bx-ax,by-ay); if(L<0.03) continue;
+      const seg=(x1,y1,x2,y2,dash)=>sl.addShape(pptx.ShapeType.line,{x:Math.min(x1,x2),y:Math.min(y1,y2),w:Math.abs(x2-x1),h:Math.abs(y2-y1),
+        flipV:(x2-x1)*(y2-y1)<0,line:{color:'5EF0C8',width:dash?0.75:2,...(dash?{dashType:'dash',transparency:40}:{})}});
+      if(Math.abs(bx-ax)>0.01&&Math.abs(by-ay)>0.01){ seg(ax,ay,bx,ay,true); seg(bx,ay,bx,by,true); }
+      seg(ax,ay,bx,by);
+      const tk=0.06, nx=-(by-ay)/L*tk, ny=(bx-ax)/L*tk; seg(ax-nx,ay-ny,ax+nx,ay+ny); seg(bx-nx,by-ny,bx+nx,by+ny);
+      const lines=rulerLines(r), w=Math.max(...lines.map((l,i)=>l.length*(i?0.07:0.085)))+0.2, h=0.08+lines.length*0.16;
+      const lx=clamp((ax+bx)/2+0.08,area.x+0.05,area.x+area.w-w-0.05), ly=clamp((ay+by)/2+0.08,area.y+0.05,area.y+area.h-h-0.05);
+      sl.addText(lines.map((l,i)=>({text:l,options:{bold:!i,color:i?'A9B4C6':'EEF2F8',fontSize:i?8:10,breakLine:i<lines.length-1}})),
+        {x:lx,y:ly,w,h,fill:{color:'0D1015'},line:{color:'5EF0C8',width:0.75},fontFace:'Consolas',margin:3,valign:'middle',wrap:false});
+    }
     /* what is on each screen, front PiP first, then the preset's notes */
     const rows=[];
     frontFirst(P).forEach(([p,i])=>{
@@ -3733,6 +3781,7 @@ async function buildPptx(){
 function presetArea(objs){
   const boxes=[...S.screens,...objs.map(o=>({x:o.x,y:o.y,w:o.w,h:o.h}))];
   for(const P of S.presets) for(const p of P.pips) for(const r of [p,mirrorRect(p)]) if(r) boxes.push(r);
+  if(expRulers()) for(const P of S.presets) for(const r of (P.rulers||[])) boxes.push({x:Math.min(r.x1,r.x2),y:Math.min(r.y1,r.y2),w:Math.abs(r.x2-r.x1),h:Math.abs(r.y2-r.y1)});
   const x0=Math.min(...boxes.map(b=>b.x)), y0=Math.min(...boxes.map(b=>b.y));
   return {x0,y0,w:Math.max(...boxes.map(b=>b.x+b.w))-x0,h:Math.max(...boxes.map(b=>b.y+b.h))-y0};
 }
@@ -3767,6 +3816,7 @@ function drawPresetBody(g,P,X,Y,sc,objs){
     g.globalAlpha=o.imported?.55:.8; g.fillStyle=o.color||'#6b3a3a'; g.fill(); g.globalAlpha=1;
     if(o.imported){ g.setLineDash([8,6]); g.strokeStyle='#e5484d'; g.lineWidth=2; g.stroke(); g.setLineDash([]); }
   }
+  drawRulersCanvas(g,P.rulers||[],X,Y,Math.max(14,Math.min(26,g.canvas.width/110)));
 }
 /* One PNG sheet with every preset of this layout, one under the other: its number and name, then the preset. */
 async function buildPresetSheet(){
@@ -4134,8 +4184,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v4.01.html). Bump it with every release, together with VERSION in sw.js.
-const APP_VERSION = '4.01';
+// (pixelplanner-v4.02.html). Bump it with every release, together with VERSION in sw.js.
+const APP_VERSION = '4.02';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Installable app: the service worker (sw.js) keeps a copy of PixelPlanner, its fonts and its export libraries so it can
 // be installed from the browser and opens without internet. It only runs from a web server, not a file opened directly.
