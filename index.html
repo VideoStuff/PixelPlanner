@@ -769,7 +769,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <h3>Screen Builder</h3>
 <ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>LED wall cutouts</strong>: remove cabinets in a wall's <strong>Cutouts</strong> map (or right-click a cabinet). They become holes, as if the cabinets weren't there: a screen placed behind the wall (lower in the Screens list) shows through them on the layout, in every export and in the Preset Guide, and PiPs in the hole count on the screen behind. Overlaps leave out the holes in either wall: only the strips where the screen behind tucks under remaining cabinets count, each measured across its narrow side, with one label per pair of screens.</li><li><strong>Curved and reshaped projection screens</strong>: in a screen's <strong>Shape</strong> section, bow each end out (+) or in (−) by typing an amount or using its slider (from fully in to fully out: half the end's length, so ±7.5 ft on a 15 ft high screen), and move any corner by an exact amount. Or turn on <strong>Corner handles</strong> (also in the screen's right-click menu) and drag the corners on the layout, to the nearest inch. The width, height and pixels you type are the flat face; PixelPlanner works out the projector raster (the upright box around the shape, at the face's pixel density) and uses it for the canvas and every export, with the part off the screen face shaded.</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li><strong>Options → Clear layout…</strong> (or right-click the layout or its tab) removes every screen, object and note from the open layout after you confirm, so you can build it again from the first screen. A layout can have no screens.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
 <h3>Preset Guide</h3>
-<ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock. <strong>+ New</strong> and <strong>Duplicate</strong> ask for the preset's name; leave it blank for "Preset" and its number.</li><li>Quick layouts: right-click a screen and choose <strong>Create… → Quick layout</strong> to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.</li><li>Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.</li><li><strong>Page Up / Page Down</strong> step through presets.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Ruler</strong> (or press <strong>M</strong>): drag on the layout to measure a distance in the screen's own pixels: its length, how far across and down, and where each end sits on the screen. Ends snap to screen and PiP edges, centres and other rulers; hold Shift for a straight line. Placed rulers stay in the preset and PiPs snap to their ends. An end that snaps to a PiP, screen or object stays attached to it (a small ring shows this): move or resize that PiP or screen and the ruler follows, growing or shrinking to keep measuring. <strong>Lock</strong> a ruler (in the inspector or its right-click menu) to keep it exactly where it is. To set an exact size, type its <strong>Length</strong>, <strong>Across</strong> or <strong>Down</strong> in pixels in the inspector: it grows from left to right, then top to bottom. Click a ruler to move it, drag its ends, nudge it with the arrow keys or delete it. Each preset has its own rulers (Duplicate copies them). Tick <strong>Include ruler measurements</strong> in the Export window to draw them, with their readings, on the Excel thumbnails, PowerPoint slides, PNG sheet and PDF pages.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li><strong>Export…</strong> lets you choose: Excel, PowerPoint, a PNG sheet with every preset of the layout one under the other, or a PDF summary: a cover listing every preset (PiPs, screens used, notes), then a page per preset with its picture, notes and a table of its PiPs in each screen's pixels.</li></ul>
+<ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock. <strong>+ New</strong> and <strong>Duplicate</strong> ask for the preset's name; leave it blank for "Preset" and its number.</li><li>Quick layouts: right-click a screen and choose <strong>Create… → Quick layout</strong> to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.</li><li>Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.</li><li><strong>Page Up / Page Down</strong> step through presets.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Ruler</strong> (or press <strong>M</strong>): drag on the layout to measure a distance in the screen's own pixels: its length, how far across and down, and where each end sits on the screen. Ends snap to screen and PiP edges, centres and other rulers; hold Shift for a straight line. A zoom loupe beside the pointer magnifies the spot where each end lands and shows its X, Y in the screen's pixels. Placed rulers stay in the preset and PiPs snap to their ends. An end that snaps to a PiP, screen or object stays attached to it (a small ring shows this): move or resize that PiP or screen and the ruler follows, growing or shrinking to keep measuring. <strong>Lock</strong> a ruler (in the inspector or its right-click menu) to keep it exactly where it is. To set an exact size, type its <strong>Length</strong>, <strong>Across</strong> or <strong>Down</strong> in pixels in the inspector: it grows from left to right, then top to bottom. Click a ruler to move it, drag its ends, nudge it with the arrow keys or delete it. Each preset has its own rulers (Duplicate copies them). Tick <strong>Include ruler measurements</strong> in the Export window to draw them, with their readings, on the Excel thumbnails, PowerPoint slides, PNG sheet and PDF pages.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li><strong>Export…</strong> lets you choose: Excel, PowerPoint, a PNG sheet with every preset of the layout one under the other, or a PDF summary: a cover listing every preset (PiPs, screens used, notes), then a page per preset with its picture, notes and a table of its PiPs in each screen's pixels.</li></ul>
 <h3>Exports</h3>
 <ul><li>Canvas export PNG at exact pixel size, layout snapshot, layout summary and test patterns.</li><li>PDF spec pack, PowerPoint template, layered PSD and SVG.</li><li>Spec sheet as CSV.</li><li>Switcher planning <code>.xml</code> (screens, layers and auxes).</li><li><strong>Advanced → EDID (experimental):</strong> an EDID <code>.bin</code> for a screen, with connector, refresh rate, CVT blanking and a split across outputs. Check results on your hardware before you rely on them.</li></ul>
 <h2>Using it</h2>
@@ -1053,6 +1053,14 @@ h2 .lockbtn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-co
 .ghost-t{opacity:.7}
 .handle{fill:#fff;stroke:#111;stroke-width:1;vector-effect:non-scaling-stroke}
 .draw-cursor{cursor:crosshair}
+/* Zoom loupe: a round magnifier beside the reticle while a ruler end is placed. Its centre marks where the end lands. */
+.loupe{position:fixed;z-index:50;width:156px;height:156px;border-radius:50%;overflow:hidden;pointer-events:none;background:var(--stage);border:2px solid #5ef0c8;box-shadow:0 4px 18px rgba(0,0,0,.55),0 0 0 1px rgba(0,0,0,.6)}
+.loupe svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.loupe::before,.loupe::after{content:"";position:absolute;background:rgba(255,255,255,.85);box-shadow:0 0 0 1px rgba(0,0,0,.55)}
+.loupe::before{left:50%;top:calc(50% - 26px);width:1px;height:52px;margin-left:-.5px}
+.loupe::after{top:50%;left:calc(50% - 26px);height:1px;width:52px;margin-top:-.5px}
+.loupe .lp-dot{position:absolute;left:50%;top:50%;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;border:1.5px solid #5ef0c8;box-sizing:border-box;z-index:1}
+.loupe .lp-t{position:absolute;left:0;right:0;bottom:12px;text-align:center;font:600 10.5px var(--f-mono);color:#eef2f8;text-shadow:0 1px 2px #000;z-index:1}
 /* Ruler: a reticle with an open centre, so you can see exactly what the point lands on. Its hotspot is the centre dot.
    It wins over the move and resize cursors of PiPs and screens, since in ruler mode every click places a ruler end. */
 #svg.ruler-cursor,#svg.ruler-cursor *,.rul-grab{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cg stroke='%23000' stroke-opacity='.7' stroke-width='3'%3E%3Ccircle cx='16' cy='16' r='7'/%3E%3Cpath d='M16 2v8M16 22v8M2 16h8M22 16h8'/%3E%3C/g%3E%3Cg stroke='%23fff' stroke-width='1.3'%3E%3Ccircle cx='16' cy='16' r='7'/%3E%3Cpath d='M16 2v8M16 22v8M2 16h8M22 16h8'/%3E%3C/g%3E%3C/g%3E%3Ccircle cx='16' cy='16' r='1.6' fill='%235ef0c8' stroke='%23000' stroke-width='.7'/%3E%3C/svg%3E") 16 16,crosshair!important}
@@ -1175,6 +1183,7 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
     <div class="stage-scroll" id="scroll">
       <div class="stage-inner" id="inner">
         <svg id="svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Screen layout"></svg>
+        <div class="loupe" id="loupe" hidden aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg"><use href="#stageG"/></svg><span class="lp-dot"></span><span class="lp-t" id="loupeT"></span></div>
         <input id="editor" type="text" maxlength="60" aria-label="Edit name">
         <div id="editSugs" class="edsugs" role="group" aria-label="Suggested names" hidden></div>
       </div>
@@ -1767,7 +1776,7 @@ function renderStage(){
       return `<rect data-kind="handle" data-h="${k}" x="${gx}" y="${gy}" width="${gw}" height="${gh}" fill="#000" fill-opacity="0" style="cursor:${cur[k]}-resize"/>`;}).join('');
     g+=H.map(([k,i,j])=>`<rect class="handle" data-kind="handle" data-h="${k}" x="${xs[i]-hs/2}" y="${ys[j]-hs/2}" width="${hs}" height="${hs}" style="pointer-events:none"/>`).join('');
   }
-  svg.innerHTML=g;
+  svg.innerHTML=`<g id="stageG">${g}</g>`;   /* one group, so the zoom loupe can show the same drawing (<use>) */
   svg.classList.toggle('draw-cursor',tool==='draw'); svg.classList.toggle('ruler-cursor',tool==='ruler');
   {const b=$('tRuler'); b.classList.toggle('on',tool==='ruler'); b.setAttribute('aria-pressed',tool==='ruler');}
   $('zVal').textContent=Math.round(zoom*100)+'%';
@@ -2117,6 +2126,7 @@ function setRuler(on){
   commitEdit(); tool=on?'ruler':'select';
   if(on){sel=null; multi.clear();}
   renderAll();
+  if(!on) hideLoupe();
   say(on?'Drag on the layout to measure. Ends snap to edges; Shift keeps the ruler straight. Press M or Esc to finish.':'Ruler off. Click a ruler to move it or change its ends.');
 }
 function deleteRuler(id){
@@ -2265,6 +2275,36 @@ function drawRulersCanvas(g,list,X,Y,fs,withScreen){
     g.restore();
   }
 }
+/* ---------- zoom loupe ---------- */
+/* While the ruler is on (and while a ruler end is dragged) a magnifier follows the pointer, LOUPE_X times the current
+   zoom, centred on where the end would land after snapping. It shows the layout itself, through <use>, so it is
+   always up to date. Its readout gives that point in the screen's own pixels. */
+const LOUPE_X=4, loupe=$('loupe');
+function showLoupe(e,pt){
+  const sr=svg.getBoundingClientRect(), k=sr.width/curVB.w, size=156, span=size/(k*LOUPE_X);
+  loupe.querySelector('svg').setAttribute('viewBox',`${pt.x-span/2} ${pt.y-span/2} ${span} ${span}`);
+  const s=S.screens.slice().reverse().find(q=>inScreen(q,pt.x,pt.y)), at=s?pipAt(pt,s):null;
+  $('loupeT').textContent=at?`X ${at.x}, Y ${at.y}`:'';
+  /* up and to the right of the pointer, flipped near the edges of the window so it stays in view */
+  let lx=e.clientX+26, ly=e.clientY-size-26;
+  if(lx+size>innerWidth-4) lx=e.clientX-size-26; if(ly<4) ly=e.clientY+26;
+  loupe.style.left=lx+'px'; loupe.style.top=ly+'px'; loupe.hidden=false;
+}
+const hideLoupe=()=>{loupe.hidden=true;};
+/* Drawn on the next frame, after the drag code has moved the ruler end for this pointer move. */
+let loupeRAF=0;
+window.addEventListener('pointermove',e=>{ cancelAnimationFrame(loupeRAF); loupeRAF=requestAnimationFrame(()=>updateLoupe(e)); });
+function updateLoupe(e){
+  if(pinch){hideLoupe(); return;}
+  if(drag&&drag.type==='rend'){const r=rulerById(drag.id); if(r){showLoupe(e,{x:r['x'+drag.end],y:r['y'+drag.end]}); return;}}
+  if(tool==='ruler'&&!drag&&svg.contains(e.target)){
+    const keep=snapGuides; snapBypass=e.ctrlKey||e.metaKey;   /* a preview only: what it snaps to is not drawn */
+    const q=rulerPoint(toSvg(e),null); snapGuides=keep; snapBypass=false; showLoupe(e,q); return;
+  }
+  hideLoupe();
+}
+svg.addEventListener('pointerleave',()=>{if(!drag||drag.type!=='rend'){cancelAnimationFrame(loupeRAF); hideLoupe();}});
+window.addEventListener('pointerup',()=>{if(tool!=='ruler') hideLoupe();});
 function rulersSVG(scale){
   const list=rulers(); if(!list.length) return '';
   const k=1/scale, fs1=12.5*k*TS, fs2=10.5*k*TS, tk=7*k, hs=(matchMedia('(pointer: coarse)').matches?14:10)*k;
@@ -4305,8 +4345,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v4.05.html). Bump it with every release, together with VERSION in sw.js.
-const APP_VERSION = '4.05';
+// (pixelplanner-v4.06.html). Bump it with every release, together with VERSION in sw.js.
+const APP_VERSION = '4.06';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Installable app: the service worker (sw.js) keeps a copy of PixelPlanner, its fonts and its export libraries so it can
 // be installed from the browser and opens without internet. It only runs from a web server, not a file opened directly.
