@@ -769,7 +769,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <h3>Screen Builder</h3>
 <ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>LED wall cutouts</strong>: remove cabinets in a wall's <strong>Cutouts</strong> map (or right-click a cabinet). They become holes, as if the cabinets weren't there: a screen placed behind the wall (lower in the Screens list) shows through them on the layout, in every export and in the Preset Guide, and PiPs in the hole count on the screen behind. Overlaps leave out the holes in either wall: only the strips where the screen behind tucks under remaining cabinets count, each measured across its narrow side, with one label per pair of screens.</li><li><strong>Curved and reshaped projection screens</strong>: in a screen's <strong>Shape</strong> section, bow each end out (+) or in (−) by typing an amount or using its slider (from fully in to fully out: half the end's length, so ±7.5 ft on a 15 ft high screen), and move any corner by an exact amount. Or turn on <strong>Corner handles</strong> (also in the screen's right-click menu) and drag the corners on the layout, to the nearest inch. The width, height and pixels you type are the flat face; PixelPlanner works out the projector raster (the upright box around the shape, at the face's pixel density) and uses it for the canvas and every export, with the part off the screen face shaded.</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li><strong>Options → Clear layout…</strong> (or right-click the layout or its tab) removes every screen, object and note from the open layout after you confirm, so you can build it again from the first screen. A layout can have no screens.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
 <h3>Preset Guide</h3>
-<ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock. <strong>+ New</strong> and <strong>Duplicate</strong> ask for the preset's name; leave it blank for "Preset" and its number.</li><li>Quick layouts: right-click a screen and choose <strong>Create… → Quick layout</strong> to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.</li><li>Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.</li><li><strong>Page Up / Page Down</strong> step through presets.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Ruler</strong> (or press <strong>M</strong>): drag on the layout to measure a distance in the screen's own pixels: its length, how far across and down, and where each end sits on the screen. Ends snap to screen and PiP edges, centres and other rulers; hold Shift for a straight line. Placed rulers stay in the preset and PiPs snap to their ends. An end that snaps to a PiP, screen or object stays attached to it (a small ring shows this): move or resize that PiP or screen and the ruler follows, growing or shrinking to keep measuring. <strong>Lock</strong> a ruler (in the inspector or its right-click menu) to keep it exactly where it is. Click a ruler to move it, drag its ends, nudge it with the arrow keys or delete it. Each preset has its own rulers (Duplicate copies them). Tick <strong>Include ruler measurements</strong> in the Export window to draw them, with their readings, on the Excel thumbnails, PowerPoint slides, PNG sheet and PDF pages.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li><strong>Export…</strong> lets you choose: Excel, PowerPoint, a PNG sheet with every preset of the layout one under the other, or a PDF summary: a cover listing every preset (PiPs, screens used, notes), then a page per preset with its picture, notes and a table of its PiPs in each screen's pixels.</li></ul>
+<ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock. <strong>+ New</strong> and <strong>Duplicate</strong> ask for the preset's name; leave it blank for "Preset" and its number.</li><li>Quick layouts: right-click a screen and choose <strong>Create… → Quick layout</strong> to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.</li><li>Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.</li><li><strong>Page Up / Page Down</strong> step through presets.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Ruler</strong> (or press <strong>M</strong>): drag on the layout to measure a distance in the screen's own pixels: its length, how far across and down, and where each end sits on the screen. Ends snap to screen and PiP edges, centres and other rulers; hold Shift for a straight line. Placed rulers stay in the preset and PiPs snap to their ends. An end that snaps to a PiP, screen or object stays attached to it (a small ring shows this): move or resize that PiP or screen and the ruler follows, growing or shrinking to keep measuring. <strong>Lock</strong> a ruler (in the inspector or its right-click menu) to keep it exactly where it is. To set an exact size, type its <strong>Length</strong>, <strong>Across</strong> or <strong>Down</strong> in pixels in the inspector: it grows from left to right, then top to bottom. Click a ruler to move it, drag its ends, nudge it with the arrow keys or delete it. Each preset has its own rulers (Duplicate copies them). Tick <strong>Include ruler measurements</strong> in the Export window to draw them, with their readings, on the Excel thumbnails, PowerPoint slides, PNG sheet and PDF pages.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li><strong>Export…</strong> lets you choose: Excel, PowerPoint, a PNG sheet with every preset of the layout one under the other, or a PDF summary: a cover listing every preset (PiPs, screens used, notes), then a page per preset with its picture, notes and a table of its PiPs in each screen's pixels.</li></ul>
 <h3>Exports</h3>
 <ul><li>Canvas export PNG at exact pixel size, layout snapshot, layout summary and test patterns.</li><li>PDF spec pack, PowerPoint template, layered PSD and SVG.</li><li>Spec sheet as CSV.</li><li>Switcher planning <code>.xml</code> (screens, layers and auxes).</li><li><strong>Advanced → EDID (experimental):</strong> an EDID <code>.bin</code> for a screen, with connector, refresh rate, CVT blanking and a split across outputs. Check results on your hardware before you rely on them.</li></ul>
 <h2>Using it</h2>
@@ -1984,8 +1984,14 @@ function renderInspector(){
     const r=rulerById(selRuler), I=rulerInfo(r), u=I.s?'px':'px on the canvas', row=(k,v)=>`<div class="est-row"><span class="est-k">${k}</span><span class="mono">${v}</span></div>`;
     el.innerHTML=`<h2><span>Ruler${info('Drag the ruler to move it, or drag the round handle at either end. Ends snap to screen and PiP edges, centres and other rulers; hold Shift for a straight line and Ctrl (Cmd on a Mac) to place freely. PiPs snap to its ends. An end that snaps to a PiP, screen or object stays attached to it (it shows a ring): move or resize that and the ruler follows, stretching or shrinking to keep measuring. Drag the end away to let go. Arrow keys nudge it, Delete removes it. Each preset has its own rulers. Tick Include ruler measurements in the Export window to put them in the exports. Lock it to keep it exactly where it is: it stops following what its ends are attached to and can\'t be moved or deleted until you unlock it.','About rulers')}</span> ${lockBtn(r)}</h2>
       ${r.locked?'<p class="hint lockhint">Locked. It stays where it is and doesn\'t follow what its ends snapped to.</p>':''}
-      <div class="est">${row('Length',`${I.len} ${u}`)}${row('Across',`${I.dx} ${u}`)}${row('Down',`${I.dy} ${u}`)}
-        ${I.s?row('On',esc(sname(I.s))+` (${I.n.w} × ${I.n.h})`)+row('From',`X ${I.a.x}, Y ${I.a.y}`)+row('To',`X ${I.b.x}, Y ${I.b.y}`):'<p class="hint">Not on a screen: measured in canvas pixels.</p>'}
+      <div class="row" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+        ${[['rLen','Length',I.len,'The length in pixels. The left end stays put and the ruler grows to the right (on an upright ruler, the top end stays put and it grows down).'],
+           ['rDx','Across',I.dx,'How far across, in pixels. The left end stays put and the right end moves.'],
+           ['rDy','Down',I.dy,'How far down, in pixels. The top end stays put and the bottom end moves.']]
+          .map(([id,k,v,tip])=>`<label class="lbl" for="${id}" title="${tip}">${k} (${I.s?'px':'canvas px'})<input id="${id}" class="field num" type="number" min="0" step="1" value="${v}"${r.locked?' disabled':''}></label>`).join('')}
+      </div>
+      <div class="est">${I.s?row('On',esc(sname(I.s))+` (${I.n.w} × ${I.n.h})`)+row('From',`X ${I.a.x}, Y ${I.a.y}`)+row('To',`X ${I.b.x}, Y ${I.b.y}`):'<p class="hint">Not on a screen: measured in canvas pixels.</p>'}
+        <p class="hint" style="margin:2px 0 0">Type a size and press Enter: the ruler grows from left to right, then top to bottom.</p>
         ${r.locked?'':['1','2'].map(e=>{const t=attachText(r,e); return t?row(e==='1'?'Start follows':'End follows',esc(t)):'';}).join('')}</div>
       <div class="row"><button class="btn sm danger" id="rDel"${r.locked?' disabled':''}>Delete ruler</button>${rulers().length>1?`<button class="btn sm danger" id="rDelAll">Delete all ${rulers().length} rulers</button>`:''}</div>`;
   }else{
@@ -2191,6 +2197,27 @@ function attachRuler(r){
     }
   }
   if(Object.keys(at).length) r.at=at; else delete r.at;
+}
+/* Set a ruler's length, or how far it goes across or down, in the screen's own pixels (canvas pixels off a screen).
+   Length: the left end stays put (the top end on an upright ruler) and the other end moves along the ruler.
+   Across: the left end stays and the right end moves sideways. Down: the top end stays and the bottom end moves. */
+function setRulerSize(r,what,px){
+  if(r.locked||!isFinite(px)||px<0) return false;
+  const s=rulerScreen(r), n=s?nativeRes(s):null, kx=s?s.w/n.w:1, ky=s?s.h/n.h:1;   /* layout units per screen pixel */
+  const dx=r.x2-r.x1, dy=r.y2-r.y1, flat=Math.abs(dx)<1e-6;
+  /* the end that stays: the left one, or the top one when the ruler is upright (or for Down) */
+  const keep=what==='dy'||(what==='len'&&flat)?(r.y1<=r.y2?'1':'2'):(r.x1<=r.x2?'1':'2'), mv=keep==='1'?'2':'1';
+  const ax=r['x'+keep], ay=r['y'+keep];
+  if(what==='dx') r['x'+mv]=ax+px*kx;
+  else if(what==='dy') r['y'+mv]=ay+px*ky;
+  else{
+    let ux=(r['x'+mv]-ax)/kx, uy=(r['y'+mv]-ay)/ky, L=Math.hypot(ux,uy);   /* the direction, in screen pixels */
+    if(L<1e-6){ux=1; uy=0; L=1;}
+    r['x'+mv]=ax+ux/L*px*kx; r['y'+mv]=ay+uy/L*px*ky;
+  }
+  if(r.at){delete r.at[mv+'x']; delete r.at[mv+'y'];}
+  attachRuler(r);   /* the moved end attaches to whatever it lands on */
+  return true;
 }
 /* "top of PiP 1, left of LED wall": what one end of a ruler is attached to, for the inspector */
 function attachText(r,e){
@@ -3325,6 +3352,14 @@ insp.addEventListener('change',e=>{
   if(e.target.id==='iMirScr'&&t){if(e.target.checked) t.mirrorRef='screen'; else delete t.mirrorRef; renderAll(); touch(); say(e.target.checked?'Mirrors across the centre of its screen.':'Mirrors across the centre of the video wall.','ok');}
   if(e.target.id==='iMirror'&&t){t.mirror=e.target.value;if(t.mirror==='none'&&sel) sel.mirror=false;renderAll();touch();}
 });
+/* typed ruler sizes: applied on Enter or when you leave the box */
+insp.addEventListener('change',e=>{
+  const what={rLen:'len',rDx:'dx',rDy:'dy'}[e.target.id]; if(!what||!selRuler) return;
+  const r=rulerById(selRuler), v=parseFloat(e.target.value);
+  if(!r||!isFinite(v)||v<0){say('Enter a whole number of pixels, 0 or more.');renderInspector();return;}
+  if(setRulerSize(r,what,Math.round(v))){renderAll(); touch(); say(`Ruler ${what==='len'?'length':what==='dx'?'across':'down'} set to ${Math.round(v)} px.`,'ok');}
+});
+insp.addEventListener('keydown',e=>{ if(e.key==='Enter'&&/^r(Len|Dx|Dy)$/.test(e.target.id)){e.preventDefault(); e.target.blur();} });
 insp.addEventListener('click',e=>{
   if(e.target.id==='rDel'){deleteRuler(selRuler);return;}
   if(e.target.closest('#lockToggle')&&!sel&&selRuler){const r=rulerById(selRuler); if(!r) return;
@@ -4267,8 +4302,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v4.03.html). Bump it with every release, together with VERSION in sw.js.
-const APP_VERSION = '4.03';
+// (pixelplanner-v4.04.html). Bump it with every release, together with VERSION in sw.js.
+const APP_VERSION = '4.04';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Installable app: the service worker (sw.js) keeps a copy of PixelPlanner, its fonts and its export libraries so it can
 // be installed from the browser and opens without internet. It only runs from a web server, not a file opened directly.
