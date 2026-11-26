@@ -769,7 +769,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <h3>Screen Builder</h3>
 <ul><li>Add LED walls (by cabinet, columns and rows) and projection screens or displays (by size or diagonal).</li><li><strong>LED wall cutouts</strong>: remove cabinets in a wall's <strong>Cutouts</strong> map (or right-click a cabinet). They become holes, as if the cabinets weren't there: a screen placed behind the wall (lower in the Screens list) shows through them on the layout, in every export and in the Preset Guide, and PiPs in the hole count on the screen behind. Overlaps leave out the holes in either wall: only the strips where the screen behind tucks under remaining cabinets count, each measured across its narrow side, with one label per pair of screens.</li><li><strong>Curved and reshaped projection screens</strong>: in a screen's <strong>Shape</strong> section, bow each end out (+) or in (−) by typing an amount or using its slider (from fully in to fully out: half the end's length, so ±7.5 ft on a 15 ft high screen), and move any corner by an exact amount. Or turn on <strong>Corner handles</strong> (also in the screen's right-click menu) and drag the corners on the layout, to the nearest inch. The width, height and pixels you type are the flat face; PixelPlanner works out the projector raster (the upright box around the shape, at the face's pixel density) and uses it for the canvas and every export, with the part off the screen face shaded.</li><li><strong>Pixel density matching</strong>: resizes every screen's content so one pixel covers the same physical area as on a reference screen, then lays all screens out on one content canvas.</li><li>Arrange screens on a to-scale layout with snapping, spacing, row alignment, a ground line, rulers and a measure tool. Dragging near the canvas centre snaps to it and shows a centre line.</li><li>Objects in front of the screens: lecterns, stages, ADA ramps (with handrails), custom rectangles, shapes you draw point by point, and a 6 ft person for scale. Option to keep objects centred on the canvas as screens change.</li><li>Notes, multiple layouts per guide, undo and redo.</li><li><strong>Options → Clear layout…</strong> (or right-click the layout or its tab) removes every screen, object and note from the open layout after you confirm, so you can build it again from the first screen. A layout can have no screens.</li><li>Units in feet, feet and inches, inches or meters.</li></ul>
 <h3>Preset Guide</h3>
-<ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock. <strong>+ New</strong> and <strong>Duplicate</strong> ask for the preset's name; leave it blank for "Preset" and its number.</li><li>Quick layouts: right-click a screen and choose <strong>Create… → Quick layout</strong> to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.</li><li>Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.</li><li><strong>Page Up / Page Down</strong> step through presets.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Ruler</strong> (or press <strong>M</strong>): drag on the layout to measure a distance in the screen's own pixels: its length, how far across and down, and where each end sits on the screen. Ends snap to screen and PiP edges, centres and other rulers; hold Shift for a straight line. Placed rulers stay in the preset: PiPs snap to their ends, and you can click one to move it, drag its ends, nudge it with the arrow keys or delete it. Each preset has its own rulers (Duplicate copies them). Tick <strong>Include ruler measurements</strong> in the Export window to draw them, with their readings, on the Excel thumbnails, PowerPoint slides, PNG sheet and PDF pages.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li><strong>Export…</strong> lets you choose: Excel, PowerPoint, a PNG sheet with every preset of the layout one under the other, or a PDF summary: a cover listing every preset (PiPs, screens used, notes), then a page per preset with its picture, notes and a table of its PiPs in each screen's pixels.</li></ul>
+<ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock. <strong>+ New</strong> and <strong>Duplicate</strong> ask for the preset's name; leave it blank for "Preset" and its number.</li><li>Quick layouts: right-click a screen and choose <strong>Create… → Quick layout</strong> to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.</li><li>Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.</li><li><strong>Page Up / Page Down</strong> step through presets.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Ruler</strong> (or press <strong>M</strong>): drag on the layout to measure a distance in the screen's own pixels: its length, how far across and down, and where each end sits on the screen. Ends snap to screen and PiP edges, centres and other rulers; hold Shift for a straight line. Placed rulers stay in the preset and PiPs snap to their ends. An end that snaps to a PiP, screen or object stays attached to it (a small ring shows this): move or resize that PiP or screen and the ruler follows, growing or shrinking to keep measuring. <strong>Lock</strong> a ruler (in the inspector or its right-click menu) to keep it exactly where it is. Click a ruler to move it, drag its ends, nudge it with the arrow keys or delete it. Each preset has its own rulers (Duplicate copies them). Tick <strong>Include ruler measurements</strong> in the Export window to draw them, with their readings, on the Excel thumbnails, PowerPoint slides, PNG sheet and PDF pages.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li><strong>Export…</strong> lets you choose: Excel, PowerPoint, a PNG sheet with every preset of the layout one under the other, or a PDF summary: a cover listing every preset (PiPs, screens used, notes), then a page per preset with its picture, notes and a table of its PiPs in each screen's pixels.</li></ul>
 <h3>Exports</h3>
 <ul><li>Canvas export PNG at exact pixel size, layout snapshot, layout summary and test patterns.</li><li>PDF spec pack, PowerPoint template, layered PSD and SVG.</li><li>Spec sheet as CSV.</li><li>Switcher planning <code>.xml</code> (screens, layers and auxes).</li><li><strong>Advanced → EDID (experimental):</strong> an EDID <code>.bin</code> for a screen, with connector, refresh rate, CVT blanking and a split across outputs. Check results on your hardware before you rely on them.</li></ul>
 <h2>Using it</h2>
@@ -1676,6 +1676,7 @@ function overlaysSVG(scale,vb){
   return {shapes:`<g class="overlays">${g}</g>`,objects:`<g class="overlays">${ob}</g>`,labels:`<g class="overlays">${lb}</g>`};
 }
 function renderStage(){
+  syncRulers();   /* rulers follow the PiPs, screens and objects their ends are attached to */
   if(sel||multi.size||(selRuler&&!rulerById(selRuler))) selRuler=null;   /* a ruler is picked on its own, apart from PiPs and screens */
   const vb=lockVB||computeVB(); curVB=vb;
   if(sFit==null) sFit=computeFitScale();
@@ -1981,10 +1982,12 @@ function renderInspector(){
       <div class="row"><button class="btn sm" id="oDup">Duplicate</button><button class="btn sm danger" id="oDel">Delete</button></div>`;
   }else if(selRuler&&rulerById(selRuler)){
     const r=rulerById(selRuler), I=rulerInfo(r), u=I.s?'px':'px on the canvas', row=(k,v)=>`<div class="est-row"><span class="est-k">${k}</span><span class="mono">${v}</span></div>`;
-    el.innerHTML=`<h2>Ruler${info('Drag the ruler to move it, or drag the round handle at either end. Ends snap to screen and PiP edges, centres and other rulers; hold Shift for a straight line and Ctrl (Cmd on a Mac) to place freely. PiPs snap to its ends. Arrow keys nudge it, Delete removes it. Each preset has its own rulers. Tick Include ruler measurements in the Export window to put them in the exports.','About rulers')}</h2>
+    el.innerHTML=`<h2><span>Ruler${info('Drag the ruler to move it, or drag the round handle at either end. Ends snap to screen and PiP edges, centres and other rulers; hold Shift for a straight line and Ctrl (Cmd on a Mac) to place freely. PiPs snap to its ends. An end that snaps to a PiP, screen or object stays attached to it (it shows a ring): move or resize that and the ruler follows, stretching or shrinking to keep measuring. Drag the end away to let go. Arrow keys nudge it, Delete removes it. Each preset has its own rulers. Tick Include ruler measurements in the Export window to put them in the exports. Lock it to keep it exactly where it is: it stops following what its ends are attached to and can\'t be moved or deleted until you unlock it.','About rulers')}</span> ${lockBtn(r)}</h2>
+      ${r.locked?'<p class="hint lockhint">Locked. It stays where it is and doesn\'t follow what its ends snapped to.</p>':''}
       <div class="est">${row('Length',`${I.len} ${u}`)}${row('Across',`${I.dx} ${u}`)}${row('Down',`${I.dy} ${u}`)}
-        ${I.s?row('On',esc(sname(I.s))+` (${I.n.w} × ${I.n.h})`)+row('From',`X ${I.a.x}, Y ${I.a.y}`)+row('To',`X ${I.b.x}, Y ${I.b.y}`):'<p class="hint">Not on a screen: measured in canvas pixels.</p>'}</div>
-      <div class="row"><button class="btn sm danger" id="rDel">Delete ruler</button>${rulers().length>1?`<button class="btn sm danger" id="rDelAll">Delete all ${rulers().length} rulers</button>`:''}</div>`;
+        ${I.s?row('On',esc(sname(I.s))+` (${I.n.w} × ${I.n.h})`)+row('From',`X ${I.a.x}, Y ${I.a.y}`)+row('To',`X ${I.b.x}, Y ${I.b.y}`):'<p class="hint">Not on a screen: measured in canvas pixels.</p>'}
+        ${r.locked?'':['1','2'].map(e=>{const t=attachText(r,e); return t?row(e==='1'?'Start follows':'End follows',esc(t)):'';}).join('')}</div>
+      <div class="row"><button class="btn sm danger" id="rDel"${r.locked?' disabled':''}>Delete ruler</button>${rulers().length>1?`<button class="btn sm danger" id="rDelAll">Delete all ${rulers().length} rulers</button>`:''}</div>`;
   }else{
     el.innerHTML=`<h2>Inspector${info('Use <b>+ Add PiP</b>, or right-click a screen and choose <b>Create… → PiP</b> to add one there. Double-click a PiP to type its name. Use <b>Ruler</b> (M) to measure distances on a screen.','About the inspector')}</h2><p class="hint">Select a PiP, a screen, an object or a ruler to edit it.</p>
       ${S.example?'<div class="banner">This is an example layout. Import your v2 video content guide JSON to replace the video screens, then edit or delete the example presets.</div>':''}`;
@@ -2076,7 +2079,10 @@ function snapList(){
     for(const r of [q,mirrorRect(q)]) if(r){xs.push(r.x,r.x+r.w/2,r.x+r.w);ys.push(r.y,r.y+r.h/2,r.y+r.h);}
   }
   /* and to the ends of the rulers placed in this preset (a straight ruler is a line to snap to) */
-  for(const r of rulers()){xs.push(r.x1,r.x2);ys.push(r.y1,r.y2);}
+  /* ...except an end attached to what is being dragged, which moves with it (it would hold the drag in place) */
+  const moving=new Set([sel&&sel.id,...multi,...((drag&&drag.followers)||[]).map(f=>f.q.id)]);
+  for(const r of rulers()) for(const e of ['1','2']){const at=(!r.locked&&r.at)||{};
+    if(!(at[e+'x']&&moving.has(at[e+'x'].id))) xs.push(r['x'+e]); if(!(at[e+'y']&&moving.has(at[e+'y'].id))) ys.push(r['y'+e]);}
   return {xs,ys};
 }
 /* holding Ctrl (Cmd on a Mac) while dragging turns snapping off for that drag */
@@ -2106,8 +2112,9 @@ function setRuler(on){
 }
 function deleteRuler(id){
   const P=preset(); if(!P.rulers) return;
-  const n=id?1:P.rulers.length;
-  P.rulers=id?P.rulers.filter(r=>r.id!==id):[]; if(!P.rulers.length) delete P.rulers;
+  const gone=P.rulers.filter(r=>(id?r.id===id:true)&&!r.locked), n=gone.length;   /* locked rulers are kept */
+  if(!n){say('That ruler is locked. Unlock it in the inspector first.');return;}
+  P.rulers=P.rulers.filter(r=>!gone.includes(r)); if(!P.rulers.length) delete P.rulers;
   selRuler=null; renderAll(); touch(); say(n===1?'Ruler deleted.':`Deleted ${n} rulers.`,'ok');
 }
 /* The screen a ruler measures on: the front-most one under its middle, or else under either end. */
@@ -2138,6 +2145,65 @@ function rulerPoint(p,exceptId,anchor,straight){
   if(straight&&anchor){ if(Math.abs(x-anchor.x)>=Math.abs(y-anchor.y)){y=anchor.y; lockY=true;} else {x=anchor.x; lockX=true;} }
   if(snapNow()){const L=rulerSnapLists(exceptId), T=thr(); if(!lockX) x=snapEdges(x,[0],L.xs,T,'x'); if(!lockY) y=snapEdges(y,[0],L.ys,T,'y');}
   return {x:round(x),y:round(y)};
+}
+/* Attached ends. When a ruler end lands on an edge or centre (of a PiP, its mirror copy, a screen, an object, another
+   ruler's end or the canvas centre), it remembers that, one axis at a time, in r.at: {'1x': ref, '2y': ref, ...} with
+   ref {k: 'p'|'s'|'o'|'r'|'c', id, f: 0 | 0.5 | 1 (left/top, centre, right/bottom), m: mirror copy, e: ruler end}.
+   Whenever the layout is drawn the ends are put back on what they are attached to, so moving or resizing a PiP or
+   screen stretches, shrinks or moves its rulers with it. Rulers without r.at (older files) stay where they are. */
+function refItem(ref,P){
+  if(ref.k==='s') return scrById(ref.id); if(ref.k==='o') return objById(ref.id);
+  if(ref.k==='p'){const p=P.pips.find(q=>q.id===ref.id); return p&&ref.m?mirrorRect(p):p;}
+  return null;
+}
+function refVal(ref,axis,P){
+  if(ref.k==='c') return center()[axis];
+  if(ref.k==='r'){const q=(P.rulers||[]).find(r=>r.id===ref.id); return q?q[axis+ref.e]:null;}
+  const o=refItem(ref,P); return o?o[axis]+(axis==='x'?o.w:o.h)*ref.f:null;
+}
+function syncRulers(){
+  for(const P of S.presets) for(let pass=0;pass<2;pass++) for(const r of (P.rulers||[])){   /* twice, for rulers attached to rulers */
+    if(!r.at||r.locked) continue;   /* a locked ruler stays exactly where it is */
+    for(const key of Object.keys(r.at)){
+      const v=refVal(r.at[key],key[1],P);
+      if(v==null||!isFinite(v)) delete r.at[key];   /* what it was attached to is gone: the end stays put */
+      else r[key[1]+key[0]]=v;
+    }
+    if(!Object.keys(r.at).length) delete r.at;
+  }
+}
+/* Work out what each end of a ruler sits on: on each axis, the nearest thing with an edge or centre at that spot.
+   On a tie a PiP wins over an object, another ruler and then a screen, as PiPs are what usually move in a preset. */
+function attachRuler(r){
+  const P=preset(), at={}, dist=(p,o)=>Math.hypot(Math.max(o.x-p.x,0,p.x-o.x-o.w),Math.max(o.y-p.y,0,p.y-o.y-o.h));
+  const items=[];
+  P.pips.forEach(q=>{items.push({ref:{k:'p',id:q.id},o:q,b:0}); const m=mirrorRect(q); if(m) items.push({ref:{k:'p',id:q.id,m:true},o:m,b:0});});
+  S.objects.forEach(o=>items.push({ref:{k:'o',id:o.id},o,b:0.0005}));
+  S.screens.forEach(o=>items.push({ref:{k:'s',id:o.id},o,b:0.002}));
+  for(const e of ['1','2']){
+    const pt={x:r['x'+e],y:r['y'+e]};
+    for(const axis of ['x','y']){
+      let best=null; const L=axis==='x'?'w':'h', take=(ref,d)=>{if(!best||d<best.d) best={ref,d};};
+      for(const it of items) for(const f of [0,0.5,1]) if(Math.abs(it.o[axis]+it.o[L]*f-pt[axis])<=0.51) take({...it.ref,f},dist(pt,it.o)+it.b);
+      for(const q of rulers()) if(q!==r) for(const qe of ['1','2']) if(Math.abs(q[axis+qe]-pt[axis])<=0.51) take({k:'r',id:q.id,e:qe},Math.hypot(q['x'+qe]-pt.x,q['y'+qe]-pt.y)+0.001);
+      if(!best&&Math.abs(center()[axis]-pt[axis])<=0.51) take({k:'c'},0);
+      if(best) at[e+axis]=best.ref;
+    }
+  }
+  if(Object.keys(at).length) r.at=at; else delete r.at;
+}
+/* "top of PiP 1, left of LED wall": what one end of a ruler is attached to, for the inspector */
+function attachText(r,e){
+  const P=preset(), edge={x:['left','centre','right'],y:['top','middle','bottom']}, out=[];
+  for(const axis of ['x','y']){
+    const ref=r.at&&r.at[e+axis]; if(!ref) continue;
+    let nm=ref.k==='c'?'the canvas centre':ref.k==='r'?'another ruler':'';
+    if(ref.k==='p'){const i=P.pips.findIndex(q=>q.id===ref.id); nm=i<0?'':pname(P.pips[i],i)+(ref.m?' (mirror)':'');}
+    else if(ref.k==='s'){const o=scrById(ref.id); nm=o?sname(o):'';}
+    else if(ref.k==='o'){const o=objById(ref.id); nm=o?o.name||'an object':'';}
+    if(nm) out.push(ref.k==='p'||ref.k==='s'||ref.k==='o'?`${edge[axis][ref.f*2]} of ${nm}`:nm);
+  }
+  return [...new Set(out)].join(', ');
 }
 /* The text beside a ruler: its length, then across and down when it slants, then the screen it measures on
    (left out where the screen is already known, as on an Excel thumbnail). */
@@ -2179,11 +2245,12 @@ function rulersSVG(scale){
     o+=`<line class="rul-hit" x1="${r.x1}" y1="${r.y1}" x2="${r.x2}" y2="${r.y2}"/>`;
     if(dx&&dy) o+=`<path class="rul-leg" d="M${r.x1} ${r.y1}H${r.x2}V${r.y2}"/>`;
     o+=`<path class="rul ${on?'sel':''}" d="M${r.x1} ${r.y1}L${r.x2} ${r.y2}M${r.x1-nx} ${r.y1-ny}L${r.x1+nx} ${r.y1+ny}M${r.x2-nx} ${r.y2-ny}L${r.x2+nx} ${r.y2+ny}"/>`;
-    if(on&&tool!=='ruler'&&!(drag&&drag.fresh)) for(const e of ['1','2']){const x=r['x'+e], y=r['y'+e];
+    for(const e of ['1','2']) if(!r.locked&&r.at&&(r.at[e+'x']||r.at[e+'y'])) o+=`<circle class="rul" cx="${r['x'+e]}" cy="${r['y'+e]}" r="${4*k}"/>`;   /* attached end */
+    if(on&&!r.locked&&tool!=='ruler'&&!(drag&&drag.fresh)) for(const e of ['1','2']){const x=r['x'+e], y=r['y'+e];
       o+=`<circle data-kind="rend" data-id="${r.id}" data-end="${e}" cx="${x}" cy="${y}" r="${hs*1.4}" fill="#000" fill-opacity="0" style="cursor:crosshair"/><circle class="rul-end" cx="${x}" cy="${y}" r="${hs/2}" style="pointer-events:none"/>`;}
     o+='</g>';
     if(L>1){   /* the reading, beside the ruler's middle */
-      const lines=rulerLines(r);
+      const lines=rulerLines(r); if(r.locked) lines[0]+=' · locked';
       const w=Math.max(lines[0].length*fs1*0.62,...lines.slice(1).map(l=>l.length*fs2*0.62))+16*k, h=fs1*1.5+(lines.length-1)*fs2*1.45+6*k;
       const cx=(r.x1+r.x2)/2+12*k, cy=(r.y1+r.y2)/2+12*k;
       o+=`<rect class="rul-lab" x="${cx}" y="${cy}" width="${w}" height="${h}" rx="${5*k}"/><text class="rul-t" x="${cx+8*k}" y="${cy+fs1*1.25}" font-size="${fs1}">${esc(lines[0])}</text>`;
@@ -2256,6 +2323,8 @@ svg.addEventListener('pointerdown',e=>{
   if(kind==='ruler'||kind==='rend'){   /* a placed ruler: pick it, then drag it whole or by one end */
     const r=rulerById(t.dataset.id); if(!r){lockVB=null;return;}
     sel=null; multi.clear(); selRuler=r.id;
+    if(r.locked){lockVB=null; renderAll(); say('This ruler is locked. Unlock it in the inspector to move it.'); return;}
+    if(r.at){ if(kind==='rend'){delete r.at[t.dataset.end+'x']; delete r.at[t.dataset.end+'y'];} else delete r.at; }   /* attached again where it is let go */
     drag=kind==='rend'?{type:'rend',id:r.id,end:t.dataset.end,start:p}:{type:'rmove',id:r.id,start:p,sx:e.clientX,sy:e.clientY,orig:{...r}};
     renderAll(); return;
   }
@@ -2296,6 +2365,7 @@ svg.addEventListener('pointerdown',e=>{
     }
     const rfol=[];   /* rulers whose middle is on the screen come along too, in every preset */
     if(kind==='screen'&&$('follow').checked) for(const P of S.presets) for(const r of (P.rulers||[])){
+      if(r.locked) continue;
       const cx=(r.x1+r.x2)/2, cy=(r.y1+r.y2)/2; if(cx>=o.x&&cx<=o.x+o.w&&cy>=o.y&&cy<=o.y+o.h) rfol.push({r,o:{...r}});
     }
     if(kind==='pip'&&multi.size>1) for(const q of preset().pips) if(multi.has(q.id)&&q.id!==id&&!q.locked) followers.push({q,x:q.x,y:q.y});   /* the rest of the group comes along */
@@ -2390,6 +2460,7 @@ window.addEventListener('pointerup',()=>{
     const r=rulerById(d.id), sc=(inner.clientWidth||1)/curVB.w;
     if(r&&Math.hypot(r.x2-r.x1,r.y2-r.y1)*sc<4){const P=preset(); P.rulers=P.rulers.filter(x=>x!==r); if(!P.rulers.length) delete P.rulers; selRuler=null; lockVB=null; renderAll(); return;}
   }
+  if(d.type==='rend'||d.type==='rmove'){const r=rulerById(d.id); if(r) attachRuler(r);}
   if(d.type==='rmove'&&!d.live){lockVB=null; renderAll(); return;}   /* just a click: the ruler is picked */
   lockVB=null; renderAll(); touch();
   /* dropped an original PiP onto one of about the same size: offer to swap it in */
@@ -2543,9 +2614,10 @@ window.addEventListener('keydown',e=>{
   }
   if(!sel&&selRuler){   /* a picked ruler: Delete removes it, arrow keys nudge it */
     const r=rulerById(selRuler); if(!r) return;
+    if(r.locked&&(e.key==='Delete'||e.key==='Backspace'||e.key.startsWith('Arrow'))){e.preventDefault();say('This ruler is locked. Unlock it in the inspector first.');return;}
     if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();deleteRuler(r.id);return;}
     const st=e.shiftKey?10:1, k={ArrowLeft:[-st,0],ArrowRight:[st,0],ArrowUp:[0,-st],ArrowDown:[0,st]}[e.key];
-    if(k){e.preventDefault();r.x1+=k[0];r.x2+=k[0];r.y1+=k[1];r.y2+=k[1];renderAll();touch();}
+    if(k){e.preventDefault();r.x1+=k[0];r.x2+=k[0];r.y1+=k[1];r.y2+=k[1];attachRuler(r);renderAll();touch();}   /* nudged off: no longer attached */
     return;
   }
   if(!sel) return;
@@ -2756,7 +2828,12 @@ function askPresetName(title,make){
 const addPreset=(name,extra)=>{const p={id:uid(),name:name||'Preset '+presetNum({},S.presets.length),...(name?{}:{auto:true}),pips:[],...extra};
   S.presets.push(p);S.cur=p.id;sel=null;renderAll();touch();};
 $('pNew').onclick=()=>askPresetName('New preset',v=>addPreset(v));
-$('pDup').onclick=()=>{const src=preset();askPresetName(`Duplicate ${src.name||'preset'}`,v=>addPreset(v,{notes:src.notes,pips:src.pips.map(x=>({...x,id:uid()})),...(src.rulers&&src.rulers.length?{rulers:src.rulers.map(x=>({...x,id:uid()}))}:{})}));};
+$('pDup').onclick=()=>{const src=preset();askPresetName(`Duplicate ${src.name||'preset'}`,v=>{
+  /* new ids for the copies; the rulers' attachments point at the copied PiPs and rulers, not the originals */
+  const ids=new Map(), nid=id=>{if(!ids.has(id)) ids.set(id,uid()); return ids.get(id);};
+  const pips=src.pips.map(x=>({...x,id:nid(x.id)})), rulers=(src.rulers||[]).map(x=>{const c=JSON.parse(JSON.stringify(x)); c.id=nid(x.id);
+    if(c.at) for(const ref of Object.values(c.at)) if(ref.k==='p'||ref.k==='r') ref.id=nid(ref.id); return c;});
+  addPreset(v,{notes:src.notes,pips,...(rulers.length?{rulers}:{})});});};
 $('pDel').onclick=()=>{if(S.presets.length<2) return;S.presets=S.presets.filter(p=>p.id!==S.cur);S.cur=S.presets[0].id;sel=null;renderAll();touch();};
 $('useLabels').onchange=e=>{S.useLabels=e.target.checked;renderAll();touch();};
 $('screenList').addEventListener('click',e=>{const b=e.target.closest('[data-screen]'); if(!b) return; sel={kind:'screen',id:b.dataset.screen}; renderAll();});
@@ -3113,7 +3190,9 @@ svg.addEventListener('contextmenu',e=>{
   items.push([tool==='ruler'?'Stop measuring':'Measure with a ruler',()=>setRuler(tool!=='ruler')]);
   if(kind==='ruler'||kind==='rend'){
     sel=null; multi.clear(); selRuler=id; renderAll();
-    items.push('-',['Delete this ruler',()=>deleteRuler(id),'danger']);
+    const rl=rulerById(id);
+    items.push('-',[rl&&rl.locked?'Unlock this ruler':'Lock this ruler',()=>{const r=rulerById(id); if(!r) return; r.locked=!r.locked; if(!r.locked){delete r.locked; attachRuler(r);} renderAll(); touch();}],
+      ['Delete this ruler',()=>deleteRuler(id),'danger',!!(rl&&rl.locked)]);
   }
   if(rulers().length>1||(rulers().length&&kind!=='ruler'&&kind!=='rend')) items.push(['Delete all rulers in this preset',()=>deleteRuler(null),'danger']);
   if(kind==='pip'){
@@ -3248,6 +3327,9 @@ insp.addEventListener('change',e=>{
 });
 insp.addEventListener('click',e=>{
   if(e.target.id==='rDel'){deleteRuler(selRuler);return;}
+  if(e.target.closest('#lockToggle')&&!sel&&selRuler){const r=rulerById(selRuler); if(!r) return;
+    r.locked=!r.locked; if(!r.locked){delete r.locked; attachRuler(r);}   /* unlocked: attached to what it touches now, so it doesn't jump */
+    renderAll(); touch(); say(r.locked?'Ruler locked. It stays where it is.':'Ruler unlocked. Its ends follow what they touch again.','ok'); return;}
   if(e.target.id==='rDelAll'){deleteRuler(null);return;}
   const gb=e.target.closest('[data-grp]'); if(gb){groupDo(gb.dataset.grp);return;}
   if(e.target.id==='grpDel'){deleteGroup();return;}
@@ -4023,6 +4105,7 @@ function applyBuilder(force){
     }
     /* a ruler on a screen that changed keeps each end at the same pixel on it, so it still measures the same thing */
     for(const P of S.presets) for(const r of (P.rulers||[])){
+      if(r.locked) continue;
       const os=oldSrc.slice().reverse().find(s=>inScreen(s,(r.x1+r.x2)/2,(r.y1+r.y2)/2)); if(!os) continue;
       const ns=merged.find(n=>n.id===os.id); if(!ns||(ns.x===os.x&&ns.y===os.y&&ns.w===os.w&&ns.h===os.h)) continue;
       const on=os.res||{w:os.w,h:os.h}, nn=ns.res||{w:ns.w,h:ns.h}, fx=v=>ns.x+(v-os.x)/(os.w/on.w)*(ns.w/nn.w), fy=v=>ns.y+(v-os.y)/(os.h/on.h)*(ns.h/nn.h);
@@ -4184,8 +4267,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v4.02.html). Bump it with every release, together with VERSION in sw.js.
-const APP_VERSION = '4.02';
+// (pixelplanner-v4.03.html). Bump it with every release, together with VERSION in sw.js.
+const APP_VERSION = '4.03';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Installable app: the service worker (sw.js) keeps a copy of PixelPlanner, its fonts and its export libraries so it can
 // be installed from the browser and opens without internet. It only runs from a web server, not a file opened directly.
