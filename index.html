@@ -380,6 +380,20 @@ td.acc{color:var(--accent)}
 .tp-prev{display:grid;gap:8px;min-width:0;align-content:start}
 .tp-stage{background:repeating-conic-gradient(var(--field) 0 25%, var(--panel) 0 50%) 0 0/16px 16px;border-radius:6px;padding:10px;display:flex;justify-content:center;align-items:center;min-height:200px}
 .ed-box{width:min(940px,100%)}
+.cg-box{width:min(1100px,100%)}
+.cg-box .tp-body{grid-template-columns:minmax(0,260px) minmax(0,1fr)}
+@media (max-width:760px){.cg-box .tp-body{grid-template-columns:minmax(0,1fr)}}
+.cg-secs{display:grid;gap:16px;align-content:start;min-width:0}
+.cg-sec{display:grid;gap:6px;min-width:0}
+.cg-sh{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:28px}
+.cg-sh label{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;cursor:pointer}
+.cg-sec textarea{width:100%;min-height:130px;resize:vertical;border:1px solid var(--line);background:var(--field);border-radius:5px;padding:8px 10px;font:14px/1.45 var(--f-body);color:var(--ink)}
+.cg-sec textarea:focus{border-color:var(--accent);outline:none}
+.cg-sec.off textarea{opacity:.45}
+.btn.cg-sm{padding:3px 9px;font-size:12px}
+.cg-warn{display:grid;gap:6px}
+.cg-warn p{margin:0;padding:8px 10px;border-radius:6px;background:var(--accent-soft);color:var(--ink);font-size:13px;line-height:1.4}
+.cg-warn p.bad{border-left:3px solid var(--danger)}
 .rd-box{width:min(760px,100%)}
 .keys-body table{border-collapse:collapse;width:100%;margin:4px 0 14px}
 .keys-body td{padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top;font-size:14px}
@@ -708,6 +722,10 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
             <button class="btn" type="button" id="btnPDF" title="A PDF for clients and crew: a summary page, then each layout's summary with its spec sheet and its canvas export.">PDF spec pack</button>
           </div>
           <div class="exp-actions">
+            <span class="eyebrow">Client guide</span>
+            <button class="btn" type="button" id="btnCG" aria-haspopup="dialog" title="A plain-language PDF for the client's content team: screen sizes, the video format to send, PowerPoint setup, tips and how to send files. You can edit all of its text.">Content guide…</button>
+          </div>
+          <div class="exp-actions">
             <span class="eyebrow">PowerPoint</span>
             <select class="sel" id="pptFmt" aria-label="PowerPoint file type" style="width:auto">
               <option value="potx">Template (.potx)</option><option value="pptx">Presentation (.pptx)</option>
@@ -771,7 +789,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <h3>Preset Guide</h3>
 <ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock. <strong>+ New</strong> and <strong>Duplicate</strong> ask for the preset's name; leave it blank for "Preset" and its number.</li><li>Quick layouts: right-click a screen and choose <strong>Create… → Quick layout</strong> to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.</li><li>Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.</li><li><strong>Page Up / Page Down</strong> step through presets.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Ruler</strong> (or press <strong>M</strong>): drag on the layout to measure a distance in the screen's own pixels: its length, how far across and down, and where each end sits on the screen. Ends snap to screen, PiP and object edges, centres and other rulers (choose which under <strong>Snap ruler ends to</strong> in the inspector); hold Shift for a straight line. A zoom loupe beside the pointer magnifies the spot where each end lands and shows its X, Y in the screen's pixels. Placed rulers stay in the preset and PiPs snap to their ends. An end that snaps to a PiP, screen or object stays attached to it (a small ring shows this): move or resize that PiP or screen and the ruler follows, growing or shrinking to keep measuring. <strong>Lock</strong> a ruler (in the inspector or its right-click menu) to keep it exactly where it is. To set an exact size, type its <strong>Length</strong>, <strong>Across</strong> or <strong>Down</strong> in pixels in the inspector: it grows from left to right, then top to bottom. Click a ruler to move it, drag its ends, nudge it with the arrow keys or delete it. Each preset has its own rulers (Duplicate copies them). Tick <strong>Include ruler measurements</strong> in the Export window to draw them, with their readings, on the Excel thumbnails, PowerPoint slides, PNG sheet and PDF pages.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li><strong>Export…</strong> lets you choose: Excel, PowerPoint, a PNG sheet with every preset of the layout one under the other, or a PDF summary: a cover listing every preset (PiPs, screens used, notes), then a page per preset with its picture, notes and a table of its PiPs in each screen's pixels.</li></ul>
 <h3>Exports</h3>
-<ul><li>Canvas export PNG at exact pixel size, layout snapshot, layout summary and test patterns.</li><li>PDF spec pack, PowerPoint template, layered PSD and SVG.</li><li>Spec sheet as CSV.</li><li>Switcher planning <code>.xml</code> (screens, layers and auxes).</li><li><strong>Advanced → EDID (experimental):</strong> an EDID <code>.bin</code> for a screen, with connector, refresh rate, CVT blanking and a split across outputs. Check results on your hardware before you rely on them.</li></ul>
+<ul><li>Canvas export PNG at exact pixel size, layout snapshot, layout summary and test patterns.</li><li>PDF spec pack, PowerPoint template, layered PSD and SVG.</li><li><strong>Client content guide</strong> (Export tab → <strong>Content guide…</strong>): a plain-language PDF for the client's content team, for the layout you're on. It lists every screen's size in pixels (and its place on the canvas), the video format to send, PowerPoint slide sizes and setup, tips for great-looking content, and how to send files. Choose the video codec (ProRes 422, NotchLC, DXV or H.264), the frame rate, and whether to deliver one file for the full canvas or a file per screen, and add the event name, a contact and a due date. Every section's text is filled in for you and can be edited; text you haven't changed follows your settings, and <strong>Reset text</strong> brings back the default. The guide warns you about sizes H.264 can't handle.</li><li>Spec sheet as CSV.</li><li>Switcher planning <code>.xml</code> (screens, layers and auxes).</li><li><strong>Advanced → EDID (experimental):</strong> an EDID <code>.bin</code> for a screen, with connector, refresh rate, CVT blanking and a split across outputs. Check results on your hardware before you rely on them.</li></ul>
 <h2>Using it</h2>
 <ol><li>You start with a blank layout. The first time, a welcome box offers to load an example layout instead (it's also in <strong>Options → Load example</strong>): an LED wall standing on its ground support on the ground line, with a projection screen each side. Add your screens on the left.</li><li>Arrange them on the layout, then switch to <strong>Preset Guide</strong> to plan PiPs.</li><li>Use the <strong>Export</strong> tab under the layout for files, and <strong>Options → Save .json</strong> to keep your work.</li></ol>
 <p>Hover over (or tap) a circled <strong>i</strong> to see what a section does. Press <strong>?</strong> (or <strong>Options → Keyboard shortcuts</strong>) for every shortcut, and use <strong>Options → Layout text size</strong> to make the labels on both layouts smaller or larger.</p>
@@ -802,6 +820,32 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
         <p class="hint sw-row">About the timings<button type="button" class="info" data-tip="Timings follow VESA CVT 1.2. Reduced blanking v2 uses the least bandwidth and suits LED processors and media servers; standard blanking suits older displays and projectors. Load the .bin into your EDID manager, graphics card software or processor input." aria-label="About the timings">i</button></p>
       </div>
       <div class="tp-prev" id="edidInfo" aria-live="polite"></div>
+    </div>
+  </div>
+</div>
+
+<div id="cg" class="tp-back" hidden>
+  <div class="tp-box cg-box" role="dialog" aria-modal="true" aria-labelledby="cgTitle">
+    <div class="ov-head">
+      <h3 id="cgTitle">Client content guide</h3>
+      <div style="display:flex;gap:8px">
+        <button class="btn primary" type="button" id="cgSave">Save PDF</button>
+        <button class="btn" type="button" id="cgClose">Close</button>
+      </div>
+    </div>
+    <div class="tp-body">
+      <div class="tp-opts">
+        <p class="hint" id="cgFor"></p>
+        <label class="f">Event name<input id="cgEvent" maxlength="120" autocomplete="off"></label>
+        <label class="f">Contact<input id="cgContact" maxlength="200" placeholder="Name, email or phone" autocomplete="off"></label>
+        <label class="f">Files due<input id="cgDue" maxlength="80" placeholder="For example, Friday, March 6" autocomplete="off"></label>
+        <label class="f">Deliver video as<select id="cgDeliver"><option value="canvas">One file for the full canvas</option><option value="screens">A file for each screen</option></select></label>
+        <label class="f">Video codec<select id="cgCodec"><option value="prores">ProRes 422</option><option value="notchlc">NotchLC</option><option value="dxv">DXV</option><option value="h264">H.264</option></select></label>
+        <label class="f">Frame rate<select id="cgFps"><option value="23.98">23.98 fps</option><option value="24">24 fps</option><option value="25">25 fps</option><option value="29.97">29.97 fps</option><option value="30">30 fps</option><option value="50">50 fps</option><option value="59.94">59.94 fps</option><option value="60">60 fps</option></select></label>
+        <label class="f">Page size<select id="cgPage"><option value="letter">Letter</option><option value="tabloid">Tabloid 11 × 17</option><option value="a4">A4</option><option value="a3">A3</option></select></label>
+        <div class="cg-warn" id="cgWarn" role="status" aria-live="polite"></div>
+      </div>
+      <div class="cg-secs" id="cgSecs"></div>
     </div>
   </div>
 </div>
@@ -4363,8 +4407,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v4.07.html). Bump it with every release, together with VERSION in sw.js.
-const APP_VERSION = '4.07';
+// (pixelplanner-v4.08.html). Bump it with every release, together with VERSION in sw.js.
+const APP_VERSION = '4.08';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Installable app: the service worker (sw.js) keeps a copy of PixelPlanner, its fonts and its export libraries so it can
 // be installed from the browser and opens without internet. It only runs from a web server, not a file opened directly.
@@ -4733,6 +4777,33 @@ function example(){
     exp:{labels:true, native:true, overlaps:true, notes:true, safe:true, cross:true, seams:true, gaps:true, grid:false, objects:true}, tp: Object.assign({}, TP_DEFAULT), screens:[l, led, r], objects:[], notes:[], sel:led.id, layouts:[{id:'L1', name:'Layout 1', data:null}], cur:'L1'};
 }
 
+// Client content guide settings (see "Client content guide" below). Shared by every layout and saved in the .json.
+// A section's text is stored only once it has been edited; until then it follows the settings.
+const CG_CODECS = {
+  prores: {name: 'ProRes 422', ext: '.mov', box: 'Apple ProRes 422 in a QuickTime (.mov) file'},
+  notchlc: {name: 'NotchLC', ext: '.mov', box: 'NotchLC in a QuickTime (.mov) file'},
+  dxv: {name: 'DXV', ext: '.mov', box: 'DXV3 in a QuickTime (.mov) file'},
+  h264: {name: 'H.264', ext: '.mp4', box: 'H.264 in an MP4 (.mp4) file'}};
+const CG_FPS = ['23.98', '24', '25', '29.97', '30', '50', '59.94', '60'];
+const CG_SECS = [
+  {k: 'intro', title: 'About this guide'},
+  {k: 'screens', title: 'Screens and sizes', note: 'Followed by a table of the screen sizes and pictures of the layout.'},
+  {k: 'video', title: 'Video files', note: 'Comes after a summary box with the video format, frame rate and size.'},
+  {k: 'ppt', title: 'PowerPoint', note: 'Followed by a table of the slide size to use for each screen.'},
+  {k: 'tips', title: 'Tips for great-looking content'},
+  {k: 'send', title: 'Sending your files'}];
+function sanitizeCG(o){
+  o = o && typeof o === 'object' ? o : {};
+  const str = (v, n) => typeof v === 'string' ? v.slice(0, n) : '';
+  const text = {}, off = {};
+  for (const {k} of CG_SECS){
+    if (o.text && typeof o.text[k] === 'string') text[k] = o.text[k].slice(0, 8000);
+    if (o.off && o.off[k]) off[k] = true;
+  }
+  return {event: str(o.event, 120), contact: str(o.contact, 200), due: str(o.due, 80), deliver: o.deliver === 'screens' ? 'screens' : 'canvas',
+    codec: CG_CODECS[o.codec] ? o.codec : 'prores', fps: CG_FPS.includes(o.fps) ? o.fps : '30', text, off};
+}
+
 // Per-layout parts of a guide (see Layouts below).
 const LAY_KEYS = ['screens', 'objects', 'notes', 'ground', 'match', 'gap', 'sel', 'objAnchor'];
 const pickLay = o => Object.fromEntries(LAY_KEYS.map(k => [k, o[k]]));
@@ -4831,7 +4902,7 @@ function sanitizeBase(o){
     ground: {on: !!(o.ground && o.ground.on), placed: !!(o.ground && o.ground.placed), y: num(o.ground && o.ground.y, 0)}, gap: Math.max(0, num(o.gap, 0)),
     exp: Object.assign({labels:true, native:true, overlaps:true, notes:true, safe:true, cross:true, seams:true, gaps:true, grid:false, objects:true}, o.exp || {}),
     tp: (({lededge, ...t}) => t)(Object.assign({}, TP_DEFAULT, o.tp && typeof o.tp === 'object' ? o.tp : {})), // lededge: retired option
-    screens, objects, notes, sel: ids.includes(o.sel) ? o.sel : ids[0]};
+    cg: sanitizeCG(o.cg), screens, objects, notes, sel: ids.includes(o.sel) ? o.sel : ids[0]};
 }
 
 let saveT;
@@ -8504,6 +8575,303 @@ async function exportPDF(){
   finally { btn.disabled = false; btn.textContent = label; }
 }
 $('#btnPDF').addEventListener('click', exportPDF);
+/* ---------- Client content guide ---------- */
+// A plain-language PDF for the client's content team, for the open layout: the screen sizes, the video format to
+// send, PowerPoint setup, tips and how to send files. Every section's text can be edited in the dialog; the tables,
+// summary boxes and pictures are worked out from the layout so they're always right.
+const cgS = () => S.cg || (S.cg = sanitizeCG()); // guides started before this feature have no settings yet
+function cgCtx(){
+  // Screens listed left to right (then top to bottom), the way the client sees them.
+  const g = cgS(), sc = live().slice().sort((a, b) => (a.x - b.x) || (a.y - b.y)), L = canvasLayout();
+  const canvas = S.match.on && g.deliver === 'canvas' && sc.length > 0;
+  const sizes = canvas ? [{name: 'The canvas', w: L.W, h: L.H}] : sc.map(s => ({name: s.label || 'Screen', w: s.rw, h: s.rh}));
+  const big = sizes.reduce((a, s) => (!a || s.w * s.h > a.w * a.h) ? s : a, null);
+  const fpsN = parseFloat(g.fps), px = big ? big.w * big.h : 0;
+  return {g, sc, L, canvas, sizes, big, codec: CG_CODECS[g.codec], fps: g.fps,
+    event: g.event.trim() || S.name || 'the event', contact: g.contact.trim(), due: g.due.trim(),
+    // H.264: about 0.4 bits per pixel per frame, in steps of 5 Mbps (25 Mbps for 1920 × 1080 at 30 fps).
+    mbps: Math.min(240, Math.max(10, Math.round(px * fpsN * 0.4 / 1e6 / 5) * 5)),
+    // ProRes 422: Apple's 147 Mbps for 1920 × 1080 at 29.97 fps, scaled by pixels and frame rate.
+    gbMin: 147 * (px / 2073600) * (fpsN / 29.97) * 60 / 8 / 1000};
+}
+function cgDefault(k, x){
+  const fps = x.fps, ext = x.codec.ext, who = x.contact || 'the production team';
+  const fpsLine = `Make every video at ${fps} fps. If some footage was shot at a different frame rate, tell us before you export.`;
+  switch (k){
+    case 'intro': return `This guide explains how to make content for ${x.event}: the size of each screen, how to export your videos, and how to set up PowerPoint. Following it means your content will look its best and play without surprises on show day.\n\nIf anything is unclear, or you'd like to try something different, contact ${who}. We're happy to help.`;
+    case 'screens': return x.canvas
+      ? `All of the screens are fed from one large picture called the canvas, ${x.L.W} × ${x.L.H} pixels. Make each video at the full canvas size, with each screen's content placed in that screen's area, as shown in the picture below.\n- Use the exact pixel sizes and positions in the table. Don't scale or stretch content to fit.\n- Anything outside the screen areas won't be seen.\n- Ask us for the canvas picture as an image file. Put it on a guide layer in your editing software, and turn that layer off before you export.`
+      : `Each screen gets its own video file, made at that screen's exact size in pixels (listed below).\n- Use the exact pixel sizes. Don't scale or stretch content to fit.\n- Screens with a different shape need their own version of your content. A video made for one shape will be cropped or squeezed on another.\n- Name each file after the screen it's for.`;
+    case 'video': return ({
+      prores: `Export every video as Apple ProRes 422 (ProRes 422 HQ is also fine) in a QuickTime (.mov) file, at ${fps} frames per second.\n- Adobe Premiere Pro, After Effects and Media Encoder, DaVinci Resolve and Final Cut Pro can all export ProRes.\n- ProRes files are large, but they keep the full picture quality and play smoothly. Allow time to upload them.\n- ${fpsLine}\n- If a video needs a see-through (transparent) background, ask us first. ProRes 422 can't carry transparency; ProRes 4444 can.`,
+      notchlc: `Export every video as NotchLC in a QuickTime (.mov) file, at ${fps} frames per second.\n- NotchLC keeps very high picture quality at a smaller file size than ProRes, and plays smoothly even on very large canvases.\n- Adobe Premiere Pro, After Effects and Media Encoder can export NotchLC with the free plug-in from Notch. If you can't export it, send ProRes 422 instead and we'll convert it.\n- ${fpsLine}\n- NotchLC can carry a see-through (transparent) background. Tell us which videos have one.`,
+      dxv: `Export every video as DXV3 in a QuickTime (.mov) file, at ${fps} frames per second.\n- DXV is made for Resolume and plays very smoothly. Export it with Resolume's free Alley app, or with the DXV plug-in for Adobe Premiere Pro, After Effects and Media Encoder.\n- Choose Normal Quality. Use High Quality for content with fine detail or smooth color gradients.\n- If you can't export DXV, send ProRes 422 instead and we'll convert it.\n- ${fpsLine}\n- For a see-through (transparent) background, choose a quality setting with alpha, and tell us which videos have one.`,
+      h264: `Export every video as H.264 in an MP4 (.mp4) file, at ${fps} frames per second, with a high, constant bitrate of about ${x.mbps} Mbps.\n- H.264 files are small and easy to send, and almost every editing program can export them.\n- Don't use a low bitrate or a "web" or "social media" preset. They make blocky, smeared pictures on big screens.\n- ${fpsLine}\n- H.264 can't carry a see-through (transparent) background. If you need one, ask us for another format.`
+    })[x.g.codec];
+    case 'ppt': return `If your presentation will be shown on one of these screens${x.canvas ? ' or across the full canvas' : ''}, set the slide size to match before you start building: in PowerPoint, choose Design → Slide Size → Custom Slide Size and type in the size from the table below. Changing the size later moves and stretches everything on your slides.\n- Use large text: at least 24 pt, and bigger for anything the back of the room needs to read.\n- Keep text and logos a little way in from the edges of the slide.\n- Dark backgrounds with light text work best. Large white areas are very bright on LED screens and can wash out the picture on camera.\n- Use common fonts such as Arial, Calibri or Helvetica, or embed your fonts (Windows: File → Options → Save → Embed fonts in the file; Mac: PowerPoint → Preferences → Save → Embed fonts in the file).\n- Put videos and pictures inside the file (Insert → Video → This Device) rather than linking to files on your computer. Use MP4 (H.264) for videos in PowerPoint.\n- Keep animations and transitions simple, such as fades, and tell us about any slides that build in steps.\n- Send a PDF copy of your slides as a backup.`;
+    case 'tips': return `- Keep text, logos and faces away from the edges of the screens. People, lecterns and scenery in front of the screens can hide the bottom of them.\n- Avoid very thin lines, small text and fine patterns. They can shimmer on LED screens and on camera.\n- Avoid large areas of pure white. They're very bright on LED screens.\n- Make looping videos loop smoothly, so the last frame flows into the first.\n- Start and end each video on a clean frame, or on black, so it can start and stop smoothly during the show.\n- If a video has sound, use 48 kHz audio and tell us which videos have sound.\n- Name files clearly with a version number, for example ${(x.event.replace(/[^A-Za-z0-9]+/g, '') || 'Event').slice(0, 24)}_Opener_v01${ext}. Use a new version number for every change.\n- Send a short test clip early so we can check it on the real screens.`;
+    case 'send': return (x.due ? `Please send your final files by ${x.due}.` : 'Please send your final files as early as you can before the show.')
+      + `\n- Upload them to a shared folder or file transfer service (such as Dropbox, Google Drive or WeTransfer) and send us the link. Video files are usually too large to email.\n- Send changes as new files with a new version number, rather than replacing files we already have.\n- Include a short list of the files and where each one plays.`
+      + (x.contact ? `\n\nSend files and questions to ${x.contact}.` : '');
+  }
+  return '';
+}
+const cgText = (k, x) => typeof cgS().text[k] === 'string' ? cgS().text[k] : cgDefault(k, x);
+// Things to check before sending the guide. Shown in the dialog only, not in the PDF.
+function cgWarnings(x){
+  const out = [];
+  if (!x.sc.length) out.push({bad: true, t: 'Add screens to this layout first. The guide is built from the layout you\'re on.'});
+  if (!S.match.on && x.sc.length) out.push({t: 'Pixel density matching is off, so there\'s no combined canvas. The guide asks for a file for each screen.'});
+  if (x.g.codec === 'h264'){
+    const big = x.sizes.filter(s => s.w > 4096 || s.h > 4096 || s.w * s.h > 4096 * 2304);
+    if (big.length) out.push({bad: true, t: `H.264 is limited to about 4096 × 2304 pixels on most media servers. ${big.map(s => `${s.name} is ${s.w} × ${s.h}`).join('; ')}. Choose another codec${x.canvas ? ', or deliver a file for each screen' : ''}.`});
+    const odd = x.sizes.filter(s => s.w % 2 || s.h % 2);
+    if (odd.length) out.push({bad: true, t: `H.264 needs an even number of pixels across and down. ${odd.map(s => `${s.name} is ${s.w} × ${s.h}`).join('; ')}.`});
+  }
+  return out;
+}
+// PowerPoint slide size with the same shape as w × h: the width of a standard widescreen slide (13.333 in) for wide
+// shapes, its height (7.5 in) for narrower ones, kept within PowerPoint's 1 to 56 inches a side.
+function cgSlide(w, h){
+  const r = w / h; let sw, sh;
+  if (r >= 16 / 9){ sw = 13.333; sh = sw / r; } else { sh = 7.5; sw = sh * r; }
+  if (sh < 1){ sh = 1; sw = Math.min(56, r); }
+  if (sw < 1){ sw = 1; sh = Math.min(56, 1 / r); }
+  if (Math.abs(r - 16 / 9) < 0.005) return 'Widescreen (16:9), PowerPoint\'s default';
+  if (Math.abs(r - 4 / 3) < 0.005) return 'Standard (4:3)';
+  const f = v => (+v.toFixed(2)).toString();
+  return `Custom: ${f(sw)} × ${f(sh)} in (${f(sw * 2.54)} × ${f(sh * 2.54)} cm)`;
+}
+// The pages, portrait, drawn on canvases at 200 dpi like the spec pack.
+function cgPages(x){
+  const base = PAGES[S.exp.page] || PAGES.letter, pw = Math.min(base.w, base.h), ph = Math.max(base.w, base.h);
+  const DPI = 200, pt = v => v / 72 * DPI, W = Math.round(pw / 72 * DPI), H = Math.round(ph / 72 * DPI), M = Math.round(pt(54));
+  const INK = '#1A1F26', MUTED = '#5A6473', LINE = '#D3D9E1', ACC = '#0A6C97', SOFT = '#EEF5F9', ZEBRA = '#F5F7F9';
+  const DISP = '"Barlow Semi Condensed", "Arial Narrow", sans-serif', BODY = '"Barlow", system-ui, sans-serif';
+  const BF = `400 ${pt(10.5)}px ${BODY}`, LEAD = pt(15.5), top = M + pt(22), bottom = H - M - pt(10), CW = W - 2 * M;
+  const date = new Date().toLocaleDateString(undefined, {year: 'numeric', month: 'long', day: 'numeric'});
+  const pages = []; let c = null, y = 0;
+  const page = () => {
+    const cv = document.createElement('canvas'); cv.width = W; cv.height = H; c = cv.getContext('2d');
+    c.fillStyle = '#FFFFFF'; c.fillRect(0, 0, W, H); c.textBaseline = 'alphabetic'; c.textAlign = 'left';
+    pages.push({cv, w: pw, h: ph, c});
+    if (pages.length > 1){
+      c.font = `600 ${pt(8.5)}px ${DISP}`; c.fillStyle = MUTED; c.fillText(x.event.toUpperCase(), M, M);
+      c.textAlign = 'right'; c.fillText('CONTENT GUIDE', W - M, M); c.textAlign = 'left';
+      c.strokeStyle = LINE; c.lineWidth = pt(.7); c.beginPath(); c.moveTo(M, M + pt(7)); c.lineTo(W - M, M + pt(7)); c.stroke();
+    }
+    y = top;
+  };
+  const room = h => { if (y + h > bottom) page(); };
+  // Lines of text that fit maxW, keeping the text's own line breaks. A word too long for a line is split.
+  const wrap = (t, font, maxW) => {
+    c.font = font; const out = [];
+    for (const raw of String(t).split('\n')){
+      const words = raw.split(/\s+/).filter(Boolean); let line = '';
+      if (!words.length){ out.push(''); continue; }
+      for (let w of words){
+        const next = line ? line + ' ' + w : w;
+        if (c.measureText(next).width <= maxW){ line = next; continue; }
+        if (line) out.push(line);
+        while (w.length > 1 && c.measureText(w).width > maxW){ let k = w.length - 1; while (k > 1 && c.measureText(w.slice(0, k)).width > maxW) k--; out.push(w.slice(0, k)); w = w.slice(k); }
+        line = w;
+      }
+      out.push(line);
+    }
+    return out;
+  };
+  const para = t => { for (const l of wrap(t, BF, CW)){ room(LEAD); c.font = BF; c.fillStyle = INK; c.fillText(l, M, y + pt(11)); y += LEAD; } y += pt(6); };
+  const bullet = t => {
+    const ind = pt(14);
+    wrap(t, BF, CW - ind).forEach((l, i) => {
+      room(LEAD);
+      if (!i){ c.fillStyle = ACC; c.beginPath(); c.arc(M + pt(4), y + pt(7.4), pt(2.1), 0, Math.PI * 2); c.fill(); }
+      c.font = BF; c.fillStyle = INK; c.fillText(l, M + ind, y + pt(11)); y += LEAD;
+    });
+    y += pt(3);
+  };
+  // Edited text: a blank line starts a new paragraph, and a line starting with -, • or * is a bullet point.
+  const textBlock = t => {
+    for (const chunk of String(t).replace(/\r/g, '').split(/\n\s*\n/)){
+      let buf = []; const flush = () => { if (buf.length){ para(buf.join('\n')); buf = []; } };
+      for (const ln of chunk.split('\n')){ const m = ln.match(/^\s*[-•*]\s+(.*)$/); if (m){ flush(); bullet(m[1]); } else if (ln.trim()) buf.push(ln.trim()); }
+      flush(); y += pt(3);
+    }
+  };
+  const heading = t => {
+    room(pt(34) + LEAD * 3); if (y > top) y += pt(10);
+    c.fillStyle = ACC; c.fillRect(M, y, pt(3.5), pt(17)); c.fillStyle = INK; c.font = `700 ${pt(17)}px ${DISP}`; c.fillText(t, M + pt(10), y + pt(14)); y += pt(30);
+  };
+  const facts = pairs => {
+    const kw = pt(112), pad = pt(9);
+    const rows = pairs.map(([k, v]) => ({k, lines: wrap(v, BF, CW - kw - pad * 2)})), h = rows.reduce((a, r) => a + r.lines.length * LEAD, 0) + pad * 2;
+    room(h); c.fillStyle = SOFT; c.fillRect(M, y, CW, h); c.fillStyle = ACC; c.fillRect(M, y, pt(3.5), h);
+    let yy = y + pad;
+    for (const r of rows){
+      c.font = `700 ${pt(8)}px ${BODY}`; c.fillStyle = MUTED; c.fillText(r.k.toUpperCase(), M + pad + pt(4), yy + pt(11));
+      c.font = BF; c.fillStyle = INK; r.lines.forEach((l, j) => c.fillText(l, M + kw, yy + pt(11) + j * LEAD)); yy += r.lines.length * LEAD;
+    }
+    y += h + pt(14);
+  };
+  // A table across the full width. Columns get room in proportion to their longest text and wrap when needed;
+  // the header row repeats on every page the table runs onto.
+  const table = (head, rows) => {
+    const pad = pt(6), lh = pt(12.5), HF = `700 ${pt(7.5)}px ${BODY}`, F0 = `600 ${pt(9)}px ${BODY}`, F1 = `400 ${pt(9)}px ${BODY}`;
+    const fontOf = (i, hd) => hd ? HF : i ? F1 : F0;
+    const nat = head.map((h, i) => { c.font = HF; let m = c.measureText(h.toUpperCase()).width; for (const r of rows){ c.font = fontOf(i); m = Math.max(m, c.measureText(String(r[i])).width); } return m + pad * 2; });
+    const sum = nat.reduce((a, v) => a + v, 0), ws = nat.map(v => v * CW / sum);
+    const row = (cells, hd, zebra) => {
+      const ls = cells.map((t, i) => wrap(hd ? String(t).toUpperCase() : String(t), fontOf(i, hd), ws[i] - pad * 2));
+      const h = Math.max(...ls.map(l => l.length)) * lh + pad * 1.3;
+      return {h, draw: () => {
+        if (zebra){ c.fillStyle = ZEBRA; c.fillRect(M, y, CW, h); }
+        let xx = M; ls.forEach((lines, i) => { c.font = fontOf(i, hd); c.fillStyle = hd ? MUTED : INK; lines.forEach((l, j) => c.fillText(l, xx + pad, y + pad * .65 + j * lh + pt(9.2))); xx += ws[i]; });
+        y += h;
+      }};
+    };
+    const hdr = () => { row(head, true).draw(); c.strokeStyle = LINE; c.lineWidth = pt(.8); c.beginPath(); c.moveTo(M, y); c.lineTo(M + CW, y); c.stroke(); };
+    room(lh * 4 + pad * 4); hdr();
+    rows.forEach((cells, k) => { const r = row(cells, false, k % 2 === 1); if (y + r.h > bottom){ page(); hdr(); } r.draw(); });
+    y += pt(12);
+  };
+  // A picture across the width with a caption under it. It shrinks to fit the rest of the page if it can stay a
+  // useful size there; otherwise it starts a new page.
+  const picture = (pic, cap) => {
+    const CF = `400 ${pt(9)}px ${BODY}`, capLines = wrap(cap, CF, CW), capH = capLines.length * pt(13) + pt(16);
+    let k = Math.min(CW / pic.width, (bottom - top) * 0.6 / pic.height);
+    if (y + pic.height * k + capH > bottom){
+      const kr = Math.min(CW / pic.width, (bottom - y - capH) / pic.height);
+      if (kr * pic.height >= (bottom - top) * 0.28) k = kr; else page();
+    }
+    const dw = pic.width * k, dh = pic.height * k, xx = M + (CW - dw) / 2;
+    c.imageSmoothingQuality = 'high'; c.drawImage(pic, xx, y, dw, dh); c.strokeStyle = LINE; c.lineWidth = pt(.6); c.strokeRect(xx, y, dw, dh); y += dh + pt(6);
+    c.font = CF; c.fillStyle = MUTED; capLines.forEach(l => { c.fillText(l, M, y + pt(9)); y += pt(13); }); y += pt(10);
+  };
+  const phys = s => s.shape ? fmtLen2(s.shape.pw, s.shape.ph) : fmtLen2(dims(s).w, dims(s).h);
+  const on = k => !cgS().off[k];
+
+  // First page: title and the key facts at a glance.
+  page();
+  c.fillStyle = ACC; c.fillRect(0, 0, W, pt(9));
+  c.font = `700 ${pt(11)}px ${DISP}`; c.fillStyle = ACC; c.fillText('CONTENT GUIDE', M, y + pt(6)); y += pt(14);
+  const TF = `700 ${pt(30)}px ${DISP}`;
+  for (const l of wrap(x.event, TF, CW)){ c.font = TF; c.fillStyle = INK; c.fillText(l, M, y + pt(28)); y += pt(34); }
+  c.font = `500 ${pt(11)}px ${BODY}`; c.fillStyle = MUTED; c.fillText((S.layouts.length > 1 ? curLayout().name + ' · ' : '') + date, M, y + pt(14)); y += pt(32);
+  facts([['Deliver', x.canvas ? `One video file for the full canvas, ${x.L.W} × ${x.L.H} pixels` : 'A video file for each screen, at the sizes listed in this guide'],
+    ['Video format', x.codec.box], ['Frame rate', `${x.fps} frames per second`]]
+    .concat(x.due ? [['Files due', x.due]] : [], x.contact ? [['Contact', x.contact]] : []));
+
+  if (on('intro')){ heading('About this guide'); textBlock(cgText('intro', x)); }
+  if (on('screens')){
+    heading('Screens and sizes'); textBlock(cgText('screens', x));
+    if (x.canvas){
+      const items = x.sc.map(s => x.L.items.find(i => i.s === s)).filter(Boolean);
+      table(['Screen', 'Size in pixels', 'Position on canvas (X, Y)', 'Aspect ratio', 'Physical size'],
+        items.map(i => [i.s.label || 'Screen', `${i.w} × ${i.h}`, `${i.x}, ${i.y}`, aspect(i.w, i.h), phys(i.s)]).concat([['Full canvas', `${x.L.W} × ${x.L.H}`, '0, 0', aspect(x.L.W, x.L.H), '']]));
+      const L = x.L, k = Math.min(1, 4200 / L.W, 2600 / L.H), gc = document.createElement('canvas');
+      gc.width = Math.max(1, Math.round(L.W * k)); gc.height = Math.max(1, Math.round(L.H * k));
+      const g = gc.getContext('2d'); g.scale(k, k); guideParts(L.W, L.H, L.items, {safe: false, notes: false}).all(g);
+      picture(gc, `The canvas, ${L.W} × ${L.H} pixels. Each labeled area is a screen: build that screen's content inside its area. Anything between the screens won't be seen.`);
+    } else table(['Screen', 'Size in pixels', 'Aspect ratio', 'Physical size'], x.sc.map(s => [s.label || 'Screen', `${s.rw} × ${s.rh}`, aspect(s.rw, s.rh), phys(s)]));
+    // How the screens look in the room. Layout notes are left out: they're usually for the crew.
+    const was = S.exp.notes; S.exp.notes = false;
+    let lv; try { lv = layoutViewCanvas(); } finally { S.exp.notes = was; }
+    picture(lv, 'How the screens are arranged, to scale, as seen from the audience.');
+  }
+  if (on('video')){
+    heading('Video files');
+    const sizeNote = x.canvas ? `${x.L.W} × ${x.L.H} pixels (the full canvas)` : 'Each screen\'s own size, listed under Screens and sizes';
+    const per = x.canvas ? '' : ` for the largest screen (${x.big.w} × ${x.big.h})`;
+    facts([['Codec', x.codec.box], ['Frame rate', `${x.fps} frames per second`], ['Size', sizeNote]]
+      .concat(x.g.codec === 'h264' ? [['Bitrate', `About ${x.mbps} Mbps, constant bitrate`]] : [],
+        x.g.codec === 'prores' && x.big ? [['File size', `About ${x.gbMin < 10 ? x.gbMin.toFixed(1) : Math.round(x.gbMin)} GB per minute of video${per}`]] : [],
+        [['Audio', 'If a video has sound: 48 kHz, stereo']]));
+    textBlock(cgText('video', x));
+  }
+  if (on('ppt')){
+    heading('PowerPoint'); textBlock(cgText('ppt', x));
+    table(['Screen', 'Size in pixels', 'Aspect ratio', 'Slide size to use'],
+      x.sc.map(s => [s.label || 'Screen', `${s.rw} × ${s.rh}`, aspect(s.rw, s.rh), cgSlide(s.rw, s.rh)])
+        .concat(x.canvas ? [['Full canvas', `${x.L.W} × ${x.L.H}`, aspect(x.L.W, x.L.H), cgSlide(x.L.W, x.L.H)]] : []));
+  }
+  if (on('tips')){ heading('Tips for great-looking content'); textBlock(cgText('tips', x)); }
+  if (on('send')){ heading('Sending your files'); textBlock(cgText('send', x)); }
+
+  // Footer with page numbers, once the page count is known.
+  pages.forEach((p, i) => {
+    const q = p.c; q.font = `500 ${pt(8)}px ${BODY}`; q.fillStyle = MUTED;
+    q.textAlign = 'left'; q.fillText(`${x.event} · Content guide · ${date}`, M, H - M + pt(16));
+    q.textAlign = 'right'; q.fillText(`Page ${i + 1} of ${pages.length}`, W - M, H - M + pt(16));
+    delete p.c;
+  });
+  return pages;
+}
+async function exportCG(){
+  const btn = $('#cgSave'), label = btn.textContent;
+  btn.disabled = true;
+  try {
+    await fontsReady();
+    btn.textContent = 'Drawing pages…'; await new Promise(r => setTimeout(r, 30));
+    const x = cgCtx(), pages = cgPages(x);
+    btn.textContent = 'Writing PDF…';
+    const blob = await writePDF(pages, `${x.event} content guide`, f => { btn.textContent = `Writing PDF… ${Math.round(f * 100)}%`; });
+    await offer(`${slug(x.event)}-content-guide.pdf`, blob, () => toast('Saving files isn\'t available here. Open this page on its own (outside the viewer) to save the PDF.'));
+  } catch (e){ bigFail(e); }
+  finally { btn.textContent = label; cgStatus(); }
+}
+// The dialog: settings on the left, every section's text on the right.
+function cgStatus(){
+  const x = cgCtx();
+  $('#cgWarn').innerHTML = cgWarnings(x).map(w => `<p${w.bad ? ' class="bad"' : ''}>${esc(w.t)}</p>`).join('');
+  $('#cgSave').disabled = !x.sc.length;
+  $('#cgFor').textContent = `For ${S.layouts.length > 1 ? `the layout “${curLayout().name}”` : 'this layout'}: ${x.sc.length} screen${x.sc.length === 1 ? '' : 's'}${x.canvas ? `, canvas ${x.L.W} × ${x.L.H} px` : ''}.`;
+  for (const {k} of CG_SECS){
+    const ta = document.querySelector(`[data-cgtext="${k}"]`), edited = typeof cgS().text[k] === 'string', off = !!cgS().off[k];
+    if (!edited && document.activeElement !== ta) ta.value = cgDefault(k, x); // unedited text follows the settings
+    document.querySelector(`[data-cgreset="${k}"]`).hidden = !edited;
+    document.querySelector(`[data-cginc="${k}"]`).checked = !off;
+    ta.closest('.cg-sec').classList.toggle('off', off); ta.disabled = off;
+  }
+}
+function cgOpen(){
+  const g = cgS();
+  $('#cgSecs').innerHTML = '<p class="hint">Edit any text below. Start a line with - for a bullet point, and leave a blank line to start a new paragraph. Text you haven\'t changed follows the settings on the left.</p>'
+    + CG_SECS.map(s => `<section class="cg-sec"><div class="cg-sh"><label><input type="checkbox" data-cginc="${s.k}"> ${esc(s.title)}</label><button class="btn cg-sm" type="button" data-cgreset="${s.k}" title="Your edited text is kept when you change the settings. Reset it to the default text for the current settings." hidden>Reset text</button></div>`
+      + `<textarea data-cgtext="${s.k}" rows="7" spellcheck="true" aria-label="${esc(s.title)} text"></textarea>${s.note ? `<p class="hint">${esc(s.note)}</p>` : ''}</section>`).join('');
+  $('#cgEvent').value = g.event; $('#cgEvent').placeholder = S.name || 'Event name';
+  $('#cgContact').value = g.contact; $('#cgDue').value = g.due;
+  $('#cgDeliver').querySelector('[value="canvas"]').disabled = !S.match.on;
+  $('#cgDeliver').value = S.match.on ? g.deliver : 'screens';
+  $('#cgCodec').value = g.codec; $('#cgFps').value = g.fps; $('#cgPage').value = PAGES[S.exp.page] ? S.exp.page : 'letter';
+  const x = cgCtx(); for (const {k} of CG_SECS) document.querySelector(`[data-cgtext="${k}"]`).value = cgText(k, x); // edited text too
+  cgStatus();
+  $('#cg').hidden = false; $('#cgClose').focus({preventScroll: true});
+}
+function cgClose(){ $('#cg').hidden = true; $('#btnCG').focus({preventScroll: true}); }
+$('#btnCG').addEventListener('click', cgOpen);
+$('#cgClose').addEventListener('click', cgClose);
+$('#cgSave').addEventListener('click', exportCG);
+$('#cg').addEventListener('click', e => { if (e.target.id === 'cg') cgClose(); });
+$('#cg').addEventListener('keydown', e => { if (e.key === 'Escape'){ e.stopPropagation(); cgClose(); } });
+$('#cg').addEventListener('input', e => {
+  const g = cgS(), t = e.target;
+  if (t.dataset.cgtext) g.text[t.dataset.cgtext] = t.value.slice(0, 8000);
+  else if (t.id === 'cgEvent') g.event = t.value; else if (t.id === 'cgContact') g.contact = t.value; else if (t.id === 'cgDue') g.due = t.value;
+  else return;
+  save(); cgStatus();
+});
+$('#cg').addEventListener('change', e => {
+  const g = cgS(), t = e.target;
+  if (t.dataset.cginc) { if (t.checked) delete g.off[t.dataset.cginc]; else g.off[t.dataset.cginc] = true; }
+  else if (t.id === 'cgDeliver') g.deliver = t.value; else if (t.id === 'cgCodec') g.codec = t.value; else if (t.id === 'cgFps') g.fps = t.value;
+  else if (t.id === 'cgPage'){ S.exp.page = t.value; $('#pdfSize').value = t.value; }
+  else return;
+  save(); cgStatus();
+});
+$('#cg').addEventListener('click', e => {
+  const b = e.target.closest('[data-cgreset]'); if (!b) return;
+  delete cgS().text[b.dataset.cgreset]; save(); cgStatus();
+});
 /* ---------- PowerPoint template (.potx / .pptx) ---------- */
 // A small ZIP writer (Office files are ZIP archives of XML). Entries are deflated when the browser can.
 async function zipFiles(files){

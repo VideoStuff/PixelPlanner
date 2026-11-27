@@ -46,6 +46,7 @@ Once it has been opened with internet at least once, PixelPlanner, its fonts and
 ### Exports
 - Canvas export PNG at exact pixel size, layout snapshot, layout summary and test patterns.
 - PDF spec pack, PowerPoint template, layered PSD and SVG.
+- **Client content guide** (Export tab → **Content guide…**): a plain-language PDF for the client's content team, for the layout you're on. It lists every screen's size in pixels (and its place on the canvas), the video format to send, PowerPoint slide sizes and setup, tips for great-looking content, and how to send files. Choose the video codec (ProRes 422, NotchLC, DXV or H.264), the frame rate, and whether to deliver one file for the full canvas or a file per screen, and add the event name, a contact and a due date. Every section's text is filled in for you and can be edited; text you haven't changed follows your settings, and **Reset text** brings back the default. The guide warns you about sizes H.264 can't handle.
 - Spec sheet as CSV.
 - Switcher planning `.xml` (screens, layers and auxes).
 - **Advanced → EDID (experimental):** an EDID `.bin` for a screen, with connector, refresh rate, CVT blanking and a split across outputs. Check results on your hardware before you rely on them.
