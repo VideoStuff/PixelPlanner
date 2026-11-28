@@ -790,7 +790,7 @@ button,select,label,summary{touch-action:manipulation} /* no tap delay or double
 <h3>Preset Guide</h3>
 <ul><li>Uses the screens from the Screen Builder. Each Screen Builder layout has its own presets, so changes in one layout don't affect another.</li><li>Build presets of PiPs on each screen, with mirroring and aspect ratio lock. <strong>+ New</strong> and <strong>Duplicate</strong> ask for the preset's name; leave it blank for "Preset" and its number.</li><li>Quick layouts: right-click a screen and choose <strong>Create… → Quick layout</strong> to fill it with PiPs (full screen, halves, thirds, 2 × 2, 3 × 3, one large + two small, corner inset), cut on whole pixels.</li><li>Shift- or Ctrl-click to pick several PiPs, then move them together or line them up, space them out and match their sizes. Snap lines show what a PiP snaps to.</li><li><strong>Page Up / Page Down</strong> step through presets.</li><li>Size a PiP by exact resolution or percentage of its screen, and see or set its X, Y position in that screen's own pixels.</li><li><strong>Ruler</strong> (or press <strong>M</strong>): drag on the layout to measure a distance in the screen's own pixels: its length, how far across and down, and where each end sits on the screen. Ends snap to screen, PiP and object edges, centres and other rulers (choose which under <strong>Snap ruler ends to</strong> in the inspector); hold Shift for a straight line. A zoom loupe beside the pointer magnifies the spot where each end lands and shows its X, Y in the screen's pixels. Placed rulers stay in the preset and PiPs snap to their ends. An end that snaps to a PiP, screen or object stays attached to it (a small ring shows this): move or resize that PiP or screen and the ruler follows, growing or shrinking to keep measuring. <strong>Lock</strong> a ruler (in the inspector or its right-click menu) to keep it exactly where it is. To set an exact size, type its <strong>Length</strong>, <strong>Across</strong> or <strong>Down</strong> in pixels in the inspector: it grows from left to right, then top to bottom. Click a ruler to move it, drag its ends, nudge it with the arrow keys or delete it. Each preset has its own rulers (Duplicate copies them). Tick <strong>Include ruler measurements</strong> in the Export window to draw them, with their readings, on the Excel thumbnails, PowerPoint slides, PNG sheet and PDF pages.</li><li><strong>Picture library</strong>: add pictures (or drop image files) and put them in PiPs, shared by every preset. Fill, fit or stretch each one, and choose per PiP type (all PiPs with the same name) whether the name shows on the picture. Pictures are shrunk to at most 1920 px, kept in your browser, saved inside the guide's <code>.json</code>, and shown in the PowerPoint and Excel exports.</li><li>Works with touch: pinch to zoom, drag to scroll, double-tap the background to fit, press and hold for the menu.</li><li><strong>Export…</strong> lets you choose: Excel, PowerPoint, a PNG sheet with every preset of the layout one under the other, or a PDF summary: a cover listing every preset (PiPs, screens used, notes), then a page per preset with its picture, notes and a table of its PiPs in each screen's pixels.</li></ul>
 <h3>Exports</h3>
-<ul><li>Canvas export PNG at exact pixel size, layout snapshot, layout summary and test patterns.</li><li>PDF spec pack, PowerPoint template, layered PSD and SVG.</li><li><strong>Client content guide</strong> (Export tab → <strong>Content guide creator…</strong>): a plain-language PDF for the client's content team, for the layout you're on. It lists every screen's size in pixels at its content resolution (its size on the canvas, never its native resolution, so clients aren't confused) and its place on the canvas, the video format to send, PowerPoint slide sizes and setup, tips for great-looking content, and how to send files. Choose the video codec (ProRes 422, NotchLC, DXV or H.264), the frame rate, and whether to deliver one file for the full canvas or a file per screen, and add the event name, a contact and a due date. For PowerPoint, list a slide size for each screen, choose one slide shape for every slide (a ratio like 3 : 1 or a pixel size, for slides that play in a PiP on a wide canvas), or leave PowerPoint out. Every section's text is filled in for you and can be edited; text you haven't changed follows your settings, and <strong>Reset text</strong> brings back the default. The guide warns you about sizes H.264 can't handle.</li><li>Spec sheet as CSV.</li><li>Switcher planning <code>.xml</code> (screens, layers and auxes).</li><li><strong>Advanced → EDID (experimental):</strong> an EDID <code>.bin</code> for a screen, with connector, refresh rate, CVT blanking and a split across outputs. Check results on your hardware before you rely on them.</li></ul>
+<ul><li>Canvas export PNG at exact pixel size, layout snapshot, layout summary and test patterns.</li><li>PDF spec pack, PowerPoint template, layered PSD and SVG.</li><li><strong>Client content guide</strong> (Export tab → <strong>Content guide creator…</strong>): a plain-language PDF for the client's content team, for the layout you're on. It lists every screen's size in pixels: with one file for the full canvas, at its content resolution (its area on the canvas, never its native resolution, so clients aren't confused) and its place on the canvas; with a file per screen, at the screen's own native resolution, with no canvas shown, the video format to send, PowerPoint slide sizes and setup, tips for great-looking content, and how to send files. Choose the video codec (ProRes 422, NotchLC, DXV or H.264), the frame rate, and whether to deliver one file for the full canvas or a file per screen, and add the event name, a contact and a due date. For PowerPoint, list a slide size for each screen, choose one slide shape for every slide (a ratio like 3 : 1 or a pixel size, for slides that play in a PiP on a wide canvas), or leave PowerPoint out. Every section's text is filled in for you and can be edited; text you haven't changed follows your settings, and <strong>Reset text</strong> brings back the default. The guide warns you about sizes H.264 can't handle.</li><li>Spec sheet as CSV.</li><li>Switcher planning <code>.xml</code> (screens, layers and auxes).</li><li><strong>Advanced → EDID (experimental):</strong> an EDID <code>.bin</code> for a screen, with connector, refresh rate, CVT blanking and a split across outputs. Check results on your hardware before you rely on them.</li></ul>
 <h2>Using it</h2>
 <ol><li>You start with a blank layout. The first time, a welcome box offers to load an example layout instead (it's also in <strong>Options → Load example</strong>): an LED wall standing on its ground support on the ground line, with a projection screen each side. Add your screens on the left.</li><li>Arrange them on the layout, then switch to <strong>Preset Guide</strong> to plan PiPs.</li><li>Use the <strong>Export</strong> tab under the layout for files, and <strong>Options → Save .json</strong> to keep your work.</li></ol>
 <p>Hover over (or tap) a circled <strong>i</strong> to see what a section does. Press <strong>?</strong> (or <strong>Options → Keyboard shortcuts</strong>) for every shortcut, and use <strong>Options → Layout text size</strong> to make the labels on both layouts smaller or larger.</p>
@@ -4411,8 +4411,8 @@ picTx('readonly',st=>st.getAll()).then(list=>{
 (() => {
 const $ = s => document.querySelector(s);
 // App version: shown in the header and written into saved .json files. The HTML file sent out is named with it too
-// (pixelplanner-v4.10.html). Bump it with every release, together with VERSION in sw.js.
-const APP_VERSION = '4.10';
+// (pixelplanner-v4.11.html). Bump it with every release, together with VERSION in sw.js.
+const APP_VERSION = '4.11';
 $('#appVer').textContent = 'v' + APP_VERSION;
 // Installable app: the service worker (sw.js) keeps a copy of PixelPlanner, its fonts and its export libraries so it can
 // be installed from the browser and opens without internet. It only runs from a web server, not a file opened directly.
@@ -8583,16 +8583,18 @@ async function exportPDF(){
 }
 $('#btnPDF').addEventListener('click', exportPDF);
 /* ---------- Client content guide ---------- */
-// A plain-language PDF for the client's content team, for the open layout. Screens are only ever described at their
-// content resolution (their size on the canvas), never their native resolution, which would confuse a client: the screen sizes, the video format to
-// send, PowerPoint setup, tips and how to send files. Every section's text can be edited in the dialog; the tables,
-// summary boxes and pictures are worked out from the layout so they're always right.
+// A plain-language PDF for the client's content team, for the open layout. With one file for the full canvas, screens
+// are only described at their content resolution (their area on the canvas), never their native resolution, which
+// would confuse a client. With a file per screen there's no canvas: each screen is given at its own native resolution.
+// The guide covers the screen sizes, the video format to send, PowerPoint setup, tips and how to send files. Every
+// section's text can be edited in the dialog; the tables, summary boxes and pictures are worked out from the layout so
+// they're always right.
 const cgS = () => S.cg || (S.cg = sanitizeCG()); // guides started before this feature have no settings yet
 function cgCtx(){
   // Screens listed left to right (then top to bottom), the way the client sees them.
   const g = cgS(), sc = live().slice().sort((a, b) => (a.x - b.x) || (a.y - b.y)), L = canvasLayout();
   const canvas = S.match.on && g.deliver === 'canvas' && sc.length > 0;
-  const sizes = canvas ? [{name: 'The canvas', w: L.W, h: L.H}] : sc.map(s => { const c = content(s); return {name: s.label || 'Screen', w: c.w, h: c.h}; });
+  const sizes = canvas ? [{name: 'The canvas', w: L.W, h: L.H}] : sc.map(s => ({name: s.label || 'Screen', w: s.rw, h: s.rh})); // a file per screen: native resolution
   const big = sizes.reduce((a, s) => (!a || s.w * s.h > a.w * a.h) ? s : a, null);
   const fpsN = parseFloat(g.fps), px = big ? big.w * big.h : 0;
   const sw = cgNum(g.pw, 0), sh = cgNum(g.ph, 0), slide = sw && sh ? {w: sw, h: sh, px: sw >= 100 && sh >= 100 && Number.isInteger(sw) && Number.isInteger(sh)} : null;
@@ -8793,7 +8795,7 @@ function cgPages(x){
       gc.width = Math.max(1, Math.round(L.W * k)); gc.height = Math.max(1, Math.round(L.H * k));
       const g = gc.getContext('2d'); g.scale(k, k); guideParts(L.W, L.H, L.items, {safe: false, notes: false, labels: true, native: false}).all(g); // content size only, never native
       picture(gc, `The canvas, ${L.W} × ${L.H} pixels. Each labeled area is a screen: build that screen's content inside its area. Anything between the screens won't be seen.`);
-    } else table(['Screen', 'Size in pixels', 'Aspect ratio', 'Physical size'], x.sc.map(s => { const c = content(s); return [s.label || 'Screen', `${c.w} × ${c.h}`, aspect(c.w, c.h), phys(s)]; }));
+    } else table(['Screen', 'Size in pixels', 'Aspect ratio', 'Physical size'], x.sc.map(s => [s.label || 'Screen', `${s.rw} × ${s.rh}`, aspect(s.rw, s.rh), phys(s)]));
     // How the screens look in the room. Layout notes are left out: they're usually for the crew.
     const was = S.exp.notes; S.exp.notes = false;
     let lv; try { lv = layoutViewCanvas({client: true, noCanvas: !x.canvas}); } finally { S.exp.notes = was; }
@@ -8814,7 +8816,7 @@ function cgPages(x){
     if (x.ppt === 'custom' && x.slide) facts([['Slide shape', cgRatio(x.slide)], ['Slide size to use', cgSlide(x.slide.w, x.slide.h)]]
       .concat(x.slide.px ? [['Size in pixels', `${x.slide.w} × ${x.slide.h}, if you export slides as pictures or video`]] : []));
     else table(['Screen', 'Size in pixels', 'Aspect ratio', 'Slide size to use'],
-      x.sc.map(s => { const c = content(s); return [s.label || 'Screen', `${c.w} × ${c.h}`, aspect(c.w, c.h), cgSlide(c.w, c.h)]; })
+      x.sc.map(s => { const c = x.canvas ? content(s) : {w: s.rw, h: s.rh}; return [s.label || 'Screen', `${c.w} × ${c.h}`, aspect(c.w, c.h), cgSlide(c.w, c.h)]; })
         .concat(x.canvas ? [['Full canvas', `${x.L.W} × ${x.L.H}`, aspect(x.L.W, x.L.H), cgSlide(x.L.W, x.L.H)]] : []));
   }
   if (on('tips')){ heading('Tips for great-looking content'); textBlock(cgText('tips', x)); }
@@ -9641,9 +9643,9 @@ async function makeLayoutView(){
   const cv = layoutViewCanvas();
   showPreview(cv, `${expBase()}-layout-snapshot.png`, `Layout snapshot ${cv.width} × ${cv.height} px · ${S.screens.length} screen${S.screens.length === 1 ? '' : 's'} · ${S.objects.length} object${S.objects.length === 1 ? '' : 's'}`);
 }
-// client: for the content guide, screens show only their content size and physical size (no native resolution,
-// reference density or cabinet counts). noCanvas: also leave out canvas positions and pixel measurements, for a guide
-// that asks for a file per screen.
+// client: for the content guide, screens show only one pixel size and their physical size (no reference density or
+// cabinet counts): the content size on the canvas, or with noCanvas (a guide asking for a file per screen) the screen's
+// own native size, with no canvas area, canvas positions or canvas pixel measurements.
 function layoutViewCanvas(o = {}){
   const BG = '#161A20', GRID = '#232932', INK = '#EEF1F5', MUTED = '#8E98A6', GAPC = '#FFC34D', CANV = '#9AA3AF', OBJ = '#C9B48F', GND = '#7FD18B';
   const DISP = '"Barlow Semi Condensed", "Arial Narrow", sans-serif', MONO = '"JetBrains Mono", Consolas, monospace', BODY = '"Barlow", system-ui, sans-serif';
@@ -9663,7 +9665,7 @@ function layoutViewCanvas(o = {}){
   ctx.stroke();
   const live_ = live();
   // Content canvas area behind the screens (as on the stage)
-  if (S.match.on && live_.length){
+  if (S.match.on && live_.length && !o.noCanvas){
     const cb = bbox(live_);
     ctx.fillStyle = CANV; ctx.fillRect(X(cb.x0), Y(cb.y0), cb.w * sc, cb.h * sc);
     ctx.strokeStyle = MUTED; ctx.lineWidth = 2; ctx.setLineDash([12, 10]); ctx.strokeRect(X(cb.x0), Y(cb.y0), cb.w * sc, cb.h * sc); ctx.setLineDash([]);
@@ -9707,7 +9709,7 @@ function layoutViewCanvas(o = {}){
     if (cut) ctx.restore();
     // Name, then native pixels, physical size and content (canvas) pixels
     const c = content(s), label = s.label || 'Untitled';
-    const lines = o.client ? [[`${c.w} × ${c.h} px`, s.color], [s.shape ? fmtLen2(s.shape.pw, s.shape.ph) : fmtLen2(d.w, d.h), MUTED]]
+    const lines = o.client ? [[o.noCanvas ? `${s.rw} × ${s.rh} px` : `${c.w} × ${c.h} px`, s.color], [s.shape ? fmtLen2(s.shape.pw, s.shape.ph) : fmtLen2(d.w, d.h), MUTED]]
       : s.shape ? [[`${s.rw} × ${s.rh} px raster`, MUTED], [`face ${fmtLen2(s.shape.pw, s.shape.ph)}`, MUTED]] : [[`${s.rw} × ${s.rh} px native`, MUTED], [fmtLen2(d.w, d.h), MUTED]];
     if (S.match.on && !o.client) lines.push([s === ref ? `canvas ${c.w} × ${c.h} px · reference density` : `canvas ${c.w} × ${c.h} px`, s.color]);
     if (s.mode === 'led' && !o.client) lines.push([ledCount(s), MUTED]);
